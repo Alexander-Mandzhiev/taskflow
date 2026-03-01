@@ -1,0 +1,160 @@
+version: '3'
+
+# =============================================================================
+# ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ПРОЕКТА
+# =============================================================================
+vars:
+  GO_VERSION: '1.25'
+  GOLANGCI_LINT_VERSION: 'v2.10.1'
+  GCI_VERSION: 'v0.13.6'
+  GOFUMPT_VERSION: 'v0.8.0'
+  MOCKERY_VERSION: 'v2.53.3'
+
+  ROOT_DIR: '{{.TASKFILE_DIR | replace "\\" "/"}}'
+  BIN_DIR: '{{.ROOT_DIR}}/bin'
+  EXE:
+    sh: go env GOEXE
+
+  GOLANGCI_LINT: '{{.BIN_DIR}}/golangci-lint{{.EXE}}'
+  GCI: '{{.BIN_DIR}}/gci{{.EXE}}'
+  GOFUMPT: '{{.BIN_DIR}}/gofumpt{{.EXE}}'
+  MOCKERY: '{{.BIN_DIR}}/mockery{{.EXE}}'
+
+  MODE: '{{.MODE | default "local"}}'
+  ENV_FILE: '{{if .ENV_FILE}}{{.ENV_FILE}}{{else}}../../env/{{.MODE | default "local"}}/.env{{end}}'
+
+# =============================================================================
+# УСТАНОВКА ИНСТРУМЕНТОВ
+# =============================================================================
+tasks:
+  install-formatters:
+    desc: "Устанавливает gofumpt и gci в ./bin"
+    env:
+      GOBIN: '{{.BIN_DIR}}'
+      GOTOOLCHAIN: local
+    cmds:
+      - go install mvdan.cc/gofumpt@{{.GOFUMPT_VERSION}}
+      - go install github.com/daixiang0/gci@{{.GCI_VERSION}}
+    status:
+      - '{{.GOFUMPT}} -version'
+      - '{{.GCI}} -v'
+
+  install-golangci-lint:
+    desc: "Устанавливает golangci-lint в ./bin"
+    env:
+      GOBIN: '{{.BIN_DIR}}'
+      GOTOOLCHAIN: local
+    cmds:
+      - go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
+    status:
+      - '{{.GOLANGCI_LINT}} version'
+
+  install-mockery:
+    desc: "Устанавливает mockery в ./bin"
+    env:
+      GOBIN: '{{.BIN_DIR}}'
+      GOTOOLCHAIN: local
+    cmds:
+      - go install github.com/vektra/mockery/v2@{{.MOCKERY_VERSION}}
+    status:
+      - '{{.MOCKERY}} --version'
+
+  install:
+    desc: "Устанавливает все инструменты в ./bin"
+    cmds:
+      - task: install-formatters
+      - task: install-golangci-lint
+      - task: install-mockery
+
+  # ===========================================================================
+  # ФОРМАТИРОВАНИЕ И ЛИНТИНГ
+  # ===========================================================================
+  format:
+    desc: "Форматирует backend: gci + gofumpt"
+    deps: [install-formatters]
+    cmds:
+      - '{{.GCI}} write --skip-generated -s standard -s default -s "prefix(mkk)" backend/'
+      - '{{.GOFUMPT}} -modpath mkk -extra -w backend/'
+
+  lint:
+    desc: "Запускает golangci-lint для backend"
+    deps: [install-golangci-lint]
+    dir: backend
+    env:
+      GOTOOLCHAIN: auto
+    cmds:
+      - '{{.GOLANGCI_LINT}} run ./... --config={{.ROOT_DIR}}/.golangci.yml'
+
+  check:
+    desc: "Форматирование + линтинг"
+    cmds:
+      - task: format
+      - task: lint
+
+  lint:fix:
+    desc: "golangci-lint с автоисправлением"
+    deps: [install-golangci-lint]
+    dir: backend
+    env:
+      GOTOOLCHAIN: auto
+    cmds:
+      - '{{.GOLANGCI_LINT}} run --fix ./... --config={{.ROOT_DIR}}/.golangci.yml'
+
+  # ===========================================================================
+  # ГЕНЕРАЦИЯ МОКОВ
+  # ===========================================================================
+  mockery:gen:
+    desc: "Генерирует моки интерфейсов (mockery)"
+    deps: [install-mockery]
+    dir: backend
+    cmds:
+      - '{{.MOCKERY}}'
+
+  gen:
+    desc: "Генерация всех моков"
+    cmds:
+      - task: mockery:gen
+
+  # ===========================================================================
+  # ДЕПЛОЙ (Docker Compose — БД)
+  # ===========================================================================
+  compose:net:
+    desc: Создать сеть tmkk
+    cmds:
+      - cmd: docker network create tmkk
+        ignore_error: true
+
+  compose:up:database:
+    desc: Поднять PostgreSQL (MODE=local|dev|prod)
+    dir: deploy/compose/database
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - task: compose:net
+      - docker compose --env-file {{.ENV_FILE}} up -d
+
+  compose:down:database:
+    desc: Остановить PostgreSQL (MODE=local|dev|prod)
+    dir: deploy/compose/database
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - docker compose --env-file {{.ENV_FILE}} down
+
+  db:up:
+    desc: Поднять БД (сеть + PostgreSQL)
+    cmds:
+      - task: compose:up:database
+        vars: { MODE: '{{.MODE | default "local"}}' }
+
+  db:down:
+    desc: Остановить БД
+    cmds:
+      - task: compose:down:database
+        vars: { MODE: '{{.MODE | default "local"}}' }

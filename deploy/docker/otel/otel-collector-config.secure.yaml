@@ -1,0 +1,88 @@
+extensions:
+  health_check:
+    # В production используем localhost для безопасности
+    # Docker healthcheck будет использовать имя сервиса в сети
+    endpoint: "localhost:13133"
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+processors:
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: "production"
+        action: insert
+  batch:
+    send_batch_size: 1000
+    timeout: 5s
+    send_batch_max_size: 1000
+  memory_limiter:
+    # Ограничение памяти для предотвращения OOM в production
+    limit_mib: 512
+    check_interval: "1s"
+
+exporters:
+  # Elasticsearch с API Key аутентификацией через headers
+  # API Key более безопасен чем BasicAuth:
+  # - Можно ограничить права (только запись в logs-* индексы)
+  # - Легче ротировать без смены основного пароля
+  # - Можно отключить при компрометации
+  # 
+  # Формат API Key: base64(id:api_key)
+  # ELASTICSEARCH_API_KEY должен содержать уже закодированный base64 ключ
+  # Elasticsearch ожидает заголовок: Authorization: ApiKey <base64_encoded>
+  elasticsearch:
+    endpoints: ["${env:ELASTICSEARCH_ENDPOINT:-https://elasticsearch:9200}"]
+    logs_index: "logs-%{+yyyy.mm.dd}"
+    # Используем headers для API Key аутентификации
+    # Это правильный способ для Elasticsearch API Key
+    headers:
+      Authorization: "ApiKey ${env:ELASTICSEARCH_API_KEY}"
+    tls:
+      # CA файл используется только если указан в переменной окружения
+      # Если ELASTICSEARCH_CA_FILE не установлен, ca_file будет пустым (не используется)
+      # Для HTTP (dev) можно не указывать ca_file
+      # ВАЖНО: Если файл не существует, OTEL Collector выдаст ошибку
+      # Убедитесь что файл существует или используйте insecure_skip_verify: true
+      ca_file: "${env:ELASTICSEARCH_CA_FILE}"
+      # insecure_skip_verify: true только для self-signed сертификатов в dev
+      # В production должно быть false для валидных сертификатов
+      # Используем строку "true"/"false" из env, OTEL Collector преобразует в boolean
+      insecure_skip_verify: false
+    mapping:
+      mode: otel
+
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    tls:
+      insecure: true
+
+  debug:
+    verbosity: detailed
+
+service:
+  extensions: [health_check]
+  telemetry:
+    metrics:
+      level: detailed
+  pipelines:
+    # Traces временно отключены в production
+    # traces:
+    #   receivers: [otlp]
+    #   processors: [memory_limiter, batch]
+    #   exporters: [elasticsearch]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [elasticsearch, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [prometheusremotewrite, debug]
+

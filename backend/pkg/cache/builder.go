@@ -1,0 +1,34 @@
+package cache
+
+import (
+	"github.com/redis/go-redis/v9"
+
+	"mkk/pkg/logger"
+)
+
+// BuildClient создаёт Redis клиент (один узел). Для отключения кеша не передавайте WithAddr или передайте WithAddr("").
+// log — реализация Logger (например logger.Logger() или &logger.NoopLogger{}).
+func BuildClient(log Logger, tracerName string, options ...Option) (RedisClient, error) {
+	cfg := defaultConfig()
+	for _, opt := range options {
+		opt(cfg)
+	}
+	if cfg.addr == "" {
+		return nil, nil
+	}
+	rdb := redis.NewClient(&redis.Options{
+		Addr:            cfg.addr,
+		Password:        cfg.password,
+		PoolSize:        cfg.poolSize,
+		MinIdleConns:    cfg.minIdleConns,
+		PoolTimeout:     cfg.poolTimeout,
+		ConnMaxIdleTime: cfg.connMaxIdleTime,
+		DialTimeout:     cfg.dialTimeout,
+		ReadTimeout:     cfg.readTimeout,
+		WriteTimeout:    cfg.writeTimeout,
+	})
+	if log == nil {
+		log = &logger.NoopLogger{}
+	}
+	return NewClient(rdb, log, cfg.dialTimeout, tracerName), nil
+}

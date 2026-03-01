@@ -1,0 +1,68 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/dist/
+
+# Go
+*.test
+*.out
+go.work
+go.work.sum
+vendor/
+
+# Coverage
+coverage.out
+coverage.html
+*.cover
+*.coverprofile
+
+# IDE / Editor
+.idea/
+.vscode/
+.cursor/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+.vs/
+*.user
+*.suo
+*.iml
+.kdev4/
+nbproject/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env and secrets (не коммитить ключи и пароли)
+.env
+.env.local
+.env.*.local
+*.pem
+
+# Logs and temp
+*.log
+tmp/
+temp/
+/tmp/
+
+# Docker (локальные переопределения, если будут)
+docker-compose.override.yml
+.docker/
+
+# Config with sensitive data (если будет отдельный конфиг с секретами)
+config.local.yaml
+config.local.yml
+*_local.yaml
+
+# Build cache
+.cache/

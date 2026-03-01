@@ -1,0 +1,178 @@
+# ============================================================================
+# Traefik Dynamic Configuration (Dev)
+# ============================================================================
+# Файл-провайдер с жестко заданными доменами для консистентности с prod
+# ============================================================================
+
+http:
+  routers:
+    # Dashboard роутер (для dev без HTTPS)
+    traefik-http:
+      rule: "Host(`traefik.localhost`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
+      entryPoints:
+        - web
+      service: api@internal
+      priority: 100
+
+    # Frontend
+    frontend-http:
+      rule: "Host(`localhost`) && PathPrefix(`/`)"
+      entryPoints:
+        - web
+      service: frontend
+      priority: 1
+      middlewares:
+        - security-headers
+        - fix-double-slash
+
+    # Backend API (поддомен)
+    backend-api-host:
+      rule: "Host(`api.localhost`)"
+      entryPoints:
+        - web
+      service: backend
+      priority: 20
+      middlewares:
+        - fix-double-slash
+        - backend-security-chain
+
+    # Backend API (через /api на домене фронта)
+    backend-api-path:
+      rule: "Host(`localhost`) && PathPrefix(`/api`)"
+      entryPoints:
+        - web
+      service: backend
+      priority: 10
+      middlewares:
+        - backend-stripprefix
+        - fix-double-slash
+        - backend-security-chain
+
+    # Строгий rate limit для login (поддомен)
+    backend-login-api:
+      rule: "Host(`api.localhost`) && Path(`/api/v1/session/login`) && Method(`POST`)"
+      entryPoints:
+        - web
+      service: backend
+      priority: 30
+      middlewares:
+        - fix-double-slash
+        - backend-login-security-chain
+
+    # Строгий rate limit для login (через /api на домене фронта)
+    backend-login-path:
+      rule: "Host(`localhost`) && Path(`/api/v1/session/login`) && Method(`POST`)"
+      entryPoints:
+        - web
+      service: backend
+      priority: 30
+      middlewares:
+        - fix-double-slash
+        - backend-login-security-chain
+
+    # Grafana (metrics)
+    grafana-http:
+      # Поддерживаем оба домена (metrics.localhost и grafana.localhost)
+      rule: "Host(`metrics.localhost`)"
+      entryPoints:
+        - web
+      service: grafana
+      priority: 5
+      middlewares:
+        - security-headers
+
+    # Kibana (logs)
+    kibana-http:
+      rule: "Host(`logs.localhost`)"
+      entryPoints:
+        - web
+      service: kibana
+      priority: 5
+      middlewares:
+        - security-headers
+
+    # Jaeger (tracing)
+    jaeger-http:
+      rule: "Host(`jaeger.localhost`)"
+      entryPoints:
+        - web
+      service: jaeger
+      priority: 5
+      middlewares:
+        - security-headers
+
+  middlewares:
+    # IP Whitelist для Dashboard (по умолчанию разрешено всем для dev)
+    traefik-allowlist:
+      ipWhiteList:
+        sourceRange:
+          - "0.0.0.0/0"
+
+    # =========================
+    # Security (dev/local)
+    # =========================
+    security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        referrerPolicy: "no-referrer"
+        permissionsPolicy: "geolocation=(), microphone=(), camera=()"
+        # В dev обычно без HTTPS — HSTS не включаем, чтобы не “прибить” http в браузере.
+        stsSeconds: 0
+
+    backend-rate-limit:
+      rateLimit:
+        average: 20
+        burst: 40
+
+    backend-security-chain:
+      chain:
+        middlewares:
+          - security-headers
+          - backend-rate-limit
+
+    # Более строгий rate limit только для /api/v1/session/login
+    backend-login-rate-limit:
+      rateLimit:
+        average: 2
+        burst: 5
+
+    backend-login-security-chain:
+      chain:
+        middlewares:
+          - security-headers
+          - backend-login-rate-limit
+
+    # Нормализуем двойные (и более) слэши после host: //api -> /api
+    fix-double-slash:
+      redirectRegex:
+        regex: "^(https?://[^/]+)//+(.*)$"
+        replacement: "$1/$2"
+        permanent: false
+
+    backend-stripprefix:
+      stripPrefix:
+        prefixes:
+          - "/api"
+
+  services:
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://school_schedule_frontend:3001"
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://school_schedule_backend:4000"
+    grafana:
+      loadBalancer:
+        servers:
+          - url: "http://grafana:3000"
+    kibana:
+      loadBalancer:
+        servers:
+          - url: "http://kibana:5601"
+    jaeger:
+      loadBalancer:
+        servers:
+          - url: "http://jaeger:16686"

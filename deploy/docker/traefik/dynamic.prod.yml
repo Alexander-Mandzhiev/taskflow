@@ -1,0 +1,239 @@
+# ============================================================================
+# Traefik Dynamic Configuration - Production (File Provider)
+# ============================================================================
+# PROD (beget): используем ТОЛЬКО file provider, чтобы не зависеть от Docker API версии.
+# Все сервисы доступны внутри одной внешней сети `tmkk`.
+# ============================================================================
+
+http:
+  routers:
+    # =========================
+    # Frontend
+    # =========================
+    frontend-http:
+      rule: "Host(`d.classplanner.ru`)"
+      entryPoints: ["web"]
+      middlewares: ["redirect-to-https", "security-headers"]
+      service: "frontend"
+      priority: 1
+
+    frontend-https:
+      rule: "Host(`d.classplanner.ru`)"
+      entryPoints: ["websecure"]
+      tls:
+        certResolver: "le"
+      middlewares: ["security-headers"]
+      service: "frontend"
+      priority: 1
+
+    # =========================
+    # Root domain redirect -> d.classplanner.ru
+    # =========================
+    root-redirect-http:
+      rule: "Host(`classplanner.ru`) || Host(`www.classplanner.ru`)"
+      entryPoints: ["web"]
+      middlewares: ["redirect-to-d"]
+      service: "noop@internal"
+      priority: 100
+
+    root-redirect-https:
+      rule: "Host(`classplanner.ru`) || Host(`www.classplanner.ru`)"
+      entryPoints: ["websecure"]
+      tls:
+        certResolver: "le"
+      middlewares: ["redirect-to-d"]
+      service: "noop@internal"
+      priority: 100
+
+    # =========================
+    # Backend
+    # =========================
+    # Backend API на поддомене api.classplanner.ru
+    # ВАЖНО: Backend ожидает пути с префиксом /api/v1
+    # Строгий rate limit для login (до backend)
+    backend-login-api-http:
+      rule: "Host(`api.classplanner.ru`) && Path(`/api/v1/session/login`) && Method(`POST`)"
+      entryPoints: ["web"]
+      middlewares: ["redirect-to-https", "fix-double-slash", "backend-login-security-chain"]
+      service: "backend"
+      priority: 30
+
+    backend-login-api-https:
+      rule: "Host(`api.classplanner.ru`) && Path(`/api/v1/session/login`) && Method(`POST`)"
+      entryPoints: ["websecure"]
+      tls:
+        certResolver: "le"
+      middlewares: ["fix-double-slash", "backend-login-security-chain"]
+      service: "backend"
+      priority: 30
+
+    backend-api-http:
+      rule: "Host(`api.classplanner.ru`) && PathPrefix(`/api/v1`)"
+      entryPoints: ["web"]
+      middlewares: ["redirect-to-https", "fix-double-slash", "backend-security-chain"]
+      service: "backend"
+      priority: 20
+
+    backend-api-https:
+      rule: "Host(`api.classplanner.ru`) && PathPrefix(`/api/v1`)"
+      entryPoints: ["websecure"]
+      tls:
+        certResolver: "le"
+      middlewares: ["fix-double-slash", "backend-security-chain"]
+      service: "backend"
+      priority: 20
+
+    # Backend API через PathPrefix на доменах фронта
+    # ВАЖНО: Backend ожидает пути с префиксом /api/v1, поэтому НЕ применяем stripPrefix
+    # Строгий rate limit для login (вариант с /api-prefix на доменах фронта)
+    backend-login-path-http:
+      rule: "(Host(`d.classplanner.ru`) || Host(`classplanner.ru`) || Host(`www.classplanner.ru`)) && Path(`/api/v1/session/login`) && Method(`POST`)"
+      entryPoints: ["web"]
+      middlewares: ["redirect-to-https", "fix-double-slash", "backend-login-security-chain"]
+      service: "backend"
+      priority: 30
+
+    backend-login-path-https:
+      rule: "(Host(`d.classplanner.ru`) || Host(`classplanner.ru`) || Host(`www.classplanner.ru`)) && Path(`/api/v1/session/login`) && Method(`POST`)"
+      entryPoints: ["websecure"]
+      tls:
+        certResolver: "le"
+      middlewares: ["fix-double-slash", "backend-login-security-chain"]
+      service: "backend"
+      priority: 30
+
+    backend-path-http:
+      rule: "(Host(`d.classplanner.ru`) || Host(`classplanner.ru`) || Host(`www.classplanner.ru`)) && PathPrefix(`/api`)"
+      entryPoints: ["web"]
+      middlewares: ["redirect-to-https", "fix-double-slash", "backend-security-chain"]
+      service: "backend"
+      priority: 10
+
+    backend-path-https:
+      rule: "(Host(`d.classplanner.ru`) || Host(`classplanner.ru`) || Host(`www.classplanner.ru`)) && PathPrefix(`/api`)"
+      entryPoints: ["websecure"]
+      tls:
+        certResolver: "le"
+      middlewares: ["fix-double-slash", "backend-security-chain"]
+      service: "backend"
+      priority: 10
+
+    # =========================
+    # Grafana (metrics)
+    # =========================
+    grafana-http:
+      rule: "Host(`metrics.classplanner.ru`)"
+      entryPoints: ["web"]
+      middlewares: ["redirect-to-https"]
+      service: "grafana"
+      priority: 5
+
+    grafana-https:
+      rule: "Host(`metrics.classplanner.ru`)"
+      entryPoints: ["websecure"]
+      tls:
+        certResolver: "le"
+      service: "grafana"
+      priority: 5
+
+    # =========================
+    # Kibana (logs)
+    # =========================
+    kibana-http:
+      rule: "Host(`logs.classplanner.ru`)"
+      entryPoints: ["web"]
+      middlewares: ["redirect-to-https"]
+      service: "kibana"
+      priority: 5
+
+    kibana-https:
+      rule: "Host(`logs.classplanner.ru`)"
+      entryPoints: ["websecure"]
+      tls:
+        certResolver: "le"
+      middlewares: ["security-headers"]
+      service: "kibana"
+      priority: 5
+
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+    redirect-to-d:
+      redirectRegex:
+        regex: "^https?://(?:www\\.)?classplanner\\.ru/?(.*)"
+        replacement: "https://d.classplanner.ru/$1"
+        permanent: true
+
+    # Нормализуем двойные (и более) слэши после host: //api -> /api
+    # Traefik применяет regex к полному URL, поэтому учитываем схему+хост.
+    fix-double-slash:
+      redirectRegex:
+        regex: "^(https?://[^/]+)//+(.*)$"
+        replacement: "$1/$2"
+        permanent: false
+
+
+    # =========================
+    # Security (prod)
+    # =========================
+    backend-security-chain:
+      chain:
+        middlewares:
+          - security-headers
+          - backend-rate-limit
+
+    # Более строгий rate limit только для /api/v1/session/login
+    backend-login-security-chain:
+      chain:
+        middlewares:
+          - security-headers
+          - backend-login-rate-limit
+
+    # Базовые security headers (работают и для API, и для фронта, если подключить)
+    security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        referrerPolicy: "no-referrer"
+        permissionsPolicy: "geolocation=(), microphone=(), camera=()"
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        # Если хотите включить preload — лучше после проверки через https://hstspreload.org/
+        # stsPreload: true
+
+    # Простой rate limit на уровне Traefik (до backend)
+    backend-rate-limit:
+      rateLimit:
+        average: 20
+        burst: 40
+
+    backend-login-rate-limit:
+      rateLimit:
+        average: 2
+        burst: 5
+
+    # Kibana auth перенесена на X-Pack Basic (Elasticsearch/Kibana)
+  services:
+    # Важно: используем container_name, чтобы DNS был стабильный между compose-проектами.
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://schedule_frontend:3001"
+
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://schedule_backend:4000"
+
+    grafana:
+      loadBalancer:
+        servers:
+          - url: "http://grafana_prod:3000"
+
+    kibana:
+      loadBalancer:
+        servers:
+          - url: "http://kibana_prod:5601"

@@ -1,0 +1,55 @@
+# ============================================================================
+# Traefik Static Configuration - Production
+# ============================================================================
+# Статическая конфигурация Traefik для production режима (с HTTPS)
+# Traefik автоматически подставляет переменные окружения из ${VAR} или ${VAR:-default}
+# ============================================================================
+
+# Логирование
+log:
+  level: INFO
+  format: common
+
+# Access logs (для fail2ban/аналитики)
+accessLog:
+  filePath: /var/log/traefik/access.log
+  format: json
+  filters:
+    statusCodes:
+      - "400-499"
+      - "500-599"
+
+# API и Dashboard
+api:
+  dashboard: true
+  insecure: false  # Для prod - требуется авторизация (настроена в dynamic.prod.yml)
+
+# Точки входа (Entrypoints)
+entryPoints:
+  web:
+    address: ":80"
+
+  websecure:
+    address: ":443"
+
+# Провайдеры конфигурации
+providers:
+  # В PROD на beget отключаем docker provider, чтобы не зависеть от Docker API версии на хосте.
+  # Вся маршрутизация описана в file provider (dynamic.prod.yml).
+  file:
+    filename: /etc/traefik/dynamic.prod.yml
+    watch: true
+
+# Let's Encrypt для автоматического получения SSL сертификатов
+# Email передается через command line флаг (см. docker-compose.prod.yml)
+certificatesResolvers:
+  le:
+    acme:
+      # email передается через --certificatesresolvers.le.acme.email в command
+      storage: /letsencrypt/acme.json
+      httpChallenge:
+        entryPoint: web
+      # Для production используем реальный Let's Encrypt сервер
+      # Для тестирования можно использовать staging:
+      # caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+

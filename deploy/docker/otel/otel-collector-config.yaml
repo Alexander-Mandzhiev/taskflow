@@ -1,0 +1,65 @@
+extensions:
+  health_check:
+    endpoint: "0.0.0.0:13133"
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+processors:
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: "development"
+        action: insert
+  batch:
+    send_batch_size: 1000
+    timeout: 5s
+    send_batch_max_size: 1000
+  probabilistic_sampler:
+    sampling_percentage: 100
+
+exporters:
+  elasticsearch:
+    endpoints: ["http://elasticsearch:9200"]
+    logs_index: "logs"
+    headers:
+      Authorization: "Basic ${env:ELASTICSEARCH_BASIC_AUTH}"
+    tls:
+      insecure: true
+    mapping:
+      mode: ecs
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    tls:
+      insecure: true
+  # Jaeger принимает OTLP на порту 4317 (COLLECTOR_OTLP_ENABLED=true)
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  debug:
+    verbosity: detailed
+
+service:
+  extensions: [health_check]
+  telemetry:
+    metrics:
+      level: detailed
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [probabilistic_sampler, batch]
+      exporters: [otlp/jaeger, debug]
+    logs:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [elasticsearch, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [prometheusremotewrite, debug]
