@@ -6,6 +6,8 @@ import (
 
 	"go.opentelemetry.io/otel/sdk/log"
 	"go.uber.org/zap"
+
+	"mkk/pkg/ctxkey"
 )
 
 // Глобальные переменные пакета
@@ -104,17 +106,17 @@ func Fatal(ctx context.Context, msg string, fields ...zap.Field) {
 // WithIDs добавляет request/trace id в контекст, не генерируя их.
 func WithIDs(ctx context.Context, traceID, requestID string) context.Context {
 	if traceID != "" {
-		ctx = context.WithValue(ctx, traceIDKey, traceID)
+		ctx = context.WithValue(ctx, ctxkey.TraceID, traceID)
 	}
 	if requestID != "" {
-		ctx = context.WithValue(ctx, requestIDKey, requestID)
+		ctx = context.WithValue(ctx, ctxkey.RequestID, requestID)
 	}
 	return ctx
 }
 
 // Получить trace_id из контекста
 func TraceIDFrom(ctx context.Context) string {
-	if v, ok := ctx.Value(traceIDKey).(string); ok {
+	if v, ok := ctx.Value(ctxkey.TraceID).(string); ok {
 		return v
 	}
 	return ""
@@ -122,7 +124,7 @@ func TraceIDFrom(ctx context.Context) string {
 
 // Получить request_id из контекста
 func RequestIDFrom(ctx context.Context) string {
-	if v, ok := ctx.Value(requestIDKey).(string); ok {
+	if v, ok := ctx.Value(ctxkey.RequestID).(string); ok {
 		return v
 	}
 	return ""

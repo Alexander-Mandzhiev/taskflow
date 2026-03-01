@@ -13,15 +13,8 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-)
 
-// Ключи для извлечения данных из контекста
-type contextKey string
-
-const (
-	traceIDKey   contextKey = "trace_id"   // Глобальный идентификатор трассировки запроса
-	requestIDKey contextKey = "request_id" // Уникальный идентификатор HTTP/gRPC запроса
-	userIDKey    contextKey = "user_id"    // Идентификатор пользователя (для будущего использования)
+	"mkk/pkg/ctxkey"
 )
 
 // buildCores создает слайс cores для zapcore.Tee.
@@ -113,11 +106,13 @@ func createResource(ctx context.Context, name, environment string) (*resource.Re
 	)
 }
 
-// createOTLPExporter создает gRPC экспортер для OTLP коллектора
+// createOTLPExporter создает gRPC экспортер для OTLP коллектора.
+// WithInsecure допустим, когда коллектор в доверенной внутренней сети за gateway (Traefik/nginx/Envoy);
+// TLS до коллектора при этом не обязателен. Для zero-trust или compliance можно добавить опцию WithTLSCredentials.
 func createOTLPExporter(ctx context.Context, endpoint string) (*otlploggrpc.Exporter, error) {
 	return otlploggrpc.New(ctx,
 		otlploggrpc.WithEndpoint(endpoint),
-		otlploggrpc.WithInsecure(), // для разработки, в продакшене следует использовать TLS
+		otlploggrpc.WithInsecure(),
 	)
 }
 
@@ -141,16 +136,16 @@ func parseLevel(levelStr string) zapcore.Level {
 func fieldsFromContext(ctx context.Context) []zap.Field {
 	fields := make([]zap.Field, 0)
 
-	if traceID, ok := ctx.Value(traceIDKey).(string); ok && traceID != "" {
-		fields = append(fields, zap.String(string(traceIDKey), traceID))
+	if traceID, ok := ctx.Value(ctxkey.TraceID).(string); ok && traceID != "" {
+		fields = append(fields, zap.String(string(ctxkey.TraceID), traceID))
 	}
 
-	if requestID, ok := ctx.Value(requestIDKey).(string); ok && requestID != "" {
-		fields = append(fields, zap.String(string(requestIDKey), requestID))
+	if requestID, ok := ctx.Value(ctxkey.RequestID).(string); ok && requestID != "" {
+		fields = append(fields, zap.String(string(ctxkey.RequestID), requestID))
 	}
 
-	if userID, ok := ctx.Value(userIDKey).(string); ok && userID != "" {
-		fields = append(fields, zap.String(string(userIDKey), userID))
+	if userID, ok := ctx.Value(ctxkey.UserID).(string); ok && userID != "" {
+		fields = append(fields, zap.String(string(ctxkey.UserID), userID))
 	}
 
 	return fields

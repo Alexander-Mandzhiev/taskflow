@@ -1,9 +1,13 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
-	"log"
 	"net/http"
+
+	"go.uber.org/zap"
+
+	"mkk/pkg/logger"
 )
 
 // WriteJSON пишет ответ с кодом statusCode и телом body в формате JSON.
@@ -12,7 +16,7 @@ func WriteJSON(w http.ResponseWriter, statusCode int, body interface{}) {
 	w.WriteHeader(statusCode)
 	if body != nil {
 		if err := json.NewEncoder(w).Encode(body); err != nil {
-			log.Printf("[WriteJSON] failed to encode response: %v", err)
+			logger.Error(context.Background(), "[WriteJSON] failed to encode response", zap.Error(err))
 		}
 	}
 }

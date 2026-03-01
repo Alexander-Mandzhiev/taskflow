@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"go.uber.org/zap"
+
+	"mkk/pkg/ctxkey"
 )
 
 func init() {
@@ -32,8 +34,8 @@ func BenchmarkWithLogger(b *testing.B) {
 }
 
 func BenchmarkWithContextLogger(b *testing.B) {
-	ctx := context.WithValue(context.Background(), traceIDKey, "trace-123")
-	ctx = context.WithValue(ctx, userIDKey, "user-456")
+	ctx := context.WithValue(context.Background(), ctxkey.TraceID, "trace-123")
+	ctx = context.WithValue(ctx, ctxkey.UserID, "user-456")
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -42,8 +44,8 @@ func BenchmarkWithContextLogger(b *testing.B) {
 }
 
 func BenchmarkChainLogger(b *testing.B) {
-	ctx := context.WithValue(context.Background(), traceIDKey, "trace-123")
-	ctx = context.WithValue(ctx, userIDKey, "user-456")
+	ctx := context.WithValue(context.Background(), ctxkey.TraceID, "trace-123")
+	ctx = context.WithValue(ctx, ctxkey.UserID, "user-456")
 
 	log := With(zap.String("static_field", "static_value"))
 

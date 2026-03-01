@@ -12,7 +12,10 @@ import (
 
 // Init инициализирует глобальный логгер с функциональными опциями.
 // Поддерживает одновременную запись в stdout и OTLP коллектор.
-// Повторные вызовы не переинициализируют логгер (защищено sync.Once).
+//
+// Первый вызов Init или InitDefault фиксирует конфиг: повторные вызовы не переинициализируют
+// логгер (защищено sync.Once). Для смены конфига после загрузки настроек используйте Reinit
+// (в DI/bootstrap вызывают logger.Reinit после применения конфига).
 func Init(ctx context.Context, opts ...Option) error {
 	cfg := defaultConfig()
 	for _, opt := range opts {
@@ -31,7 +34,8 @@ func Init(ctx context.Context, opts ...Option) error {
 }
 
 // InitDefault инициализирует логгер с дефолтными настройками для первичной загрузки.
-// Используется в main.go до загрузки конфигурации.
+// Используется в main до загрузки конфигурации. Как и Init, срабатывает только при первом
+// вызове; для последующей инициализации с актуальным конфигом в DI вызывают logger.Reinit.
 func InitDefault() error {
 	initOnce.Do(func() {
 		initLogger(context.Background(), defaultConfig())
@@ -55,6 +59,8 @@ func initLogger(ctx context.Context, cfg *Config) {
 }
 
 // Reinit сбрасывает состояние и инициализирует логгер заново с функциональными опциями.
+// Используется в DI/bootstrap при смене конфига: после загрузки конфигурации вызывают
+// logger.Reinit(ctx, opts...), чтобы применить новые настройки (уровень, OTLP, имя сервиса и т.д.).
 func Reinit(ctx context.Context, opts ...Option) error {
 	resetGlobalState() //nolint:contextcheck // internal cleanup function
 	return Init(ctx, opts...)
