@@ -71,7 +71,7 @@ func (a *App) initDI(_ context.Context) error {
 }
 
 func (a *App) initLogger(ctx context.Context) error {
-	return logger.Reinit(ctx,
+	if err := logger.Reinit(ctx,
 		logger.WithLevel(a.cfg.Logger().Level()),
 		logger.WithJSON(a.cfg.Logger().AsJSON()),
 		logger.WithName(a.cfg.Logger().Name()),
@@ -79,7 +79,11 @@ func (a *App) initLogger(ctx context.Context) error {
 		logger.WithOTLPEnable(a.cfg.Logger().OTLPEnable()),
 		logger.WithOTLPEndpoint(a.cfg.Logger().OTLPEndpoint()),
 		logger.WithOTLPTimeout(a.cfg.Logger().OTLPShutdownTimeout()),
-	)
+	); err != nil {
+		return err
+	}
+	logger.Info(ctx, "✅ [Logger] Логгер инициализирован", zap.String("name", a.cfg.Logger().Name()), zap.String("level", a.cfg.Logger().Level()))
+	return nil
 }
 
 func (a *App) initTracer(ctx context.Context) error {
@@ -133,8 +137,9 @@ func (a *App) initMetrics(ctx context.Context) error {
 	return nil
 }
 
-func (a *App) initCloser(_ context.Context) error {
+func (a *App) initCloser(ctx context.Context) error {
 	closer.SetLogger(logger.Logger())
+	logger.Info(ctx, "✅ [Closer] Менеджер graceful shutdown настроен")
 	return nil
 }
 
@@ -142,19 +147,23 @@ func (a *App) initDatabase(ctx context.Context) error {
 	if _, err := a.di.SqlxDB(ctx); err != nil {
 		return fmt.Errorf("mysql pool: %w", err)
 	}
+	logger.Info(ctx, "✅ [Database] MySQL пул создан и проверен")
+
 	if _, err := a.di.RedisClient(ctx); err != nil {
 		return fmt.Errorf("redis client: %w", err)
 	}
+	logger.Info(ctx, "✅ [Database] Redis клиент создан и проверен")
 	return nil
 }
 
-func (a *App) initListener(_ context.Context) error {
+func (a *App) initListener(ctx context.Context) error {
 	addr := a.cfg.HTTP().Address()
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return fmt.Errorf("listen %s: %w", addr, err)
 	}
 	a.listener = listener
+	logger.Info(ctx, "✅ [HTTP] Listener создан", zap.String("address", addr))
 
 	closer.AddNamed("TCP listener", func(ctx context.Context) error {
 		logger.Info(ctx, "🔌 [Shutdown] Закрытие listener")
@@ -191,5 +200,6 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 		return a.httpServer.Shutdown(ctx)
 	})
 
+	logger.Info(ctx, "✅ [HTTP] Роуты зарегистрированы, сервер готов к запуску", zap.String("address", addr))
 	return nil
 }
