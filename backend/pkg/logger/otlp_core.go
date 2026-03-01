@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -69,7 +70,9 @@ func (c *SimpleOTLPCore) Write(entry zapcore.Entry, fields []zapcore.Field) erro
 
 	allFields := fields
 	if len(c.baseFields) > 0 {
-		allFields = append(append([]zapcore.Field{}, c.baseFields...), fields...)
+		allFields = make([]zapcore.Field, 0, len(c.baseFields)+len(fields))
+		allFields = append(allFields, c.baseFields...)
+		allFields = append(allFields, fields...)
 	}
 
 	if len(allFields) > 0 {
@@ -170,6 +173,8 @@ func encodeFieldsToAttrs(fields []zapcore.Field) []otelLog.KeyValue {
 			attrs = append(attrs, otelLog.Int64(k, val))
 		case float64:
 			attrs = append(attrs, otelLog.Float64(k, val))
+		default:
+			attrs = append(attrs, otelLog.String(k, fmt.Sprintf("%+v", val)))
 		}
 	}
 

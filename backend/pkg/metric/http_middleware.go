@@ -1,8 +1,11 @@
 package metric
 
 import (
+	"bufio"
 	"context"
+	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"regexp"
 	"strings"
@@ -20,6 +23,11 @@ var (
 	intSegmentRe  = regexp.MustCompile(`^\d+$`)
 	tempSegmentRe = regexp.MustCompile(`(?i)^temp-\d+$`)
 	hex24Segment  = regexp.MustCompile(`(?i)^[0-9a-f]{24}$`)
+
+	// ErrNotHijacker возвращается из Hijack(), если обёрнутый ResponseWriter не реализует http.Hijacker.
+	ErrNotHijacker = errors.New("response writer does not support hijacking")
+	// ErrNotPusher возвращается из Push(), если обёрнутый ResponseWriter не реализует http.Pusher.
+	ErrNotPusher = errors.New("response writer does not support push")
 )
 
 func normalizePath(path string) string {
@@ -240,8 +248,13 @@ func (m *Metrics) HTTPMiddleware(ctx context.Context, bucketBoundaries []float64
 		return noOpMiddleware()
 	}
 
-	// Создаем инструменты метрик один раз при инициализации middleware
-	meter := otel.Meter("http-server")
+	// Создаем инструменты метрик один раз при инициализации middleware.
+	// Имя meter включает имя сервиса, чтобы в OpenTelemetry было понятно, какой компонент шлёт данные.
+	meterName := "http-server"
+	if m.config != nil && m.config.name != "" {
+		meterName = m.config.name + "/http-server"
+	}
+	meter := otel.Meter(meterName)
 
 	instruments, err := m.createHTTPInstruments(meter, bucketBoundaries)
 	if err != nil {
@@ -252,7 +265,9 @@ func (m *Metrics) HTTPMiddleware(ctx context.Context, bucketBoundaries []float64
 	return m.httpMiddlewareHandler(instruments)
 }
 
-// statusWriter оборачивает http.ResponseWriter для отслеживания статуса ответа
+// statusWriter оборачивает http.ResponseWriter для отслеживания статуса ответа.
+// Пробрасывает опциональные интерфейсы (Flusher, Hijacker, Pusher), чтобы не ломать
+// SSE/streaming, WebSockets и HTTP/2 server push.
 type statusWriter struct {
 	http.ResponseWriter
 	status  int
@@ -276,4 +291,27 @@ func (sw *statusWriter) Write(b []byte) (int, error) {
 		sw.written = true
 	}
 	return sw.ResponseWriter.Write(b)
+}
+
+// Flush реализует http.Flusher для поддержки SSE/streaming.
+func (sw *statusWriter) Flush() {
+	if f, ok := sw.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+// Hijack реализует http.Hijacker для поддержки WebSockets и т.п.
+func (sw *statusWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if h, ok := sw.ResponseWriter.(http.Hijacker); ok {
+		return h.Hijack()
+	}
+	return nil, nil, ErrNotHijacker
+}
+
+// Push реализует http.Pusher для HTTP/2 server push.
+func (sw *statusWriter) Push(target string, opts *http.PushOptions) error {
+	if p, ok := sw.ResponseWriter.(http.Pusher); ok {
+		return p.Push(target, opts)
+	}
+	return ErrNotPusher
 }

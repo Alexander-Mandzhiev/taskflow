@@ -1,8 +1,6 @@
-package model
+package resources
 
-import (
-	"time"
-)
+import "time"
 
 // UserCache — модель пользователя для хранения в кеше (GetByID).
 // PasswordHash намеренно исключён: кеш хранит только публичные данные профиля.

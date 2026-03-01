@@ -7,6 +7,7 @@ import (
 
 	"mkk/internal/module/identity/user/model"
 	"mkk/internal/module/identity/user/repository/converter"
+	"mkk/internal/module/identity/user/repository/resources"
 )
 
 // Get возвращает пользователя из кеша по id. При промахе — (nil, nil).
@@ -20,7 +21,7 @@ func (r *repository) Get(ctx context.Context, id string) (*model.User, error) {
 	if data == nil {
 		return nil, nil
 	}
-	var c model.UserCache
+	var c resources.UserCache
 	if err := json.Unmarshal(data, &c); err != nil {
 		_ = r.redis.Del(ctx, key)
 		return nil, nil

@@ -1,11 +1,13 @@
 package middleware
 
 import (
-	"net"
 	"net/http"
+	"path"
 	"strings"
 	"sync"
 	"time"
+
+	pkghttp "mkk/pkg/http"
 )
 
 // SecurityHeadersMiddleware добавляет базовые security headers.
@@ -48,21 +50,20 @@ func RequestFirewallMiddleware(next http.Handler) http.Handler {
 		if p == "" {
 			p = "/"
 		}
+		// Нормализуем путь: //api//v1 -> /api/v1 (API терпимее к мелким ошибкам клиентов)
+		p = path.Clean(p)
+		if p != r.URL.Path {
+			r.URL.Path = p
+		}
 
 		// Быстрые блоки на самые частые сканер-пути
 		lp := strings.ToLower(p)
 		// На backend не разрешаем никаких dot-paths (включая /.well-known/*) — ACME пусть обслуживает Traefik.
-		// Если когда-нибудь понадобится — добавим явный allowlist.
 		if strings.HasPrefix(lp, "/.") {
 			http.NotFound(w, r)
 			return
 		}
 		if strings.Contains(lp, "..") || strings.Contains(lp, "%2e") {
-			http.NotFound(w, r)
-			return
-		}
-		// Блокируем попытки обхода роутера через двойные слэши (//api -> /api)
-		if strings.Contains(p, "//") {
 			http.NotFound(w, r)
 			return
 		}
@@ -119,13 +120,15 @@ type ipRateLimiter struct {
 }
 
 func newIPRateLimiter(ttl, interval time.Duration) *ipRateLimiter {
-	return &ipRateLimiter{
+	l := &ipRateLimiter{
 		entries:  make(map[string]*ipLimiterEntry),
 		stopCh:   make(chan struct{}),
 		ttl:      ttl,
 		interval: interval,
 		maxSize:  10000,
 	}
+	l.startCleanup()
+	return l
 }
 
 func (l *ipRateLimiter) startCleanup() {
@@ -162,7 +165,6 @@ func (l *ipRateLimiter) Stop() {
 }
 
 func (l *ipRateLimiter) allow(ip string, maxPerWindow int, window time.Duration) bool {
-	l.startCleanup()
 	now := time.Now()
 
 	l.mu.Lock()
@@ -202,12 +204,13 @@ func (l *ipRateLimiter) allow(ip string, maxPerWindow int, window time.Duration)
 	return true
 }
 
-// Чувствительные endpoints, требующие строгого rate limit (только для POST)
+// Чувствительные endpoints, требующие строгого rate limit (только для POST).
+// Пути должны совпадать с роутером: routes.RegisterAPIs → /api/v1 + public.Register → /register, /login.
 var sensitiveEndpoints = map[string]struct{}{
-	"/api/v1/session/login":    {},
-	"/api/v1/session/register": {},
-	"/api/v1/forgot-password":  {},
-	"/api/v1/reset-password":   {},
+	"/api/v1/login":           {},
+	"/api/v1/register":        {},
+	"/api/v1/forgot-password": {},
+	"/api/v1/reset-password":  {},
 }
 
 // RateLimitMiddleware — простой in-memory rate limit по IP.
@@ -224,7 +227,7 @@ func RateLimitMiddleware() (func(http.Handler) http.Handler, func()) {
 				return
 			}
 
-			ip := clientIP(r)
+			ip := pkghttp.ClientIP(r)
 
 			maxPerSecond := 30
 
@@ -245,21 +248,4 @@ func RateLimitMiddleware() (func(http.Handler) http.Handler, func()) {
 	}
 
 	return mw, limiterStore.Stop
-}
-
-func clientIP(r *http.Request) string {
-	// После chi/middleware.RealIP обычно уже нормализован RemoteAddr,
-	// но на всякий случай парсим host:port.
-	host, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
-	if err == nil && host != "" {
-		return host
-	}
-	if ip := net.ParseIP(strings.TrimSpace(r.RemoteAddr)); ip != nil {
-		return ip.String()
-	}
-	// Последний шанс — X-Real-IP (могут выставлять прокси).
-	if xrip := strings.TrimSpace(r.Header.Get("X-Real-IP")); net.ParseIP(xrip) != nil {
-		return xrip
-	}
-	return r.RemoteAddr
 }

@@ -17,7 +17,7 @@ func SessionMiddleware(next http.Handler) http.Handler {
 		if err == nil && cookie != nil && cookie.Value != "" {
 			sessionID, err := uuid.Parse(cookie.Value)
 			if err == nil {
-				ctx := metadata.SetSessionID(r.Context(), sessionID.String())
+				ctx := metadata.SetSessionIDUUID(r.Context(), sessionID)
 				r = r.WithContext(ctx)
 			}
 		}

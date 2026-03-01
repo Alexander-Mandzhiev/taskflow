@@ -8,6 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 
+	accountmodel "mkk/internal/module/identity/account/model"
 	"mkk/internal/module/identity/user/model"
 	pkghttp "mkk/pkg/http"
 	"mkk/pkg/http/middleware"
@@ -66,7 +67,7 @@ func mapError(w http.ResponseWriter, r *http.Request, err error) {
 // mapDomainError возвращает HTTP-код и сообщение для доменных ошибок.
 func mapDomainError(err error) (int, string) {
 	switch {
-	case errors.Is(err, model.ErrInvalidCredentials):
+	case errors.Is(err, accountmodel.ErrInvalidCredentials):
 		return http.StatusUnauthorized, "Неверные учётные данные"
 	case errors.Is(err, model.ErrUserNotFound):
 		return http.StatusNotFound, "Пользователь не найден"
@@ -74,7 +75,7 @@ func mapDomainError(err error) (int, string) {
 		return http.StatusConflict, "Пользователь с таким email уже существует"
 	case errors.Is(err, model.ErrNilInput):
 		return http.StatusBadRequest, "Некорректные данные запроса"
-	case errors.Is(err, metadata.ErrNotFound):
+	case errors.Is(err, accountmodel.ErrSessionNotFound), errors.Is(err, metadata.ErrNotFound):
 		return http.StatusUnauthorized, "Сессия не найдена или истекла"
 	default:
 		return http.StatusInternalServerError, "Внутренняя ошибка сервера"

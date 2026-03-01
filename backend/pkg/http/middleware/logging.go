@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 
 	"mkk/pkg/logger"
@@ -17,33 +18,34 @@ const slowRequestThreshold = 500 * time.Millisecond
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
+		reqID := middleware.GetReqID(ctx)
 		startTime := time.Now()
 		sr := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
 		next.ServeHTTP(sr, r)
 		duration := time.Since(startTime)
 
-		// Логируем только ошибки и медленные запросы
+		// Логируем только ошибки и медленные запросы; req_id связывает запрос с логами в БД/сервисах
 		switch {
 		case sr.status >= 500:
 			logger.Error(ctx, "[HTTP] Server error",
+				zap.String("req_id", reqID),
 				zap.String("method", r.Method),
 				zap.String("path", r.URL.Path),
 				zap.Int("status", sr.status),
 				zap.Duration("duration", duration),
 			)
 		case sr.status >= 400:
-			// 4xx — ошибка клиента
-			// 404 для статистики — это нормально (сущность может быть удалена), логируем как DEBUG
 			if sr.status == 404 && (strings.Contains(r.URL.Path, "/statistic/") || strings.Contains(r.URL.Path, "/availability/")) {
 				logger.Debug(ctx, "[HTTP] Resource not found (statistic/availability)",
+					zap.String("req_id", reqID),
 					zap.String("method", r.Method),
 					zap.String("path", r.URL.Path),
 					zap.Int("status", sr.status),
 					zap.Duration("duration", duration),
 				)
 			} else {
-				// Другие 4xx — логируем как WARN
 				logger.Warn(ctx, "[HTTP] Client error",
+					zap.String("req_id", reqID),
 					zap.String("method", r.Method),
 					zap.String("path", r.URL.Path),
 					zap.Int("status", sr.status),
@@ -51,15 +53,14 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 				)
 			}
 		case duration > slowRequestThreshold:
-			// Медленные успешные запросы — логируем для анализа производительности
 			logger.Info(ctx, "[HTTP] Slow request",
+				zap.String("req_id", reqID),
 				zap.String("method", r.Method),
 				zap.String("path", r.URL.Path),
 				zap.Int("status", sr.status),
 				zap.Duration("duration", duration),
 			)
 		}
-		// Успешные быстрые запросы не логируем — покрыто метриками
 	})
 }
 

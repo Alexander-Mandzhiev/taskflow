@@ -10,7 +10,7 @@ import (
 
 // Register обрабатывает регистрацию пользователя.
 // POST body: RegisterRequest (email, password, name).
-// При успехе возвращает 201 и RegisterResponse с user_id.
+// При успехе возвращает 201 и RegisterResponse (success + message).
 func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 	var req dto.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -23,14 +23,13 @@ func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := api.accountService.Register(r.Context(), req.Email, req.Password, req.Name)
-	if err != nil {
+	if err := api.accountService.Register(r.Context(), req.Email, req.Password, req.Name); err != nil {
 		mapError(w, r, err)
 		return
 	}
 
 	pkghttp.WriteJSON(w, http.StatusCreated, dto.RegisterResponse{
-		UserID:  userID,
+		Success: true,
 		Message: "Пользователь успешно зарегистрирован",
 	})
 }

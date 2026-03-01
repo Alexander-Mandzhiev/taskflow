@@ -3,12 +3,12 @@ package account_v1
 import (
 	"time"
 
-	"mkk/internal/module/account"
+	"mkk/internal/module/identity/account/service"
 )
 
 // API реализует HTTP‑хендлеры для account: регистрация, логин, логаут.
 type API struct {
-	accountService account.Service
+	accountService service.AccountService
 	sessionTTL     time.Duration
 	isSecure       bool
 	cookieDomain   string
@@ -16,7 +16,7 @@ type API struct {
 
 // NewAPI создаёт API account v1 с сервисом account и настройками cookie.
 func NewAPI(
-	accountService account.Service,
+	accountService service.AccountService,
 	sessionTTL time.Duration,
 	isSecure bool,
 	cookieDomain string,

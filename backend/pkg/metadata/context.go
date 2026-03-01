@@ -25,10 +25,9 @@ func SessionID(ctx context.Context) (uuid.UUID, error) {
 	return v, nil
 }
 
-// SetSessionID записывает session_id в контекст (id — строка UUID, как из cookie).
-func SetSessionID(ctx context.Context, id string) context.Context {
-	u, _ := uuid.Parse(id)
-	return context.WithValue(ctx, sessionIDKey, u)
+// SetSessionIDUUID записывает session_id (uuid.UUID) в контекст.
+func SetSessionIDUUID(ctx context.Context, id uuid.UUID) context.Context {
+	return context.WithValue(ctx, sessionIDKey, id)
 }
 
 // UserID возвращает user_id из контекста.

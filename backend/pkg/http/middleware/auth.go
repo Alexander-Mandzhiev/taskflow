@@ -36,7 +36,7 @@ func NewAuthMiddleware(sessionService SessionWhoamiService, isSecure bool, cooki
 // 1. Достаёт session_id из контекста (его туда положил SessionMiddleware)
 // 2. Вызывает Whoami для проверки сессии
 // 3. Кладёт user_id в контекст
-// 4. В случае невалидной сессии удаляет куку и возвращает 200 OK с {"authenticated": false}
+// 4. При невалидной/отсутствующей сессии удаляет куку и возвращает 401 — фронт по 401 редиректит на логин.
 func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionID, err := metadata.SessionID(r.Context())

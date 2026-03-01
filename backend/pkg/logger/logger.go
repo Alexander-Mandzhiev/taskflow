@@ -18,7 +18,7 @@ var (
 
 // SetLevel изменяет уровень логирования у уже инициализированного глобального логгера.
 func SetLevel(levelStr string) {
-	if level == (zap.AtomicLevel{}) {
+	if globalLogger == nil {
 		return
 	}
 
@@ -64,35 +64,40 @@ func WithContext(ctx context.Context) *logger {
 // Debug пишет сообщение уровня DEBUG с полями.
 func Debug(ctx context.Context, msg string, fields ...zap.Field) {
 	if globalLogger != nil {
-		globalLogger.Debug(ctx, msg, fields...)
+		allFields := append(fieldsFromContext(ctx), fields...)
+		globalLogger.zapLogger.Debug(msg, allFields...)
 	}
 }
 
 // Info пишет сообщение уровня INFO с полями.
 func Info(ctx context.Context, msg string, fields ...zap.Field) {
 	if globalLogger != nil {
-		globalLogger.Info(ctx, msg, fields...)
+		allFields := append(fieldsFromContext(ctx), fields...)
+		globalLogger.zapLogger.Info(msg, allFields...)
 	}
 }
 
 // Warn пишет сообщение уровня WARN с полями.
 func Warn(ctx context.Context, msg string, fields ...zap.Field) {
 	if globalLogger != nil {
-		globalLogger.Warn(ctx, msg, fields...)
+		allFields := append(fieldsFromContext(ctx), fields...)
+		globalLogger.zapLogger.Warn(msg, allFields...)
 	}
 }
 
 // Error пишет сообщение уровня ERROR с полями.
 func Error(ctx context.Context, msg string, fields ...zap.Field) {
 	if globalLogger != nil {
-		globalLogger.Error(ctx, msg, fields...)
+		allFields := append(fieldsFromContext(ctx), fields...)
+		globalLogger.zapLogger.Error(msg, allFields...)
 	}
 }
 
 // Fatal пишет сообщение уровня FATAL и завершает процесс.
 func Fatal(ctx context.Context, msg string, fields ...zap.Field) {
 	if globalLogger != nil {
-		globalLogger.Fatal(ctx, msg, fields...)
+		allFields := append(fieldsFromContext(ctx), fields...)
+		globalLogger.zapLogger.Fatal(msg, allFields...)
 	}
 }
 

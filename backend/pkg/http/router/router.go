@@ -7,7 +7,8 @@
 //
 // Пример использования:
 //
-//	router := http_router.NewRouter(ctx, timeout, bucketBoundaries)
+//	router, stopLimiter := http_router.NewRouter(ctx, timeout, bucketBoundaries)
+//	defer stopLimiter()
 //	router.Get("/api/health", healthHandler)
 //	server := http_server.NewServer(router, address, ...)
 package http_router
@@ -23,15 +24,13 @@ import (
 	"mkk/pkg/metric"
 )
 
-// NewRouter создаёт роутер и настраивает его с базовыми middleware.
-// Автоматически подключает стандартные middleware в оптимальном порядке:
-// 1. RequestID - добавление уникального ID для каждого запроса
-// 2. RealIP - извлечение реального IP адреса клиента
-// 3. Recovery - обработка паник
-// 4. Timeout - ограничение времени выполнения запроса
-// 5. LoggingMiddleware - логирование входящих запросов
-// 6. HTTPMiddleware - сбор метрик запросов, ответов и времени выполнения
-// 7. CORS - настройка политик межсайтовых запросов (если настроено)
+// NewRouter создаёт роутер и настраивает middleware в порядке:
+// 1. Идентификация (RequestID, RealIP)
+// 2. Быстрая защита (SecurityHeaders, RequestFirewall, IP RateLimit) — до тяжёлых логеров
+// 3. Стабильность (Recoverer, Timeout)
+// 4. Наблюдаемость (Logging, метрики)
+// 5. CORS (если настроено)
+// Возвращает роутер и stopFunc для graceful shutdown (остановка IP rate limiter).
 func NewRouter(
 	ctx context.Context,
 	timeout time.Duration,
@@ -39,20 +38,27 @@ func NewRouter(
 	allowCredentials bool,
 	maxAge int,
 	httpBucketBoundaries []float64,
-) *chi.Mux {
+) (*chi.Mux, func()) {
 	r := chi.NewRouter()
 
-	// Базовые middleware от chi
+	// 1. Идентификация
 	r.Use(chimw.RequestID)
 	r.Use(chimw.RealIP)
+
+	// 2. Быстрая защита (до логеров и метрик)
+	r.Use(middleware.SecurityHeadersMiddleware)
+	r.Use(middleware.RequestFirewallMiddleware)
+	ipRateLimitMw, stopIPLimiter := middleware.RateLimitMiddleware()
+	r.Use(ipRateLimitMw)
+
+	// 3. Стабильность
 	r.Use(chimw.Recoverer)
 	r.Use(chimw.Timeout(timeout))
 
-	// Логирование и метрики
+	// 4. Наблюдаемость
 	r.Use(middleware.LoggingMiddleware)
 	r.Use(metric.HTTPMiddleware(ctx, httpBucketBoundaries))
 
-	// CORS middleware (если настроено)
 	if len(allowedOrigins) > 0 {
 		r.Use(middleware.CORSMiddleware(
 			allowedOrigins, allowedMethods, allowedHeaders, exposedHeaders,
@@ -60,5 +66,5 @@ func NewRouter(
 		))
 	}
 
-	return r
+	return r, stopIPLimiter
 }

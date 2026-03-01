@@ -11,7 +11,7 @@ const keyPrefix = "user"
 const TTL = 5 * time.Minute
 
 // Key возвращает ключ Redis для кеша пользователя по id.
-// Значение в кеше — JSON-сериализованный model.UserCache.
+// Значение в кеше — JSON-сериализованный resources.UserCache.
 func Key(id string) string {
 	return fmt.Sprintf("%s:%s", keyPrefix, id)
 }
