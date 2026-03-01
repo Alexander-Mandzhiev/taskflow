@@ -7,8 +7,8 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	account_v1 "mkk/internal/api/account/v1"
-	"mkk/internal/di/routes/public"
-	"mkk/internal/di/routes/session_auth"
+	"mkk/internal/app/routes/public"
+	"mkk/internal/app/routes/session_auth"
 	"mkk/internal/module/identity/account/service"
 	"mkk/pkg/http/middleware"
 )

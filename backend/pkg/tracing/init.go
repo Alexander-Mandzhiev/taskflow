@@ -152,7 +152,7 @@ func (t *Tracing) initTracer(ctx context.Context, cfg *Config) error {
 	}
 
 	// 3. Создаем TracerProvider с настроенным экспортером и ресурсом
-	t.logger.Info(ctx, "[Tracing] Creating TracerProvider", zap.Int("sample_ratio", cfg.sampleRatio))
+	t.logger.Info(ctx, "[Tracing] Creating TracerProvider", zap.Float64("sample_ratio", cfg.sampleRatio))
 
 	t.tracerProvider = sdktrace.NewTracerProvider(
 		sdktrace.WithBatcher(exporter),
@@ -162,7 +162,7 @@ func (t *Tracing) initTracer(ctx context.Context, cfg *Config) error {
 		// 2. TraceIDRatioBased - используем настройку из конфига
 		// В продакшене рекомендуется использовать меньший процент (0.1 = 10%)
 		// для снижения нагрузки на систему трассировки
-		sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(float64(cfg.sampleRatio)/100.0))),
+		sdktrace.WithSampler(sdktrace.ParentBased(sdktrace.TraceIDRatioBased(cfg.sampleRatio/100.0))),
 	)
 
 	// Устанавливаем глобальный провайдер трейсов

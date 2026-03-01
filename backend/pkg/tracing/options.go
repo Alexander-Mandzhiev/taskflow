@@ -15,7 +15,7 @@ type Config struct {
 	enable               bool
 	endpoint             string
 	timeout              time.Duration
-	sampleRatio          int
+	sampleRatio          float64
 	retryEnabled         bool
 	retryInitialInterval time.Duration
 	retryMaxInterval     time.Duration
@@ -33,7 +33,7 @@ func defaultConfig() *Config {
 		enable:               false,
 		endpoint:             "localhost:4317",
 		timeout:              30 * time.Second,
-		sampleRatio:          100,
+		sampleRatio:          10, // 10%
 		retryEnabled:         true,
 		retryInitialInterval: 5 * time.Second,
 		retryMaxInterval:     30 * time.Second,
@@ -85,8 +85,8 @@ func WithTimeout(timeout time.Duration) Option {
 	}
 }
 
-// WithSampleRatio устанавливает процент сохраняемых трейсов (0 - 100)
-func WithSampleRatio(ratio int) Option {
+// WithSampleRatio устанавливает процент сохраняемых трейсов (0–100, допускается дробное, например 0.1 для 0.1%).
+func WithSampleRatio(ratio float64) Option {
 	return func(c *Config) {
 		c.sampleRatio = ratio
 	}

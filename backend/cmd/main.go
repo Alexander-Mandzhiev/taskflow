@@ -9,6 +9,8 @@ import (
 	"go.uber.org/zap"
 
 	"mkk/pkg/closer"
+	"mkk/pkg/config"
+	"mkk/internal/app"
 	"mkk/pkg/logger"
 )
 
@@ -17,7 +19,24 @@ func main() {
 	defer appCancel()
 	defer gracefulShutdown()
 
-	_ = appCtx
+	cfg, err := config.Load(appCtx)
+	if err != nil {
+		logger.Error(appCtx, "❌ Не удалось загрузить конфигурацию", zap.Error(err))
+		return
+	}
+
+	closer.Configure(syscall.SIGINT, syscall.SIGTERM)
+
+	a, err := app.New(appCtx, cfg)
+	if err != nil {
+		logger.Error(appCtx, "❌ Не удалось создать приложение", zap.Error(err))
+		return
+	}
+
+	if err = a.Start(appCtx); err != nil {
+		logger.Error(appCtx, "❌ Ошибка при работе приложения", zap.Error(err))
+		return
+	}
 }
 
 func gracefulShutdown() {
@@ -25,6 +44,6 @@ func gracefulShutdown() {
 	defer cancel()
 
 	if err := closer.CloseAll(ctx); err != nil {
-		logger.Error(ctx, "Shutdown error", zap.Error(err))
+		logger.Error(ctx, "❌ Ошибка при завершении работы", zap.Error(err))
 	}
 }
