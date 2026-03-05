@@ -8,7 +8,6 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"mkk/pkg/cache"
-	"mkk/pkg/closer"
 	"mkk/pkg/logger"
 )
 
@@ -18,6 +17,9 @@ const defaultRedisTimeout = 3 * time.Second
 func (d *Container) RedisClient(ctx context.Context) (cache.RedisClient, error) {
 	if d.redisClient != nil {
 		return d.redisClient, nil
+	}
+	if err := d.requireCloser(); err != nil {
+		return nil, err
 	}
 
 	redisCfg := d.cfg.Redis()
@@ -43,7 +45,7 @@ func (d *Container) RedisClient(ctx context.Context) (cache.RedisClient, error) 
 		return nil, fmt.Errorf("redis ping: %w", err)
 	}
 
-	closer.AddNamed("Redis client", func(ctx context.Context) error {
+	d.cl.AddNamed("Redis client", func(ctx context.Context) error {
 		logger.Info(ctx, "Закрытие Redis клиента")
 		return rdb.Close()
 	})

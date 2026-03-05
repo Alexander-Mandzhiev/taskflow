@@ -6,6 +6,28 @@ app:
   name: mkk
   environment: development
 
+http:
+  address: "0.0.0.0:4000"
+  timeout: 60s
+  read_header_timeout: 5s
+  read_timeout: 15s
+  write_timeout: 15s
+  idle_timeout: 60s
+  max_header_bytes: 1048576  # 1 MiB
+  shutdown_timeout: 10s
+
+cors:
+  allowed_origins:
+    - "http://127.0.0.1:3001"
+    - "http://127.0.0.1:3000"
+    - "http://localhost:3001"
+    - "http://localhost:3000"
+  allowed_methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+  allowed_headers: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Origin"]
+  exposed_headers: []
+  allow_credentials: true
+  max_age: 3600
+
 mysql:
   connection:
     host: localhost

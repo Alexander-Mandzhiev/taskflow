@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"time"
 
 	"go.uber.org/zap"
 
@@ -22,18 +21,24 @@ import (
 )
 
 // App — приложение: DI, логгер, трейсинг, метрики, HTTP-сервер с роутами.
+// Каждый экземпляр владеет своим closer — тесты можно запускать параллельно и изолированно.
 type App struct {
 	cfg        contracts.Provider
 	di         *di.Container
+	closer     *closer.Closer
 	httpServer *http.Server
 	listener   net.Listener
 	stopRouter func()
 }
 
 // New создаёт приложение и инициализирует зависимости (DI, logger, tracing, metrics, DB, Redis, роуты).
+// cl — менеджер ресурсов для graceful shutdown; создаётся снаружи (main/тест), чтобы точка входа владела жизненным циклом.
 // Порядок как в gRPC-примере: DI → инфра → БД → listener → HTTP-сервер и регистрация роутов.
-func New(ctx context.Context, cfg contracts.Provider) (*App, error) {
-	app := &App{cfg: cfg}
+func New(ctx context.Context, cfg contracts.Provider, cl *closer.Closer) (*App, error) {
+	if cl == nil {
+		return nil, fmt.Errorf("closer must not be nil")
+	}
+	app := &App{cfg: cfg, closer: cl}
 
 	steps := []func(context.Context) error{
 		app.initDI,
@@ -65,6 +70,12 @@ func (a *App) Start(ctx context.Context) error {
 	return nil
 }
 
+// Shutdown закрывает все зарегистрированные ресурсы (БД, Redis, HTTP, tracer, metrics и т.д.).
+// Вызывать при завершении приложения (например из defer в main). Идемпотентен.
+func (a *App) Shutdown(ctx context.Context) error {
+	return a.closer.CloseAll(ctx)
+}
+
 func (a *App) initDI(_ context.Context) error {
 	a.di = di.NewContainer(a.cfg)
 	return nil
@@ -78,7 +89,7 @@ func (a *App) initLogger(ctx context.Context) error {
 		logger.WithEnvironment(a.cfg.Logger().Environment()),
 		logger.WithOTLPEnable(a.cfg.Logger().OTLPEnable()),
 		logger.WithOTLPEndpoint(a.cfg.Logger().OTLPEndpoint()),
-		logger.WithOTLPTimeout(a.cfg.Logger().OTLPShutdownTimeout()),
+		logger.WithOTLPShutdownTimeout(a.cfg.Logger().OTLPShutdownTimeout()),
 	); err != nil {
 		return err
 	}
@@ -106,7 +117,7 @@ func (a *App) initTracer(ctx context.Context) error {
 		return fmt.Errorf("init tracer: %w", err)
 	}
 	logger.Info(ctx, "✅ [Tracing] Трейсинг инициализирован", zap.String("service", a.cfg.App().Name()))
-	closer.AddNamed("Tracer", func(ctx context.Context) error {
+	a.closer.AddNamed("Tracer", func(ctx context.Context) error {
 		logger.Info(ctx, "🔍 [Shutdown] Закрытие Tracer")
 		return tracing.Shutdown(ctx, a.cfg.Tracing().ShutdownTimeout())
 	})
@@ -130,7 +141,7 @@ func (a *App) initMetrics(ctx context.Context) error {
 		return fmt.Errorf("init metrics: %w", err)
 	}
 	logger.Info(ctx, "✅ [Metrics] Метрики инициализированы", zap.String("service", a.cfg.App().Name()))
-	closer.AddNamed("Metrics", func(ctx context.Context) error {
+	a.closer.AddNamed("Metrics", func(ctx context.Context) error {
 		logger.Info(ctx, "📊 [Shutdown] Закрытие Metrics")
 		return metric.Shutdown(ctx, a.cfg.Metric().ShutdownTimeout())
 	})
@@ -138,8 +149,8 @@ func (a *App) initMetrics(ctx context.Context) error {
 }
 
 func (a *App) initCloser(ctx context.Context) error {
-	closer.SetLogger(logger.Logger())
-	logger.Info(ctx, "✅ [Closer] Менеджер graceful shutdown настроен")
+	a.di.SetCloser(a.closer)
+	logger.Info(ctx, "✅ [Closer] Менеджер graceful shutdown подключён к App")
 	return nil
 }
 
@@ -165,7 +176,7 @@ func (a *App) initListener(ctx context.Context) error {
 	a.listener = listener
 	logger.Info(ctx, "✅ [HTTP] Listener создан", zap.String("address", addr))
 
-	closer.AddNamed("TCP listener", func(ctx context.Context) error {
+	a.closer.AddNamed("TCP listener", func(ctx context.Context) error {
 		logger.Info(ctx, "🔌 [Shutdown] Закрытие listener")
 		if err := listener.Close(); err != nil && !errors.Is(err, net.ErrClosed) {
 			return err
@@ -176,14 +187,24 @@ func (a *App) initListener(ctx context.Context) error {
 }
 
 func (a *App) initHTTPServer(ctx context.Context) error {
-	addr := a.cfg.HTTP().Address()
-	timeout := a.cfg.HTTP().Timeout()
+	httpCfg := a.cfg.HTTP()
+	addr := httpCfg.Address()
+	timeout := httpCfg.Timeout()
 	buckets := a.cfg.Metric().BucketBoundaries()
 	if len(buckets) == 0 {
 		buckets = nil
 	}
 
-	r, stopRouter := httprouter.NewRouter(ctx, timeout, nil, nil, nil, nil, false, 0, buckets)
+	corsCfg := a.cfg.CORS()
+	r, stopRouter := httprouter.NewRouter(ctx, timeout,
+		corsCfg.AllowedOrigins(),
+		corsCfg.AllowedMethods(),
+		corsCfg.AllowedHeaders(),
+		corsCfg.ExposedHeaders(),
+		corsCfg.AllowCredentials(),
+		corsCfg.MaxAge(),
+		buckets,
+	)
 	a.stopRouter = stopRouter
 
 	healthhttp.RegisterRoutes(r)
@@ -192,12 +213,20 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 		return fmt.Errorf("register account routes: %w", err)
 	}
 
-	a.httpServer = httpserver.NewServer(r, addr, 5*time.Second, timeout, timeout, 60*time.Second, 1<<20)
+	a.httpServer = httpserver.NewServer(r, addr,
+		httpCfg.ReadHeaderTimeout(),
+		httpCfg.ReadTimeout(),
+		httpCfg.WriteTimeout(),
+		httpCfg.IdleTimeout(),
+		httpCfg.MaxHeaderBytes(),
+	)
 
-	closer.AddNamed("HTTP server", func(ctx context.Context) error {
+	a.closer.AddNamed("HTTP server", func(ctx context.Context) error {
 		logger.Info(ctx, "⚡ [Shutdown] Остановка HTTP сервера")
 		a.stopRouter()
-		return a.httpServer.Shutdown(ctx)
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), httpCfg.ShutdownTimeout())
+		defer cancel()
+		return a.httpServer.Shutdown(shutdownCtx)
 	})
 
 	logger.Info(ctx, "✅ [HTTP] Роуты зарегистрированы, сервер готов к запуску", zap.String("address", addr))

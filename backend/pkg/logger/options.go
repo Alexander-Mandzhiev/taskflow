@@ -80,8 +80,8 @@ func WithOTLPEndpoint(endpoint string) Option {
 	}
 }
 
-// WithOTLPTimeout устанавливает таймаут для shutdown OTLP
-func WithOTLPTimeout(timeout time.Duration) Option {
+// WithOTLPShutdownTimeout устанавливает таймаут для graceful shutdown OTLP (отправка оставшихся логов).
+func WithOTLPShutdownTimeout(timeout time.Duration) Option {
 	return func(c *Config) {
 		c.otlp.shutdownTimeout = timeout
 	}

@@ -10,6 +10,7 @@ import (
 	userRepoDef "mkk/internal/module/identity/user/repository"
 	userServiceDef "mkk/internal/module/identity/user/service"
 	"mkk/pkg/cache"
+	"mkk/pkg/closer"
 	"mkk/pkg/config/contracts"
 	"mkk/pkg/database/connectingpool"
 	"mkk/pkg/database/txmanager"
@@ -17,9 +18,10 @@ import (
 
 // Container — DI-контейнер с ленивой инициализацией зависимостей.
 // Конфигурация берётся из pkg/config (contracts.Provider). Все методы принимают context.Context и возвращают (dependency, error).
-// При первом вызове зависимость создаётся и кешируется; закрытие регистрируется в closer.
+// При первом вызове зависимость создаётся и кешируется; закрытие регистрируется в переданном closer (SetCloser до первого использования).
 type Container struct {
 	cfg contracts.Provider
+	cl  *closer.Closer
 
 	// Пул БД (MySQL)
 	dbPool *connectingpool.Pool
@@ -44,6 +46,19 @@ type Container struct {
 }
 
 // NewContainer создаёт контейнер с конфигурацией из pkg/config (результат config.Load).
+// Перед вызовом SqlxDB/RedisClient/RegisterAccountRoutes необходимо вызвать SetCloser.
 func NewContainer(cfg contracts.Provider) *Container {
 	return &Container{cfg: cfg}
+}
+
+// SetCloser задаёт менеджер ресурсов для регистрации закрытия (вызывается из App.initCloser).
+func (d *Container) SetCloser(c *closer.Closer) {
+	d.cl = c
+}
+
+func (d *Container) requireCloser() error {
+	if d.cl == nil {
+		return closer.ErrNotSet
+	}
+	return nil
 }

@@ -2,22 +2,29 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"go.uber.org/zap"
 
+	"mkk/internal/app"
 	"mkk/pkg/closer"
 	"mkk/pkg/config"
-	"mkk/internal/app"
 	"mkk/pkg/logger"
 )
 
 func main() {
+	if err := logger.InitDefault(); err != nil {
+		fmt.Fprintf(os.Stderr, "logger init: %v\n", err)
+		os.Exit(1)
+	}
+	defer logger.Shutdown(context.Background(), 5*time.Second)
+
 	appCtx, appCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer appCancel()
-	defer gracefulShutdown()
 
 	cfg, err := config.Load(appCtx)
 	if err != nil {
@@ -25,9 +32,10 @@ func main() {
 		return
 	}
 
-	closer.Configure(syscall.SIGINT, syscall.SIGTERM)
+	cl := closer.NewWithLogger(logger.Logger(), syscall.SIGINT, syscall.SIGTERM)
+	defer gracefulShutdown(cl)
 
-	a, err := app.New(appCtx, cfg)
+	a, err := app.New(appCtx, cfg, cl)
 	if err != nil {
 		logger.Error(appCtx, "❌ Не удалось создать приложение", zap.Error(err))
 		return
@@ -39,11 +47,10 @@ func main() {
 	}
 }
 
-func gracefulShutdown() {
+func gracefulShutdown(cl *closer.Closer) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	if err := closer.CloseAll(ctx); err != nil {
+	if err := cl.CloseAll(ctx); err != nil {
 		logger.Error(ctx, "❌ Ошибка при завершении работы", zap.Error(err))
 	}
 }

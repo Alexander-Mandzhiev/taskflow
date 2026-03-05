@@ -23,7 +23,7 @@ func (s *accountService) Register(ctx context.Context, email, password, name str
 
 	// 2. Быстрая транзакция
 	err = s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
-		// Проверка для UX (чтобы не гонять Insert, если email точно занят)
+		// Проверка для UX: избежать лишнего Insert, если email уже занят
 		existing, errGet := s.userRepo.GetByEmail(ctx, tx, email)
 		if errGet != nil && !errors.Is(errGet, usermodel.ErrUserNotFound) {
 			return errGet

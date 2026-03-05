@@ -8,6 +8,20 @@ app:
 http:
   address: ":8080"
   timeout: 30s
+  read_header_timeout: 5s
+  read_timeout: 15s
+  write_timeout: 15s
+  idle_timeout: 60s
+  max_header_bytes: 1048576
+  shutdown_timeout: 10s
+
+cors:
+  allowed_origins: []
+  allowed_methods: ["GET", "POST", "OPTIONS"]
+  allowed_headers: ["Content-Type", "Authorization"]
+  exposed_headers: []
+  allow_credentials: false
+  max_age: 0
 
 mysql:
   connection:

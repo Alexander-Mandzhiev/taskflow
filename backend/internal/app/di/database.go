@@ -6,7 +6,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mkk/pkg/closer"
 	"mkk/pkg/database/connectingpool"
 	"mkk/pkg/logger"
 )
@@ -15,6 +14,9 @@ import (
 func (d *Container) SqlxDB(ctx context.Context) (*sqlx.DB, error) {
 	if d.sqlxDB != nil {
 		return d.sqlxDB, nil
+	}
+	if err := d.requireCloser(); err != nil {
+		return nil, err
 	}
 
 	mysql := d.cfg.MySQL()
@@ -34,7 +36,7 @@ func (d *Container) SqlxDB(ctx context.Context) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("create mysql pool: %w", err)
 	}
 
-	closer.AddNamed("MySQL pool", func(ctx context.Context) error {
+	d.cl.AddNamed("MySQL pool", func(ctx context.Context) error {
 		logger.Info(ctx, "Закрытие MySQL pool")
 		return pool.Close()
 	})

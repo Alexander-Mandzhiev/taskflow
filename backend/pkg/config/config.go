@@ -9,6 +9,7 @@ import (
 	"mkk/pkg/config/contracts"
 	"mkk/pkg/config/helpers"
 	appmodule "mkk/pkg/config/internal/app"
+	corsmodule "mkk/pkg/config/internal/cors"
 	httpmodule "mkk/pkg/config/internal/http"
 	loggermodule "mkk/pkg/config/internal/logger"
 	metricmodule "mkk/pkg/config/internal/metric"
@@ -22,6 +23,7 @@ import (
 type config struct {
 	appConfig     contracts.AppConfig
 	httpConfig    contracts.HTTPConfig
+	corsConfig    contracts.CORSConfig
 	mysqlConfig   contracts.MySQLConfig
 	redisConfig   contracts.RedisConfig
 	sessionConfig contracts.SessionConfig
@@ -39,6 +41,10 @@ func buildModularConfig() (*config, error) {
 	httpCfg, err := httpmodule.New()
 	if err != nil {
 		return nil, fmt.Errorf("http: %w", err)
+	}
+	corsCfg, err := corsmodule.New()
+	if err != nil {
+		return nil, fmt.Errorf("cors: %w", err)
 	}
 	mysqlCfg, err := mysqlmodule.New()
 	if err != nil {
@@ -64,20 +70,26 @@ func buildModularConfig() (*config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("metric: %w", err)
 	}
-	// Валидация модулей, реализующих Validatable.
-	for name, cfg := range map[string]interface{}{
-		"app": appCfg, "http": httpCfg, "mysql": mysqlCfg, "redis": redisCfg, "session": sessionCfg,
-		"logger": loggerCfg, "tracing": tracingCfg, "metric": metricCfg,
-	} {
-		if v, ok := cfg.(contracts.Validatable); ok {
+
+	// Валидация модулей, реализующих Validatable. При добавлении нового модуля — добавить в этот слайс.
+	modules := []struct {
+		name string
+		cfg  interface{}
+	}{
+		{"app", appCfg}, {"http", httpCfg}, {"cors", corsCfg}, {"mysql", mysqlCfg}, {"redis", redisCfg},
+		{"session", sessionCfg}, {"logger", loggerCfg}, {"tracing", tracingCfg}, {"metric", metricCfg},
+	}
+	for _, m := range modules {
+		if v, ok := m.cfg.(contracts.Validatable); ok {
 			if err := v.Validate(); err != nil {
-				return nil, fmt.Errorf("%s: %w", name, err)
+				return nil, fmt.Errorf("%s: %w", m.name, err)
 			}
 		}
 	}
 	return &config{
 		appConfig:     appCfg,
 		httpConfig:    httpCfg,
+		corsConfig:    corsCfg,
 		mysqlConfig:   mysqlCfg,
 		redisConfig:   redisCfg,
 		sessionConfig: sessionCfg,
@@ -108,9 +120,10 @@ func Load(ctx context.Context) (contracts.Provider, error) {
 	return cfg, nil
 }
 
-func (c *config) App() contracts.AppConfig      { return c.appConfig }
-func (c *config) HTTP() contracts.HTTPConfig    { return c.httpConfig }
-func (c *config) MySQL() contracts.MySQLConfig  { return c.mysqlConfig }
+func (c *config) App() contracts.AppConfig    { return c.appConfig }
+func (c *config) HTTP() contracts.HTTPConfig   { return c.httpConfig }
+func (c *config) CORS() contracts.CORSConfig   { return c.corsConfig }
+func (c *config) MySQL() contracts.MySQLConfig { return c.mysqlConfig }
 func (c *config) Redis() contracts.RedisConfig    { return c.redisConfig }
 func (c *config) Session() contracts.SessionConfig { return c.sessionConfig }
 func (c *config) Logger() contracts.LoggerConfig   { return c.loggerConfig }

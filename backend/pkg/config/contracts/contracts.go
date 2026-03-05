@@ -14,6 +14,7 @@ type Validatable interface {
 type Provider interface {
 	App() AppConfig
 	HTTP() HTTPConfig
+	CORS() CORSConfig
 	MySQL() MySQLConfig
 	Redis() RedisConfig
 	Session() SessionConfig
@@ -29,10 +30,26 @@ type AppConfig interface {
 	Version() string
 }
 
-// HTTPConfig — настройки HTTP-сервера (адрес, таймаут запроса).
+// CORSConfig — настройки CORS для HTTP-сервера.
+type CORSConfig interface {
+	AllowedOrigins() []string
+	AllowedMethods() []string
+	AllowedHeaders() []string
+	ExposedHeaders() []string
+	AllowCredentials() bool
+	MaxAge() int
+}
+
+// HTTPConfig — настройки HTTP-сервера (адрес, таймауты запроса/сервера).
 type HTTPConfig interface {
 	Address() string
 	Timeout() time.Duration
+	ReadHeaderTimeout() time.Duration
+	ReadTimeout() time.Duration
+	WriteTimeout() time.Duration
+	IdleTimeout() time.Duration
+	MaxHeaderBytes() int
+	ShutdownTimeout() time.Duration
 }
 
 // MySQLConfig — настройки подключения к MySQL (параметры подключения и пула).

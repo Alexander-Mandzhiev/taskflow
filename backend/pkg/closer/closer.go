@@ -16,35 +16,10 @@ import (
 
 // shutdownTimeout — максимальное время ожидания graceful shutdown.
 // Должен быть >= максимального shutdown_timeout у внешних зависимостей (OTel и т.п.).
-const shutdownTimeout = 35 * time.Second
+const shutdownTimeout = 60 * time.Second
 
-// Глобальный экземпляр для использования по всему приложению.
-var global = NewWithLogger(&logger.NoopLogger{})
-
-// AddNamed добавляет функцию закрытия с именем зависимости для логирования в глобальный closer.
-func AddNamed(name string, f func(context.Context) error) {
-	global.AddNamed(name, f)
-}
-
-// Add добавляет функции закрытия в глобальный closer.
-func Add(f ...func(context.Context) error) {
-	global.Add(f...)
-}
-
-// CloseAll инициирует процесс закрытия всех зарегистрированных функций глобального closer'а.
-func CloseAll(ctx context.Context) error {
-	return global.CloseAll(ctx)
-}
-
-// SetLogger позволяет установить кастомный логгер для глобального closer'а.
-func SetLogger(l Logger) {
-	global.SetLogger(l)
-}
-
-// Configure настраивает глобальный closer для обработки системных сигналов.
-func Configure(signals ...os.Signal) {
-	go global.handleSignals(signals...)
-}
+// ErrNotSet возвращается при попытке использовать Closer, который не был установлен (nil).
+var ErrNotSet = errors.New("closer not set")
 
 // Closer управляет процессом graceful shutdown приложения.
 type Closer struct {
