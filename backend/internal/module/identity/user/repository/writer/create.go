@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 
-	"mkk/internal/module/identity/user/model"
-	"mkk/internal/module/identity/user/repository/converter"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/converter"
 )
 
 // Create создаёт пользователя и возвращает сохранённую сущность.

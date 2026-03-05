@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"mkk/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
 )
 
 // UserService — слой сервиса пользователей (регистрация, профиль, CRUD).

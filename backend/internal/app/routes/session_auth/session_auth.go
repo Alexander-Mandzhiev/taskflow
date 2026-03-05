@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	account_v1 "mkk/internal/api/account/v1"
+	account_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1"
 )
 
 // Register регистрирует роуты account, защищённые session auth: logout.

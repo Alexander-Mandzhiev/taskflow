@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // LoggingMiddleware создает HTTP middleware для логирования запросов.

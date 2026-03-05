@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	pkghttp "mkk/pkg/http"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 )
 
 // BodyLimitMiddleware ограничивает размер тела запроса до maxBytes.

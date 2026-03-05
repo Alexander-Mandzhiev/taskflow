@@ -9,7 +9,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 const maxAttrLen = 200

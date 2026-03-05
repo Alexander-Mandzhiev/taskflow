@@ -3,7 +3,7 @@ package cache
 import (
 	"github.com/redis/go-redis/v9"
 
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // BuildClient создаёт Redis клиент (один узел). Для отключения кеша не передавайте WithAddr или передайте WithAddr("").

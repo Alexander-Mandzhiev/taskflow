@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"mkk/pkg/config/contracts"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 )
 
 var _ contracts.RedisConfig = (*Config)(nil)

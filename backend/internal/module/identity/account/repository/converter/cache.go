@@ -3,8 +3,8 @@ package converter
 import (
 	"github.com/google/uuid"
 
-	"mkk/internal/module/identity/account/model"
-	"mkk/internal/module/identity/account/repository/resources"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository/resources"
 )
 
 // ToCache преобразует доменную модель Session в модель для записи в кеш.

@@ -9,4 +9,19 @@ disable-version-string: true
 
 # Моки генерируются только для internal (сервисы, репозитории).
 # Для pkg/ не генерируем — в тестах обычно достаточно noop/реальных реализаций.
-packages: {}
+packages:
+  # Identity — user
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service:
+    config:
+      include-regex: ".*Service"
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository:
+    config:
+      include-regex: ".*Repository"
+
+  # Identity — account
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service:
+    config:
+      include-regex: ".*Service"
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository:
+    config:
+      include-regex: ".*Repository"

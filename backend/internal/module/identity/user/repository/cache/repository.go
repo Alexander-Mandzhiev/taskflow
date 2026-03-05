@@ -1,8 +1,8 @@
 package cache
 
 import (
-	def "mkk/internal/module/identity/user/repository"
-	redisclient "mkk/pkg/cache"
+	def "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
+	redisclient "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/cache"
 )
 
 var _ def.UserCacheRepository = (*repository)(nil)

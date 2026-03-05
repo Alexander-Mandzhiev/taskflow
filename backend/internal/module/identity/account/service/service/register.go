@@ -7,8 +7,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
-	usermodel "mkk/internal/module/identity/user/model"
-	"mkk/pkg/logger"
+	usermodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // Register создаёт пользователя: хеш пароля — до транзакции; в транзакции проверка email и создание записи.

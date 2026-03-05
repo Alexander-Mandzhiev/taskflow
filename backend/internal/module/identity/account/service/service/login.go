@@ -8,10 +8,10 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
-	accountmodel "mkk/internal/module/identity/account/model"
-	usermodel "mkk/internal/module/identity/user/model"
-	"mkk/pkg/logger"
-	"mkk/pkg/useragent"
+	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
+	usermodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/useragent"
 )
 
 // Login проверяет email/пароль и создаёт сессию в кеше. При неверных данных — accountmodel.ErrInvalidCredentials

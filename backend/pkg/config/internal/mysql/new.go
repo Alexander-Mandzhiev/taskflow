@@ -5,8 +5,8 @@ import (
 
 	"github.com/caarlos0/env/v11"
 
-	"mkk/pkg/config/contracts"
-	"mkk/pkg/config/helpers"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/helpers"
 )
 
 // New создаёт конфиг mysql по стратегии: Defaults → YAML → ENV.

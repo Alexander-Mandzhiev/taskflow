@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 
-	"mkk/pkg/config/helpers"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/helpers"
 )
 
 // Тесты загрузки конфига используют config/test.yaml (путь задаётся через CONFIG_PATH в каждом тесте).

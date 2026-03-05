@@ -9,15 +9,15 @@ import (
 
 	"go.uber.org/zap"
 
-	"mkk/internal/app/di"
-	"mkk/pkg/closer"
-	"mkk/pkg/config/contracts"
-	healthhttp "mkk/pkg/http/health"
-	httprouter "mkk/pkg/http/router"
-	httpserver "mkk/pkg/http/server"
-	"mkk/pkg/logger"
-	"mkk/pkg/metric"
-	"mkk/pkg/tracing"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/di"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/closer"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
+	healthhttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/health"
+	httprouter "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/router"
+	httpserver "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/server"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metric"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/tracing"
 )
 
 // App — приложение: DI, логгер, трейсинг, метрики, HTTP-сервер с роутами.

@@ -5,9 +5,9 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mkk/internal/module/identity/user/model"
-	"mkk/internal/module/identity/user/repository/cache"
-	"mkk/pkg/database/txmanager"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 )
 
 // Create создаёт пользователя в БД.

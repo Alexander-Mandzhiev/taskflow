@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // transactionResult результат выполнения транзакции (для вызова hooks после коммита).

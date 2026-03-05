@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"mkk/internal/module/identity/account/model"
-	"mkk/internal/module/identity/account/repository/converter"
-	"mkk/internal/module/identity/account/repository/resources"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository/converter"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository/resources"
 )
 
 // Get возвращает сессию из кеша по sessionID.

@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // WithSerializableTx выполняет fn в транзакции с уровнем изоляции Serializable.

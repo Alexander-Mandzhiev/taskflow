@@ -10,10 +10,10 @@ import (
 
 	"go.uber.org/zap"
 
-	"mkk/internal/app"
-	"mkk/pkg/closer"
-	"mkk/pkg/config"
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/closer"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 func main() {

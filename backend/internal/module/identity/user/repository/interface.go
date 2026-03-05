@@ -5,7 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mkk/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
 )
 
 // =============================================================================

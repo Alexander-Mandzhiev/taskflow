@@ -6,7 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-	"mkk/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
 )
 
 // GetByEmail возвращает пользователя по email (без удалённых). При tx != nil запрос в транзакции.

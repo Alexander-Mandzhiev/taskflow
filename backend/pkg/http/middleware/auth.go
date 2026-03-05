@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 
-	pkghttp "mkk/pkg/http"
-	"mkk/pkg/metadata"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
 // SessionWhoamiService определяет интерфейс сервиса для проверки сессии.

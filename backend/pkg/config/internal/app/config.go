@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 
-	"mkk/pkg/config/contracts"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 )
 
 var _ contracts.AppConfig = (*Config)(nil)

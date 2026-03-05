@@ -3,7 +3,7 @@ package account_v1
 import (
 	"time"
 
-	"mkk/internal/module/identity/account/service"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service"
 )
 
 // API реализует HTTP‑хендлеры для account: регистрация, логин, логаут.

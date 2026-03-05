@@ -7,8 +7,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"mkk/pkg/cache"
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/cache"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 const defaultRedisTimeout = 3 * time.Second

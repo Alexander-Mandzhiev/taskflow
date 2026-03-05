@@ -20,8 +20,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
 
-	"mkk/pkg/http/middleware"
-	"mkk/pkg/metric"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metric"
 )
 
 // NewRouter создаёт роутер и настраивает middleware в порядке:

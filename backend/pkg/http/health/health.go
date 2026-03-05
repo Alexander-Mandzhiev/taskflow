@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	pkghttp "mkk/pkg/http"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 )
 
 // Response структура ответа для health check

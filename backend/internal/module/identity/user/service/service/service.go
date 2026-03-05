@@ -1,9 +1,9 @@
 package service
 
 import (
-	"mkk/internal/module/identity/user/repository"
-	def "mkk/internal/module/identity/user/service"
-	"mkk/pkg/database/txmanager"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
+	def "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 )
 
 var _ def.UserService = (*userService)(nil)

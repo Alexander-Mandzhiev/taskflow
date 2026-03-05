@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"mkk/internal/api/account/v1/dto"
-	pkghttp "mkk/pkg/http"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1/dto"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 )
 
 // Register обрабатывает регистрацию пользователя.

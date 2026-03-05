@@ -6,11 +6,11 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	account_v1 "mkk/internal/api/account/v1"
-	"mkk/internal/app/routes/public"
-	"mkk/internal/app/routes/session_auth"
-	"mkk/internal/module/identity/account/service"
-	"mkk/pkg/http/middleware"
+	account_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/routes/public"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/routes/session_auth"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
 )
 
 // maxRequestBodyBytes — лимит тела запроса для POST, защита от исчерпания памяти.

@@ -7,7 +7,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/log"
 	"go.uber.org/zap"
 
-	"mkk/pkg/ctxkey"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/ctxkey"
 )
 
 // Глобальные переменные пакета

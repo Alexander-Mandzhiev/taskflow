@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"mkk/pkg/config/contracts"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 )
 
 var _ contracts.MetricConfig = (*Config)(nil)

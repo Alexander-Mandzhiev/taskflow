@@ -13,7 +13,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
-	"mkk/pkg/tracing"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/tracing"
 )
 
 type client struct {
@@ -23,7 +23,7 @@ type client struct {
 	tracer  trace.Tracer
 }
 
-// Logger — минимальный интерфейс для логов (реализует mkk/pkg/logger).
+// Logger — минимальный интерфейс для логов (реализует github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger).
 type Logger interface {
 	Debug(ctx context.Context, msg string, fields ...zap.Field)
 	Info(ctx context.Context, msg string, fields ...zap.Field)

@@ -7,7 +7,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mkk/pkg/database"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database"
 )
 
 // Pool — пул соединений к БД на основе database/sql, с обёрткой sqlx для маппинга и BeginTxx.

@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"mkk/pkg/metadata"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
 const (

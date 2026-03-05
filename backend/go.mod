@@ -1,4 +1,4 @@
-module mkk
+module github.com/Alexander-Mandzhiev/taskflow/backend
 
 go 1.25.7
 

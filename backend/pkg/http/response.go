@@ -7,7 +7,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // WriteJSON пишет ответ с кодом statusCode и телом body в формате JSON.

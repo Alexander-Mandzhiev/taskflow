@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // Metrics управляет состоянием метрик и их инициализацией

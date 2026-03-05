@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	pkghttp "mkk/pkg/http"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 )
 
 // WriteError записывает ошибку в формате JSON через pkghttp.WriteJSON.

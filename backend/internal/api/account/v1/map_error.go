@@ -8,12 +8,12 @@ import (
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 
-	accountmodel "mkk/internal/module/identity/account/model"
-	"mkk/internal/module/identity/user/model"
-	pkghttp "mkk/pkg/http"
-	"mkk/pkg/http/middleware"
-	"mkk/pkg/logger"
-	"mkk/pkg/metadata"
+	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
 var validate = validator.New()

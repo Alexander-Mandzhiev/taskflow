@@ -9,9 +9,9 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-	"mkk/internal/module/identity/user/model"
-	"mkk/internal/module/identity/user/repository/converter"
-	"mkk/internal/module/identity/user/repository/resources"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/converter"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/resources"
 )
 
 // selectByID читает полную строку пользователя по ID внутри текущей транзакции.

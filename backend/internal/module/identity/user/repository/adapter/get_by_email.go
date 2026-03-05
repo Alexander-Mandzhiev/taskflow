@@ -5,7 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mkk/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
 )
 
 // GetByEmail возвращает пользователя по email. Всегда читает из БД (кеш по email не ведётся).

@@ -45,7 +45,7 @@ func GenerateToken(userID, clientID, secretKey string, expiryDuration time.Durat
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(now),
-			Issuer:    "mkk",
+			Issuer:    "taskflow",
 			Subject:   userID,
 			Audience:  jwt.ClaimStrings{clientID},
 		},

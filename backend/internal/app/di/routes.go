@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"mkk/internal/app/routes"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/routes"
 )
 
 // RegisterAccountRoutes регистрирует API account (register, login, logout, whoami) на роутере и добавляет

@@ -6,17 +6,17 @@ import (
 	"fmt"
 	"io/fs"
 
-	"mkk/pkg/config/contracts"
-	"mkk/pkg/config/helpers"
-	appmodule "mkk/pkg/config/internal/app"
-	corsmodule "mkk/pkg/config/internal/cors"
-	httpmodule "mkk/pkg/config/internal/http"
-	loggermodule "mkk/pkg/config/internal/logger"
-	metricmodule "mkk/pkg/config/internal/metric"
-	mysqlmodule "mkk/pkg/config/internal/mysql"
-	redismodule "mkk/pkg/config/internal/redis"
-	sessionmodule "mkk/pkg/config/internal/session"
-	tracingmodule "mkk/pkg/config/internal/tracing"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/helpers"
+	appmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/app"
+	corsmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/cors"
+	httpmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/http"
+	loggermodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/logger"
+	metricmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/metric"
+	mysqlmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/mysql"
+	redismodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/redis"
+	sessionmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/session"
+	tracingmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/tracing"
 )
 
 // config реализует contracts.Provider через модульную сборку.

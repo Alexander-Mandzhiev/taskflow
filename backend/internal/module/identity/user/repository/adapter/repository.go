@@ -1,7 +1,7 @@
 package adapter
 
 import (
-	"mkk/internal/module/identity/user/repository"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
 )
 
 var _ repository.UserRepository = (*Repository)(nil)

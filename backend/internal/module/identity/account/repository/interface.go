@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"mkk/internal/module/identity/account/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
 )
 
 // SessionCacheRepository — хранилище сессий (ключ session:{session_id}, значение — model.Session, TTL на ключе).

@@ -6,8 +6,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"mkk/pkg/database/connectingpool"
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/connectingpool"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // SqlxDB возвращает *sqlx.DB для MySQL. При первом вызове создаёт пул, пингует БД и регистрирует закрытие в closer.

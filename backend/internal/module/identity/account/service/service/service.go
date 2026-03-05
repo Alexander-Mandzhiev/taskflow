@@ -3,11 +3,11 @@ package service
 import (
 	"time"
 
-	def "mkk/internal/module/identity/account/service"
-	"mkk/internal/module/identity/account/repository"
-	userrepo "mkk/internal/module/identity/user/repository"
-	"mkk/pkg/database/txmanager"
-	"mkk/pkg/password"
+	def "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository"
+	userrepo "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/password"
 )
 
 var _ def.AccountService = (*accountService)(nil)

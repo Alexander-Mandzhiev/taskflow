@@ -1,8 +1,8 @@
 package converter
 
 import (
-	"mkk/internal/module/identity/user/model"
-	"mkk/internal/module/identity/user/repository/resources"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/resources"
 )
 
 // ToRepoInput преобразует доменный input в ресурс репозитория.

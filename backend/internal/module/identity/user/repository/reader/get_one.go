@@ -9,9 +9,9 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-	"mkk/internal/module/identity/user/model"
-	"mkk/internal/module/identity/user/repository/converter"
-	"mkk/internal/module/identity/user/repository/resources"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/converter"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/resources"
 )
 
 // getOne выполняет SELECT по условию where и возвращает одну запись или model.ErrUserNotFound.

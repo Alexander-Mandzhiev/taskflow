@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 func (s *userService) ChangePassword(ctx context.Context, id, passwordHash string) error {

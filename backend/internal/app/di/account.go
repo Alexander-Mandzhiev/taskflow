@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	account_v1 "mkk/internal/api/account/v1"
-	accountRepoDef "mkk/internal/module/identity/account/repository"
-	accountRepoCache "mkk/internal/module/identity/account/repository/cache"
-	accountServiceDef "mkk/internal/module/identity/account/service"
-	accountService "mkk/internal/module/identity/account/service/service"
-	"mkk/pkg/password"
+	account_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1"
+	accountRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository"
+	accountRepoCache "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository/cache"
+	accountServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service"
+	accountService "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service/service"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/password"
 )
 
 // AccountV1API возвращает HTTP API account v1 (register, login, logout, whoami).

@@ -5,8 +5,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"mkk/internal/module/identity/user/model"
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 func (s *userService) GetByEmail(ctx context.Context, email string) (*model.User, error) {

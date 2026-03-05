@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"mkk/internal/api/account/v1/dto"
-	pkghttp "mkk/pkg/http"
-	"mkk/pkg/metadata"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1/dto"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
 // Logout обрабатывает выход: удаляет сессию и cookie session_id.

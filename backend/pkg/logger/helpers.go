@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"mkk/pkg/ctxkey"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/ctxkey"
 )
 
 // buildCores создает слайс cores для zapcore.Tee.

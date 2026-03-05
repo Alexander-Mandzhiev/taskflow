@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	userRepoDef "mkk/internal/module/identity/user/repository"
-	userRepoAdapter "mkk/internal/module/identity/user/repository/adapter"
-	userRepoCache "mkk/internal/module/identity/user/repository/cache"
-	userRepoReader "mkk/internal/module/identity/user/repository/reader"
-	userRepoWriter "mkk/internal/module/identity/user/repository/writer"
-	userServiceDef "mkk/internal/module/identity/user/service"
-	userServiceImpl "mkk/internal/module/identity/user/service/service"
-	"mkk/pkg/database/txmanager"
+	userRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
+	userRepoAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/adapter"
+	userRepoCache "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache"
+	userRepoReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/reader"
+	userRepoWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/writer"
+	userServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service"
+	userServiceImpl "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service/service"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 )
 
 // UserService возвращает сервисный слой пользователей (CRUD, профиль, смена пароля).

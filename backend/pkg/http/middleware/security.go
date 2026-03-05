@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	pkghttp "mkk/pkg/http"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 )
 
 // SecurityHeadersMiddleware добавляет базовые security headers.

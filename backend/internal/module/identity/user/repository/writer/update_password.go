@@ -7,7 +7,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-	"mkk/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
 )
 
 // UpdatePasswordHash обновляет хеш пароля пользователя по ID.

@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 
-	"mkk/internal/module/identity/user/repository/resources"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/resources"
 )
 
 func isDuplicateKeyError(err error) bool {

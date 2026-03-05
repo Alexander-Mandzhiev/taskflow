@@ -6,8 +6,9 @@ import (
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
-	"mkk/internal/module/identity/user/model"
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
+
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
 )
 
 func (s *userService) Update(ctx context.Context, id string, input *model.UserInput) (*model.User, error) {

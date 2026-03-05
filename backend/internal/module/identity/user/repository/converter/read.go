@@ -3,8 +3,8 @@ package converter
 import (
 	"github.com/google/uuid"
 
-	"mkk/internal/module/identity/user/model"
-	"mkk/internal/module/identity/user/repository/resources"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/resources"
 )
 
 // ToDomainUser преобразует строку БД (UserRow) в доменную модель User.

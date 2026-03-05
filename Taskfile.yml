@@ -73,8 +73,8 @@ tasks:
     desc: "Форматирует backend: gci + gofumpt"
     deps: [install-formatters]
     cmds:
-      - '{{.GCI}} write --skip-generated -s standard -s default -s "prefix(mkk)" backend/'
-      - '{{.GOFUMPT}} -modpath mkk -extra -w backend/'
+      - '{{.GCI}} write --skip-generated -s standard -s default -s "prefix(github.com/Alexander-Mandzhiev/taskflow/backend)" backend/'
+      - '{{.GOFUMPT}} -modpath github.com/Alexander-Mandzhiev/taskflow/backend -extra -w backend/'
 
   lint:
     desc: "Запускает golangci-lint для backend"
@@ -119,9 +119,9 @@ tasks:
   # ДЕПЛОЙ (Docker Compose — БД)
   # ===========================================================================
   compose:net:
-    desc: Создать сеть tmkk
+    desc: Создать сеть taskflow
     cmds:
-      - cmd: docker network create tmkk
+      - cmd: docker network create taskflow
         ignore_error: true
 
   compose:up:database:

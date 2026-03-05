@@ -3,7 +3,7 @@ package writer
 import (
 	"github.com/jmoiron/sqlx"
 
-	def "mkk/internal/module/identity/user/repository"
+	def "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
 )
 
 var _ def.UserWriterRepository = (*repository)(nil)

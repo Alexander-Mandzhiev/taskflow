@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"mkk/internal/module/identity/account/model"
-	"mkk/internal/module/identity/account/repository/converter"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository/converter"
 )
 
 // Set создаёт или обновляет сессию в кеше с заданным TTL.

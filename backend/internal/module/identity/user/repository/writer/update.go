@@ -7,8 +7,8 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-	"mkk/internal/module/identity/user/model"
-	"mkk/internal/module/identity/user/repository/converter"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/converter"
 )
 
 // Update обновляет пользователя по ID (игнорирует удалённых) и возвращает обновлённую сущность.

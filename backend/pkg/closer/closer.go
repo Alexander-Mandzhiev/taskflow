@@ -11,7 +11,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"mkk/pkg/logger"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // shutdownTimeout — максимальное время ожидания graceful shutdown.
