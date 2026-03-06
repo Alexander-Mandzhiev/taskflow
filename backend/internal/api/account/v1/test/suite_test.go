@@ -14,10 +14,12 @@ import (
 
 type APISuite struct {
 	suite.Suite
+
 	ctx context.Context // nolint:containedctx
 
 	accountService *mocks.AccountService
-	api            *account_v1.API
+
+	api *account_v1.API
 }
 
 func (s *APISuite) SetupTest() {
@@ -28,9 +30,13 @@ func (s *APISuite) SetupTest() {
 	}
 
 	s.accountService = mocks.NewAccountService(s.T())
+
 	s.api = account_v1.NewAPI(
 		s.accountService,
-		24*time.Hour,
+		"access_token",
+		15*time.Minute,
+		"refresh_token",
+		7*24*time.Hour,
 		false,
 		"",
 	)

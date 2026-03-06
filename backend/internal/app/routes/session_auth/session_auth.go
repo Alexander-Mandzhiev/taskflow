@@ -8,8 +8,7 @@ import (
 	account_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1"
 )
 
-// Register регистрирует роуты account, защищённые session auth: logout.
-// Whoami и другие эндпоинты для авторизованных пользователей добавляются сюда.
+// Register регистрирует роуты account, защищённые JWT: logout (и при необходимости whoami).
 func Register(ctx context.Context, r chi.Router, api *account_v1.API) {
 	r.Post("/logout", api.Logout)
 }

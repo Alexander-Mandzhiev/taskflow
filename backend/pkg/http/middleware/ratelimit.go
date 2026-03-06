@@ -101,7 +101,7 @@ func (l *userRateLimiter) allow(userID uuid.UUID) (allowed bool, retryAfter time
 }
 
 // UserRateLimitMiddleware ограничивает количество запросов на аутентифицированного пользователя.
-// Применяется после AuthMiddleware — использует user_id из контекста.
+// Применяется после проверки аутентификации (JWT или сессия) — использует user_id из контекста.
 // Неаутентифицированные запросы пропускаются (их покрывает IP rate limiter).
 // Возвращает middleware и функцию stop для graceful shutdown.
 func UserRateLimitMiddleware(ctx context.Context) (func(http.Handler) http.Handler, func()) {

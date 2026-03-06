@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 
 	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/ctxkey"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
@@ -39,18 +38,18 @@ func NewSessionAuthMiddleware(sessionService SessionWhoamiService, isSecure bool
 // Handle проверяет, что запрос аутентифицирован сессией.
 func (m *SessionAuthMiddleware) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sessionID, err := metadata.SessionID(r.Context())
-		if err != nil || sessionID == uuid.Nil {
-			pkghttp.DeleteCookie(w, string(ctxkey.SessionID), m.isSecure, m.cookieDomain)
-			writeAuthResponse(r.Context(), w, false, "Требуется аутентификация")
+		sessionKey, err := metadata.SessionKey(r.Context())
+		if err != nil || sessionKey == uuid.Nil {
+			pkghttp.DeleteCookie(w, "session_id", m.isSecure, m.cookieDomain)
+			writeAuthResponse(r.Context(), w, "Требуется аутентификация")
 			return
 		}
 
-		userID, err := m.sessionService.Whoami(r.Context(), sessionID)
+		userID, err := m.sessionService.Whoami(r.Context(), sessionKey)
 		if err != nil {
 			if errors.Is(err, accountmodel.ErrSessionNotFound) {
-				pkghttp.DeleteCookie(w, string(ctxkey.SessionID), m.isSecure, m.cookieDomain)
-				writeAuthResponse(r.Context(), w, false, "Сессия не найдена или истекла")
+				pkghttp.DeleteCookie(w, "session_id", m.isSecure, m.cookieDomain)
+				writeAuthResponse(r.Context(), w, "Сессия не найдена или истекла")
 				return
 			}
 			pkghttp.WriteJSON(r.Context(), w, http.StatusInternalServerError, pkghttp.ErrorBody{

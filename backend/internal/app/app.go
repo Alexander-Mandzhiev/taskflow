@@ -7,12 +7,14 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/di"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/closer"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 	healthhttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/health"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
 	httprouter "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/router"
 	httpserver "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/server"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
@@ -203,22 +205,8 @@ func (a *App) initListener(ctx context.Context) error {
 func (a *App) initHTTPServer(ctx context.Context) error {
 	httpCfg := a.cfg.HTTP()
 	addr := httpCfg.Address()
-	timeout := httpCfg.Timeout()
-	buckets := a.cfg.Metric().BucketBoundaries()
-	if len(buckets) == 0 {
-		buckets = nil
-	}
 
-	corsCfg := a.cfg.CORS()
-	r, stopRouter := httprouter.NewRouter(ctx, timeout,
-		corsCfg.AllowedOrigins(),
-		corsCfg.AllowedMethods(),
-		corsCfg.AllowedHeaders(),
-		corsCfg.ExposedHeaders(),
-		corsCfg.AllowCredentials(),
-		corsCfg.MaxAge(),
-		buckets,
-	)
+	r, stopRouter := a.initHTTPRouter(ctx)
 	a.stopRouter = stopRouter
 
 	healthhttp.RegisterRoutes(r)
@@ -246,4 +234,36 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 
 	logger.Info(ctx, "✅ [HTTP] Роуты зарегистрированы, сервер готов к запуску", zap.String("address", addr))
 	return nil
+}
+
+// initHTTPRouter создаёт роутер и подключает глобальные middleware (firewall, IP rate limit, logging, metric, CORS).
+// Возвращает роутер и stop для graceful shutdown (остановка IP rate limiter).
+func (a *App) initHTTPRouter(ctx context.Context) (*chi.Mux, func()) {
+	buckets := a.cfg.Metric().BucketBoundaries()
+	if len(buckets) == 0 {
+		buckets = nil
+	}
+
+	corsCfg := a.cfg.CORS()
+
+	ipRateLimitMw, stopIPLimiter := middleware.RateLimitMiddleware()
+	global := []func(http.Handler) http.Handler{
+		middleware.RequestFirewallMiddleware,
+		ipRateLimitMw,
+		middleware.LoggingMiddleware,
+		metric.HTTPMiddleware(ctx, buckets),
+	}
+	if len(corsCfg.AllowedOrigins()) > 0 {
+		global = append(global, middleware.CORSMiddleware(
+			corsCfg.AllowedOrigins(),
+			corsCfg.AllowedMethods(),
+			corsCfg.AllowedHeaders(),
+			corsCfg.ExposedHeaders(),
+			corsCfg.AllowCredentials(),
+			corsCfg.MaxAge(),
+		))
+	}
+
+	r := httprouter.NewRouter(a.cfg.HTTP().Timeout(), global)
+	return r, stopIPLimiter
 }

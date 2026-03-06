@@ -5,21 +5,19 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
-func (s *APISuite) TestLogout_SuccessWithSession() {
-	sessionID := uuid.New()
+const testRefreshTokenValue = "test_refresh_token_value"
 
-	s.accountService.On("Logout", mock.Anything, sessionID).Return(nil).Once()
+func (s *APISuite) TestLogout_SuccessWithSession() {
+	s.accountService.On("Logout", mock.Anything, testRefreshTokenValue).Return(nil).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/logout", nil)
-	req = req.WithContext(metadata.SetSessionIDUUID(req.Context(), sessionID))
+	req.AddCookie(&http.Cookie{Name: "refresh_token", Value: testRefreshTokenValue})
 	rec := httptest.NewRecorder()
 
 	s.api.Logout(rec, req)
@@ -33,6 +31,8 @@ func (s *APISuite) TestLogout_SuccessWithSession() {
 }
 
 func (s *APISuite) TestLogout_SuccessNoSession_ClearsCookie() {
+	s.accountService.On("Logout", mock.Anything, "").Return(nil).Once()
+
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/logout", nil)
 	rec := httptest.NewRecorder()
 
@@ -45,12 +45,10 @@ func (s *APISuite) TestLogout_SuccessNoSession_ClearsCookie() {
 }
 
 func (s *APISuite) TestLogout_SessionNotFound() {
-	sessionID := uuid.New()
-
-	s.accountService.On("Logout", mock.Anything, sessionID).Return(accountmodel.ErrSessionNotFound).Once()
+	s.accountService.On("Logout", mock.Anything, testRefreshTokenValue).Return(accountmodel.ErrSessionNotFound).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/logout", nil)
-	req = req.WithContext(metadata.SetSessionIDUUID(req.Context(), sessionID))
+	req.AddCookie(&http.Cookie{Name: "refresh_token", Value: testRefreshTokenValue})
 	rec := httptest.NewRecorder()
 
 	s.api.Logout(rec, req)
@@ -60,12 +58,10 @@ func (s *APISuite) TestLogout_SessionNotFound() {
 }
 
 func (s *APISuite) TestLogout_InternalError() {
-	sessionID := uuid.New()
-
-	s.accountService.On("Logout", mock.Anything, sessionID).Return(assert.AnError).Once()
+	s.accountService.On("Logout", mock.Anything, testRefreshTokenValue).Return(assert.AnError).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/logout", nil)
-	req = req.WithContext(metadata.SetSessionIDUUID(req.Context(), sessionID))
+	req.AddCookie(&http.Cookie{Name: "refresh_token", Value: testRefreshTokenValue})
 	rec := httptest.NewRecorder()
 
 	s.api.Logout(rec, req)

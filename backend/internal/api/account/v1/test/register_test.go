@@ -9,7 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
+	usermodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
 )
 
 func (s *APISuite) TestRegister_Success() {
@@ -17,8 +18,9 @@ func (s *APISuite) TestRegister_Success() {
 		"email": "newuser@example.com", "password": "password123", "name": "New User",
 	})
 
-	s.accountService.On("Register", mock.Anything, "newuser@example.com", "password123", "New User").
-		Return(nil).Once()
+	s.accountService.On("Register", mock.Anything, mock.MatchedBy(func(in accountmodel.RegisterInput) bool {
+		return in.Email == "newuser@example.com" && in.Password == "password123" && in.Name == "New User"
+	})).Return(nil).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/register", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -39,8 +41,9 @@ func (s *APISuite) TestRegister_EmailDuplicate() {
 		"email": "existing@example.com", "password": "password123", "name": "User",
 	})
 
-	s.accountService.On("Register", mock.Anything, "existing@example.com", "password123", "User").
-		Return(model.ErrEmailDuplicate).Once()
+	s.accountService.On("Register", mock.Anything, mock.MatchedBy(func(in accountmodel.RegisterInput) bool {
+		return in.Email == "existing@example.com" && in.Password == "password123" && in.Name == "User"
+	})).Return(usermodel.ErrEmailDuplicate).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/register", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -95,8 +98,9 @@ func (s *APISuite) TestRegister_InternalError() {
 		"email": "user@example.com", "password": "password123", "name": "User",
 	})
 
-	s.accountService.On("Register", mock.Anything, "user@example.com", "password123", "User").
-		Return(assert.AnError).Once()
+	s.accountService.On("Register", mock.Anything, mock.MatchedBy(func(in accountmodel.RegisterInput) bool {
+		return in.Email == "user@example.com" && in.Password == "password123" && in.Name == "User"
+	})).Return(assert.AnError).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/register", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")

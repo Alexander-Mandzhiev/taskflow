@@ -8,8 +8,8 @@ import (
 )
 
 // Delete удаляет сессию из кеша (logout).
-func (r *repository) Delete(ctx context.Context, sessionID uuid.UUID) error {
-	key := Key(sessionID)
+func (r *repository) Delete(ctx context.Context, jti uuid.UUID) error {
+	key := Key(jti)
 	if err := r.redis.Del(ctx, key); err != nil {
 		return fmt.Errorf("session cache delete: %w", err)
 	}

@@ -29,3 +29,6 @@ const (
 
 // MaxRequestBodyBytes — лимит тела запроса для POST (1 MiB), защита от исчерпания памяти.
 const MaxRequestBodyBytes = 1 << 20
+
+// DefaultAccessTokenCookieName — имя cookie для JWT access-токена по умолчанию (fallback в JWTAuthMiddleware).
+const DefaultAccessTokenCookieName = "access_token"

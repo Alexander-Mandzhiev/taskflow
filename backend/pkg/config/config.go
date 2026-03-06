@@ -11,12 +11,12 @@ import (
 	appmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/app"
 	corsmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/cors"
 	httpmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/http"
+	jwtmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/jwt"
 	loggermodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/logger"
 	metricmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/metric"
 	mysqlmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/mysql"
 	redismodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/redis"
 	sessionmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/session"
-	jwtmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/jwt"
 	tracingmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/tracing"
 )
 

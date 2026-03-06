@@ -3,28 +3,22 @@ package account_v1
 import (
 	"net/http"
 
-	"github.com/google/uuid"
-
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1/dto"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/ctxkey"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
-// Logout обрабатывает выход: удаляет сессию и cookie session_id.
-// Если сессии в контексте нет, cookie всё равно сбрасывается и возвращается 200.
-// При ошибке «сессия не найдена/истекла» cookie также удаляется, чтобы клиент не оставался с мёртвой cookie; ответ — 401.
+// Logout обрабатывает выход: читает refresh из cookie, передаёт в сервис; сервис валидирует и удаляет сессию по jti.
+// Cookie очищаются в любом случае; при ошибке сервиса (сессия не найдена, невалидный токен) — 401, иначе 200.
 func (api *API) Logout(w http.ResponseWriter, r *http.Request) {
-	sessionID, err := metadata.SessionID(r.Context())
-	if err != nil || sessionID == uuid.Nil {
-		api.clearSessionAndRespond(w, r)
-		return
+	refreshToken := ""
+	if c, err := r.Cookie(api.refreshTokenCookieName); err == nil && c != nil && c.Value != "" {
+		refreshToken = c.Value
 	}
 
-	if err := api.accountService.Logout(r.Context(), sessionID); err != nil {
-		// При ошибках «сессия не найдена/истекла» удаляем cookie, чтобы клиент не оставался с мёртвой cookie.
+	if err := api.accountService.Logout(r.Context(), refreshToken); err != nil {
 		if isSessionInvalidOrExpiredError(err) {
-			pkghttp.DeleteCookie(w, string(ctxkey.SessionID), api.isSecure, api.cookieDomain)
+			pkghttp.DeleteCookie(w, api.accessTokenCookieName, api.isSecure, api.cookieDomain)
+			pkghttp.DeleteCookie(w, api.refreshTokenCookieName, api.isSecure, api.cookieDomain)
 		}
 		mapError(w, r, err)
 		return
@@ -35,7 +29,8 @@ func (api *API) Logout(w http.ResponseWriter, r *http.Request) {
 
 // clearSessionAndRespond удаляет cookie и пишет успешный ответ о завершении сессии.
 func (api *API) clearSessionAndRespond(w http.ResponseWriter, r *http.Request) {
-	pkghttp.DeleteCookie(w, string(ctxkey.SessionID), api.isSecure, api.cookieDomain)
+	pkghttp.DeleteCookie(w, api.accessTokenCookieName, api.isSecure, api.cookieDomain)
+	pkghttp.DeleteCookie(w, api.refreshTokenCookieName, api.isSecure, api.cookieDomain)
 	pkghttp.WriteJSON(r.Context(), w, http.StatusOK, dto.LogoutResponse{
 		Success: true,
 		Message: "Сессия завершена",

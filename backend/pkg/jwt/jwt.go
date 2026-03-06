@@ -11,11 +11,9 @@ var (
 	ErrExpiredToken = errors.New("token expired")
 )
 
-// Claims структура claims для JWT токена
-// Содержит только идентификаторы пользователя и клиента.
-// Права и роли получаются из RBAC для большей безопасности.
+// Claims — расширение стандартных claims (jwt.RegisteredClaims: sub, jti, exp, iss, aud и т.д.).
+// Добавляем только Client (тип устройства). Sub = Subject, jti = ID — из пакета.
 type Claims struct {
-	UserID   string `json:"user_id"`   // UUID пользователя (обязательный)
-	ClientID string `json:"client_id"` // UUID клиента (обязательный)
+	Client string `json:"client"` // тип устройства: web, mobile, desktop (обязательный)
 	jwt.RegisteredClaims
 }

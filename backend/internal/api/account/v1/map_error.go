@@ -65,10 +65,12 @@ func mapError(w http.ResponseWriter, r *http.Request, err error) {
 	pkghttp.WriteJSON(r.Context(), w, code, pkghttp.ErrorBody{Code: code, Message: message})
 }
 
-// isSessionInvalidOrExpiredError возвращает true, если ошибка связана с отсутствием или истечением сессии.
+// isSessionInvalidOrExpiredError возвращает true, если ошибка связана с отсутствием/истечением сессии или невалидным refresh-токеном.
 // Используется в Logout: при таких ошибках cookie удаляется, чтобы клиент не оставался с мёртвой cookie.
 func isSessionInvalidOrExpiredError(err error) bool {
-	return errors.Is(err, accountmodel.ErrSessionNotFound) || errors.Is(err, metadata.ErrNotFound)
+	return errors.Is(err, accountmodel.ErrSessionNotFound) ||
+		errors.Is(err, accountmodel.ErrInvalidRefreshToken) ||
+		errors.Is(err, metadata.ErrNotFound)
 }
 
 // mapDomainError возвращает HTTP-код и сообщение для доменных ошибок.
@@ -82,7 +84,7 @@ func mapDomainError(err error) (int, string) {
 		return http.StatusConflict, "Пользователь с таким email уже существует"
 	case errors.Is(err, model.ErrNilInput):
 		return http.StatusBadRequest, "Некорректные данные запроса"
-	case errors.Is(err, accountmodel.ErrSessionNotFound), errors.Is(err, metadata.ErrNotFound):
+	case errors.Is(err, accountmodel.ErrSessionNotFound), errors.Is(err, accountmodel.ErrInvalidRefreshToken), errors.Is(err, metadata.ErrNotFound):
 		return http.StatusUnauthorized, "Сессия не найдена или истекла"
 	default:
 		return http.StatusInternalServerError, "Внутренняя ошибка сервера"

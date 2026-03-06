@@ -23,14 +23,20 @@ func (d *Container) RegisterAccountRoutes(ctx context.Context, router *chi.Mux) 
 		return err
 	}
 
-	accountSvc, err := d.AccountService(ctx)
+	_, err = d.AccountService(ctx)
 	if err != nil {
 		return err
 	}
 
+	jwtCfg := d.cfg.JWT()
 	sessionCfg := d.cfg.Session()
 
-	mw := routes.NewMiddlewares(ctx, accountSvc, sessionCfg.IsSecure(), sessionCfg.CookieDomain())
+	mw := routes.NewMiddlewares(ctx,
+		jwtCfg.AccessSecret(),
+		sessionCfg.IsSecure(),
+		sessionCfg.CookieDomain(),
+		jwtCfg.AccessTokenCookieName(),
+	)
 
 	routes.RegisterAPIs(ctx, router, api, mw)
 

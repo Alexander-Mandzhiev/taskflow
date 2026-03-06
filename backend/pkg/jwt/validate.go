@@ -38,19 +38,10 @@ func ValidateToken(tokenString, secretKey string) (*Claims, error) {
 		return nil, ErrInvalidToken
 	}
 
-	// Валидация обязательных полей
-	if claims.UserID == "" {
+	if claims.Subject == "" || claims.Client == "" {
 		return nil, ErrInvalidToken
 	}
-	if claims.ClientID == "" {
-		return nil, ErrInvalidToken
-	}
-
-	// Валидация формата UUID
-	if err := validateUUID(claims.UserID); err != nil {
-		return nil, ErrInvalidToken
-	}
-	if err := validateUUID(claims.ClientID); err != nil {
+	if err := validateUUID(claims.Subject); err != nil {
 		return nil, ErrInvalidToken
 	}
 

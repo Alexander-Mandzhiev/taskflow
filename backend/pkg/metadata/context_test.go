@@ -10,38 +10,38 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/ctxkey"
 )
 
-func TestSessionID(t *testing.T) {
+func TestSessionKey(t *testing.T) {
 	t.Run("empty context returns ErrNotFound", func(t *testing.T) {
 		ctx := context.Background()
-		id, err := SessionID(ctx)
+		id, err := SessionKey(ctx)
 		if id != uuid.Nil {
-			t.Errorf("SessionID(empty ctx) id = %v, want Nil", id)
+			t.Errorf("SessionKey(empty ctx) id = %v, want Nil", id)
 		}
 		if !errors.Is(err, ErrNotFound) {
-			t.Errorf("SessionID(empty ctx) err = %v, want ErrNotFound", err)
+			t.Errorf("SessionKey(empty ctx) err = %v, want ErrNotFound", err)
 		}
 	})
 
 	t.Run("context with nil UUID returns ErrNotFound", func(t *testing.T) {
-		ctx := context.WithValue(context.Background(), ctxkey.SessionID, uuid.Nil)
-		id, err := SessionID(ctx)
+		ctx := context.WithValue(context.Background(), ctxkey.SessionKey, uuid.Nil)
+		id, err := SessionKey(ctx)
 		if id != uuid.Nil {
-			t.Errorf("SessionID(nil UUID) id = %v, want Nil", id)
+			t.Errorf("SessionKey(nil UUID) id = %v, want Nil", id)
 		}
 		if !errors.Is(err, ErrNotFound) {
-			t.Errorf("SessionID(nil UUID) err = %v, want ErrNotFound", err)
+			t.Errorf("SessionKey(nil UUID) err = %v, want ErrNotFound", err)
 		}
 	})
 
-	t.Run("SetSessionIDUUID then SessionID returns value", func(t *testing.T) {
+	t.Run("SetSessionKey then SessionKey returns value", func(t *testing.T) {
 		want := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-		ctx := SetSessionIDUUID(context.Background(), want)
-		got, err := SessionID(ctx)
+		ctx := SetSessionKey(context.Background(), want)
+		got, err := SessionKey(ctx)
 		if err != nil {
-			t.Fatalf("SessionID: %v", err)
+			t.Fatalf("SessionKey: %v", err)
 		}
 		if got != want {
-			t.Errorf("SessionID = %v, want %v", got, want)
+			t.Errorf("SessionKey = %v, want %v", got, want)
 		}
 	})
 }

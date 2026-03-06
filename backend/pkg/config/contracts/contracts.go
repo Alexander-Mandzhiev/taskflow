@@ -95,6 +95,8 @@ type JWTConfig interface {
 	RefreshSecret() string // для подписи refresh-токена; если пустой — используется AccessSecret()
 	AccessTTL() time.Duration
 	RefreshTTL() time.Duration
+	AccessTokenCookieName() string  // AccessTokenCookieName — имя cookie для JWT access-токена (по умолчанию "access_token").
+	RefreshTokenCookieName() string // RefreshTokenCookieName — имя httpOnly cookie для JWT refresh-токена (по умолчанию "refresh_token"); читается только из cookie.
 }
 
 // LoggerConfig — настройки логгера (уровень, OTLP).

@@ -23,9 +23,13 @@ func (d *Container) AccountV1API(ctx context.Context) (*account_v1.API, error) {
 		return nil, fmt.Errorf("account service: %w", err)
 	}
 	sessionCfg := d.cfg.Session()
+	jwtCfg := d.cfg.JWT()
 	d.accountAPI = account_v1.NewAPI(
 		svc,
-		sessionCfg.TTL(),
+		jwtCfg.AccessTokenCookieName(),
+		jwtCfg.AccessTTL(),
+		jwtCfg.RefreshTokenCookieName(),
+		jwtCfg.RefreshTTL(),
 		sessionCfg.IsSecure(),
 		sessionCfg.CookieDomain(),
 	)
@@ -54,12 +58,17 @@ func (d *Container) AccountService(ctx context.Context) (accountServiceDef.Accou
 		return nil, fmt.Errorf("user tx manager: %w", err)
 	}
 
+	jwtCfg := d.cfg.JWT()
 	d.accountService = accountService.NewAccountService(
 		sessionRepo,
-		d.cfg.Session().TTL(),
+		jwtCfg.RefreshTTL(), // TTL сессии в Redis = время жизни refresh-токена
 		userRepo,
 		txMgr,
 		password.NewBcryptHasher(0),
+		jwtCfg.AccessSecret(),
+		jwtCfg.RefreshSecret(),
+		jwtCfg.AccessTTL(),
+		jwtCfg.RefreshTTL(),
 	)
 	return d.accountService, nil
 }

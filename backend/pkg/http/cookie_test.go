@@ -8,7 +8,7 @@ import (
 
 func TestSetCookie(t *testing.T) {
 	w := httptest.NewRecorder()
-	SetCookie(w, "session_id", "abc123", 3600, false, "")
+	SetCookie(w, "session_id", "abc123", 3600, false, "", true)
 	header := w.Header().Get("Set-Cookie")
 	if header == "" {
 		t.Fatal("Set-Cookie header should be set")

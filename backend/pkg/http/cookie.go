@@ -5,14 +5,14 @@ import (
 	"time"
 )
 
-// SetCookie устанавливает httpOnly cookie с указанным именем, значением и TTL
-// Используется для установки session_id, access_token, refresh_token и других защищенных cookies
-// domain - домен для cookie (например, ".classplanner.ru" для всех поддоменов). Если пустой, cookie доступна только для текущего домена
-func SetCookie(w http.ResponseWriter, name, value string, maxAgeSeconds int, isSecure bool, domain string) {
+// SetCookie устанавливает cookie с указанным именем, значением и TTL.
+// httpOnly: true — cookie недоступна из JS (refresh); false — доступна (access token для фронта).
+// domain — домен для cookie (например, ".example.com"). Пустой — только текущий домен.
+func SetCookie(w http.ResponseWriter, name, value string, maxAgeSeconds int, isSecure bool, domain string, httpOnly bool) {
 	cookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
-		HttpOnly: true,
+		HttpOnly: httpOnly,
 		Secure:   isSecure,
 		SameSite: http.SameSiteLaxMode,
 		Path:     "/",

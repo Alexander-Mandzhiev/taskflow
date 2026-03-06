@@ -5,20 +5,31 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
 )
 
+func containsCookie(setCookies []string, prefix string) bool {
+	for _, c := range setCookies {
+		if strings.HasPrefix(strings.TrimSpace(c), prefix) {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *APISuite) TestLogin_Success() {
-	sessionID := uuid.New()
+	accessToken := "access-jwt-token"
+	refreshToken := "refresh-jwt-token"
 	body, _ := json.Marshal(map[string]string{"email": "user@example.com", "password": "password123"})
 
-	s.accountService.On("Login", mock.Anything, "user@example.com", "password123", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
-		Return(sessionID, nil).Once()
+	s.accountService.On("Login", mock.Anything, mock.MatchedBy(func(in accountmodel.LoginInput) bool {
+		return in.Email == "user@example.com" && in.Password == "password123"
+	})).Return(accessToken, refreshToken, nil).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/login", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -28,7 +39,10 @@ func (s *APISuite) TestLogin_Success() {
 	s.api.Login(rec, req)
 
 	assert.Equal(s.T(), http.StatusOK, rec.Code)
-	assert.Contains(s.T(), rec.Header().Get("Set-Cookie"), "session_id=")
+	setCookies := rec.Header().Values("Set-Cookie")
+	assert.Len(s.T(), setCookies, 2, "expected access_token and refresh_token cookies")
+	assert.True(s.T(), containsCookie(setCookies, "access_token="), "missing access_token cookie")
+	assert.True(s.T(), containsCookie(setCookies, "refresh_token="), "missing refresh_token cookie")
 	var resp map[string]interface{}
 	assert.NoError(s.T(), json.NewDecoder(rec.Body).Decode(&resp))
 	assert.True(s.T(), resp["success"].(bool))
@@ -38,8 +52,9 @@ func (s *APISuite) TestLogin_Success() {
 func (s *APISuite) TestLogin_InvalidCredentials() {
 	body, _ := json.Marshal(map[string]string{"email": "user@example.com", "password": "wrongpassword"})
 
-	s.accountService.On("Login", mock.Anything, "user@example.com", "wrongpassword", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
-		Return(uuid.Nil, accountmodel.ErrInvalidCredentials).Once()
+	s.accountService.On("Login", mock.Anything, mock.MatchedBy(func(in accountmodel.LoginInput) bool {
+		return in.Email == "user@example.com" && in.Password == "wrongpassword"
+	})).Return("", "", accountmodel.ErrInvalidCredentials).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/login", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -88,8 +103,9 @@ func (s *APISuite) TestLogin_ValidationError_ShortPassword() {
 func (s *APISuite) TestLogin_InternalError() {
 	body, _ := json.Marshal(map[string]string{"email": "user@example.com", "password": "password123"})
 
-	s.accountService.On("Login", mock.Anything, "user@example.com", "password123", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
-		Return(uuid.Nil, assert.AnError).Once()
+	s.accountService.On("Login", mock.Anything, mock.MatchedBy(func(in accountmodel.LoginInput) bool {
+		return in.Email == "user@example.com" && in.Password == "password123"
+	})).Return("", "", assert.AnError).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/account/v1/login", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")

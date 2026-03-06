@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1/dto"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/converter"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/validation"
 )
@@ -24,7 +25,8 @@ func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := api.accountService.Register(r.Context(), req.Email, req.Password, req.Name); err != nil {
+	input := converter.RegisterRequestToDomain(req)
+	if err := api.accountService.Register(r.Context(), input); err != nil {
 		mapError(w, r, err)
 		return
 	}

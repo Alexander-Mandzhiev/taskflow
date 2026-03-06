@@ -5,6 +5,7 @@ package mocks
 import (
 	context "context"
 
+	model "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
 	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/google/uuid"
@@ -23,34 +24,39 @@ func (_m *AccountService) EXPECT() *AccountService_Expecter {
 	return &AccountService_Expecter{mock: &_m.Mock}
 }
 
-// Login provides a mock function with given fields: ctx, email, password, userAgent, ip
-func (_m *AccountService) Login(ctx context.Context, email string, password string, userAgent string, ip string) (uuid.UUID, error) {
-	ret := _m.Called(ctx, email, password, userAgent, ip)
+// Login provides a mock function with given fields: ctx, input
+func (_m *AccountService) Login(ctx context.Context, input model.LoginInput) (string, string, error) {
+	ret := _m.Called(ctx, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Login")
 	}
 
-	var r0 uuid.UUID
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) (uuid.UUID, error)); ok {
-		return rf(ctx, email, password, userAgent, ip)
+	var r0 string
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, model.LoginInput) (string, string, error)); ok {
+		return rf(ctx, input)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) uuid.UUID); ok {
-		r0 = rf(ctx, email, password, userAgent, ip)
+	if rf, ok := ret.Get(0).(func(context.Context, model.LoginInput) string); ok {
+		r0 = rf(ctx, input)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(uuid.UUID)
-		}
+		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, string) error); ok {
-		r1 = rf(ctx, email, password, userAgent, ip)
+	if rf, ok := ret.Get(1).(func(context.Context, model.LoginInput) string); ok {
+		r1 = rf(ctx, input)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(context.Context, model.LoginInput) error); ok {
+		r2 = rf(ctx, input)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // AccountService_Login_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Login'
@@ -60,42 +66,39 @@ type AccountService_Login_Call struct {
 
 // Login is a helper method to define mock.On call
 //   - ctx context.Context
-//   - email string
-//   - password string
-//   - userAgent string
-//   - ip string
-func (_e *AccountService_Expecter) Login(ctx interface{}, email interface{}, password interface{}, userAgent interface{}, ip interface{}) *AccountService_Login_Call {
-	return &AccountService_Login_Call{Call: _e.mock.On("Login", ctx, email, password, userAgent, ip)}
+//   - input model.LoginInput
+func (_e *AccountService_Expecter) Login(ctx interface{}, input interface{}) *AccountService_Login_Call {
+	return &AccountService_Login_Call{Call: _e.mock.On("Login", ctx, input)}
 }
 
-func (_c *AccountService_Login_Call) Run(run func(ctx context.Context, email string, password string, userAgent string, ip string)) *AccountService_Login_Call {
+func (_c *AccountService_Login_Call) Run(run func(ctx context.Context, input model.LoginInput)) *AccountService_Login_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(string))
+		run(args[0].(context.Context), args[1].(model.LoginInput))
 	})
 	return _c
 }
 
-func (_c *AccountService_Login_Call) Return(sessionID uuid.UUID, err error) *AccountService_Login_Call {
-	_c.Call.Return(sessionID, err)
+func (_c *AccountService_Login_Call) Return(accessToken string, refreshToken string, err error) *AccountService_Login_Call {
+	_c.Call.Return(accessToken, refreshToken, err)
 	return _c
 }
 
-func (_c *AccountService_Login_Call) RunAndReturn(run func(context.Context, string, string, string, string) (uuid.UUID, error)) *AccountService_Login_Call {
+func (_c *AccountService_Login_Call) RunAndReturn(run func(context.Context, model.LoginInput) (string, string, error)) *AccountService_Login_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Logout provides a mock function with given fields: ctx, sessionID
-func (_m *AccountService) Logout(ctx context.Context, sessionID uuid.UUID) error {
-	ret := _m.Called(ctx, sessionID)
+// Logout provides a mock function with given fields: ctx, refreshToken
+func (_m *AccountService) Logout(ctx context.Context, refreshToken string) error {
+	ret := _m.Called(ctx, refreshToken)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Logout")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
-		r0 = rf(ctx, sessionID)
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, refreshToken)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -110,14 +113,14 @@ type AccountService_Logout_Call struct {
 
 // Logout is a helper method to define mock.On call
 //   - ctx context.Context
-//   - sessionID uuid.UUID
-func (_e *AccountService_Expecter) Logout(ctx interface{}, sessionID interface{}) *AccountService_Logout_Call {
-	return &AccountService_Logout_Call{Call: _e.mock.On("Logout", ctx, sessionID)}
+//   - refreshToken string
+func (_e *AccountService_Expecter) Logout(ctx interface{}, refreshToken interface{}) *AccountService_Logout_Call {
+	return &AccountService_Logout_Call{Call: _e.mock.On("Logout", ctx, refreshToken)}
 }
 
-func (_c *AccountService_Logout_Call) Run(run func(ctx context.Context, sessionID uuid.UUID)) *AccountService_Logout_Call {
+func (_c *AccountService_Logout_Call) Run(run func(ctx context.Context, refreshToken string)) *AccountService_Logout_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -127,22 +130,22 @@ func (_c *AccountService_Logout_Call) Return(_a0 error) *AccountService_Logout_C
 	return _c
 }
 
-func (_c *AccountService_Logout_Call) RunAndReturn(run func(context.Context, uuid.UUID) error) *AccountService_Logout_Call {
+func (_c *AccountService_Logout_Call) RunAndReturn(run func(context.Context, string) error) *AccountService_Logout_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Register provides a mock function with given fields: ctx, email, password, name
-func (_m *AccountService) Register(ctx context.Context, email string, password string, name string) error {
-	ret := _m.Called(ctx, email, password, name)
+// Register provides a mock function with given fields: ctx, input
+func (_m *AccountService) Register(ctx context.Context, input model.RegisterInput) error {
+	ret := _m.Called(ctx, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Register")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) error); ok {
-		r0 = rf(ctx, email, password, name)
+	if rf, ok := ret.Get(0).(func(context.Context, model.RegisterInput) error); ok {
+		r0 = rf(ctx, input)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -157,16 +160,14 @@ type AccountService_Register_Call struct {
 
 // Register is a helper method to define mock.On call
 //   - ctx context.Context
-//   - email string
-//   - password string
-//   - name string
-func (_e *AccountService_Expecter) Register(ctx interface{}, email interface{}, password interface{}, name interface{}) *AccountService_Register_Call {
-	return &AccountService_Register_Call{Call: _e.mock.On("Register", ctx, email, password, name)}
+//   - input model.RegisterInput
+func (_e *AccountService_Expecter) Register(ctx interface{}, input interface{}) *AccountService_Register_Call {
+	return &AccountService_Register_Call{Call: _e.mock.On("Register", ctx, input)}
 }
 
-func (_c *AccountService_Register_Call) Run(run func(ctx context.Context, email string, password string, name string)) *AccountService_Register_Call {
+func (_c *AccountService_Register_Call) Run(run func(ctx context.Context, input model.RegisterInput)) *AccountService_Register_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(model.RegisterInput))
 	})
 	return _c
 }
@@ -176,7 +177,7 @@ func (_c *AccountService_Register_Call) Return(_a0 error) *AccountService_Regist
 	return _c
 }
 
-func (_c *AccountService_Register_Call) RunAndReturn(run func(context.Context, string, string, string) error) *AccountService_Register_Call {
+func (_c *AccountService_Register_Call) RunAndReturn(run func(context.Context, model.RegisterInput) error) *AccountService_Register_Call {
 	_c.Call.Return(run)
 	return _c
 }

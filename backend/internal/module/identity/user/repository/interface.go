@@ -10,6 +10,7 @@ import (
 
 // UserRepository — единая точка доступа к данным пользователя.
 // tx — из txmanager.WithTx (*sqlx.Tx): при tx != nil чтение/запись идут в БД в транзакции; при tx == nil чтение — кеш, при промахе БД и запись в кеш, запись — БД + post-commit hook инвалидации кеша.
+// GetByID/GetByEmail: при err == nil возвращаемый *User не nil; при отсутствии записи — (nil, model.ErrUserNotFound).
 type UserRepository interface {
 	GetByID(ctx context.Context, tx *sqlx.Tx, id string) (*model.User, error)
 	GetByEmail(ctx context.Context, tx *sqlx.Tx, email string) (*model.User, error)

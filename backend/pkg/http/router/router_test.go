@@ -1,12 +1,12 @@
 package http_router
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
@@ -15,30 +15,14 @@ func init() {
 }
 
 func TestNewRouter_ReturnsNonNil(t *testing.T) {
-	ctx := context.Background()
-	timeout := 5 * time.Second
-	r, stop := NewRouter(ctx, timeout, nil, nil, nil, nil, false, 0, nil)
+	r := NewRouter(5*time.Second, nil)
 	if r == nil {
 		t.Fatal("router is nil")
 	}
-	if stop == nil {
-		t.Fatal("stop func is nil")
-	}
-	stop()
-}
-
-func TestNewRouter_StopIdempotent(t *testing.T) {
-	ctx := context.Background()
-	_, stop := NewRouter(ctx, time.Second, nil, nil, nil, nil, false, 0, nil)
-	stop()
-	stop()
-	stop()
 }
 
 func TestNewRouter_HealthRequestSucceeds(t *testing.T) {
-	ctx := context.Background()
-	r, stop := NewRouter(ctx, 5*time.Second, nil, nil, nil, nil, false, 0, nil)
-	defer stop()
+	r := NewRouter(5*time.Second, nil)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -65,9 +49,7 @@ func TestNewRouter_HealthRequestSucceeds(t *testing.T) {
 }
 
 func TestNewRouter_APIPathSucceeds(t *testing.T) {
-	ctx := context.Background()
-	r, stop := NewRouter(ctx, 5*time.Second, nil, nil, nil, nil, false, 0, nil)
-	defer stop()
+	r := NewRouter(5*time.Second, nil)
 
 	r.Get("/api/v1/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -83,9 +65,7 @@ func TestNewRouter_APIPathSucceeds(t *testing.T) {
 }
 
 func TestNewRouter_UnknownPathReturns404(t *testing.T) {
-	ctx := context.Background()
-	r, stop := NewRouter(ctx, 5*time.Second, nil, nil, nil, nil, false, 0, nil)
-	defer stop()
+	r := NewRouter(5*time.Second, nil)
 
 	r.Get("/api/v1/ok", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
 
@@ -99,9 +79,7 @@ func TestNewRouter_UnknownPathReturns404(t *testing.T) {
 }
 
 func TestNewRouter_HealthPathsServed(t *testing.T) {
-	ctx := context.Background()
-	r, stop := NewRouter(ctx, 5*time.Second, nil, nil, nil, nil, false, 0, nil)
-	defer stop()
+	r := NewRouter(5*time.Second, nil)
 
 	for _, path := range []string{"/health", "/live", "/ready", "/start"} {
 		r.Get(path, func(w http.ResponseWriter, r *http.Request) {
@@ -120,12 +98,11 @@ func TestNewRouter_HealthPathsServed(t *testing.T) {
 }
 
 func TestNewRouter_WithCORS_AddsHeaders(t *testing.T) {
-	ctx := context.Background()
 	origins := []string{"https://app.example.com"}
 	methods := []string{"GET", "POST"}
 	headers := []string{"Content-Type"}
-	r, stop := NewRouter(ctx, 5*time.Second, origins, methods, headers, nil, true, 600, nil)
-	defer stop()
+	corsMw := middleware.CORSMiddleware(origins, methods, headers, nil, true, 600)
+	r := NewRouter(5*time.Second, []func(http.Handler) http.Handler{corsMw})
 
 	r.Get("/api/v1/me", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -146,9 +123,7 @@ func TestNewRouter_WithCORS_AddsHeaders(t *testing.T) {
 }
 
 func TestNewRouter_WithoutCORS_NoOriginHeader(t *testing.T) {
-	ctx := context.Background()
-	r, stop := NewRouter(ctx, 5*time.Second, nil, nil, nil, nil, false, 0, nil)
-	defer stop()
+	r := NewRouter(5*time.Second, nil)
 
 	r.Get("/api/v1/me", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -166,11 +141,10 @@ func TestNewRouter_WithoutCORS_NoOriginHeader(t *testing.T) {
 }
 
 func TestNewRouter_OptionsPreflight(t *testing.T) {
-	ctx := context.Background()
 	origins := []string{"https://app.example.com"}
 	methods := []string{"GET", "POST"}
-	r, stop := NewRouter(ctx, 5*time.Second, origins, methods, nil, nil, false, 0, nil)
-	defer stop()
+	corsMw := middleware.CORSMiddleware(origins, methods, nil, nil, false, 0)
+	r := NewRouter(5*time.Second, []func(http.Handler) http.Handler{corsMw})
 
 	r.Get("/api/v1/me", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

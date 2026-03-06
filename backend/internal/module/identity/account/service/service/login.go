@@ -5,46 +5,56 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 
 	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
 	usermodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/jwt"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/useragent"
 )
 
-// Login проверяет email/пароль и создаёт сессию в кеше. При неверных данных — accountmodel.ErrInvalidCredentials
-// (единое сообщение, без раскрытия «пользователь не найден» vs «неверный пароль»).
-// userAgent и ip сохраняются в сессии для списка сессий (пользователь может завершить подозрительную сессию).
-func (s *accountService) Login(ctx context.Context, email, password, userAgent, ip string) (sessionID uuid.UUID, err error) {
-	user, err := s.userRepo.GetByEmail(ctx, nil, email)
+// Login проверяет учётные данные и создаёт сессию в кеше. При неверных данных — accountmodel.ErrInvalidCredentials.
+func (s *accountService) Login(ctx context.Context, input accountmodel.LoginInput) (accessToken, refreshToken string, err error) {
+	user, err := s.userRepo.GetByEmail(ctx, nil, input.Email)
 	if err != nil {
 		if errors.Is(err, usermodel.ErrUserNotFound) {
-			return uuid.Nil, accountmodel.ErrInvalidCredentials
+			return "", "", accountmodel.ErrInvalidCredentials
 		}
-		return uuid.Nil, err
+		return "", "", err
 	}
-	if user == nil {
-		return uuid.Nil, accountmodel.ErrInvalidCredentials
+	// user не nil по контракту UserRepository
+
+	if err := s.hasher.Compare(user.PasswordHash, input.Password); err != nil {
+		return "", "", accountmodel.ErrInvalidCredentials
 	}
 
-	if err := s.hasher.Compare(user.PasswordHash, password); err != nil {
-		return uuid.Nil, accountmodel.ErrInvalidCredentials
+	client := useragent.DeviceTypeFromUserAgent(input.UserAgent)
+	userIDStr := user.ID.String()
+
+	refreshToken, jti, err := jwt.GenerateRefreshToken(userIDStr, client, s.refreshSecret, s.refreshTTL)
+	if err != nil {
+		logger.Error(ctx, "Login: generate refresh token failed", zap.Error(err))
+		return "", "", err
 	}
 
-	sessionID = uuid.New()
 	session := &accountmodel.Session{
 		UserID:     user.ID,
 		CreatedAt:  time.Now(),
-		DeviceType: useragent.DeviceTypeFromUserAgent(userAgent),
-		UserAgent:  userAgent,
-		IP:         ip,
+		DeviceType: client,
+		UserAgent:  input.UserAgent,
+		IP:         input.IP,
 	}
-	if err := s.sessionRepo.Set(ctx, sessionID, session, s.sessionTTL); err != nil {
+	if err := s.sessionRepo.Set(ctx, jti, session, s.sessionTTL); err != nil {
 		logger.Error(ctx, "Login: set session failed", zap.Error(err))
-		return uuid.Nil, err
+		return "", "", err
 	}
 
-	return sessionID, nil
+	accessToken, err = jwt.GenerateToken(userIDStr, client, s.accessSecret, s.accessTTL)
+	if err != nil {
+		logger.Error(ctx, "Login: generate access token failed", zap.Error(err))
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }

@@ -38,9 +38,8 @@ func (d *Container) SqlxDB(ctx context.Context) (*sqlx.DB, error) {
 	}
 
 	d.cl.Add(func(ctx context.Context) error {
-		err := pool.Close()
 		logger.Info(ctx, "🔌 [Shutdown] Closed MySQL pool")
-		return err
+		return pool.Close()
 	})
 
 	d.dbPool = pool

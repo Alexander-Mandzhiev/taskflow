@@ -7,15 +7,16 @@ import (
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
+	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
 	usermodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // Register создаёт пользователя: хеш пароля — до транзакции; в транзакции проверка email и создание записи.
 // Дубликат email — usermodel.ErrEmailDuplicate (Create тоже вернёт его при гонке).
-func (s *accountService) Register(ctx context.Context, email, password, name string) error {
+func (s *accountService) Register(ctx context.Context, input accountmodel.RegisterInput) error {
 	// 1. Хешируем ДО транзакции. CPU работает, БД отдыхает.
-	hash, err := s.hasher.Hash(password)
+	hash, err := s.hasher.Hash(input.Password)
 	if err != nil {
 		logger.Error(ctx, "Register: hash password failed", zap.Error(err))
 		return err
@@ -24,7 +25,7 @@ func (s *accountService) Register(ctx context.Context, email, password, name str
 	// 2. Быстрая транзакция
 	err = s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		// Проверка для UX: избежать лишнего Insert, если email уже занят
-		existing, errGet := s.userRepo.GetByEmail(ctx, tx, email)
+		existing, errGet := s.userRepo.GetByEmail(ctx, tx, input.Email)
 		if errGet != nil && !errors.Is(errGet, usermodel.ErrUserNotFound) {
 			return errGet
 		}
@@ -32,10 +33,10 @@ func (s *accountService) Register(ctx context.Context, email, password, name str
 			return usermodel.ErrEmailDuplicate
 		}
 
-		input := &usermodel.UserInput{Email: email, Name: name}
+		userInput := &usermodel.UserInput{Email: input.Email, Name: input.Name}
 		// Create сам проверит дубликат через БД и вернёт ErrEmailDuplicate,
 		// если кто-то зарегистрировался за миллисекунды после GetByEmail
-		_, errCreate := s.userRepo.Create(ctx, tx, input, hash)
+		_, errCreate := s.userRepo.Create(ctx, tx, userInput, hash)
 		return errCreate
 	})
 	if err != nil {

@@ -13,13 +13,10 @@ type AuthResponse struct {
 	Message       string `json:"message,omitempty"`
 }
 
-func writeAuthResponse(ctx context.Context, w http.ResponseWriter, authenticated bool, message string) {
-	code := http.StatusOK
-	if !authenticated {
-		code = http.StatusUnauthorized
-	}
-	pkghttp.WriteJSON(ctx, w, code, AuthResponse{
-		Authenticated: authenticated,
+// writeAuthResponse пишет 401 и JSON { authenticated: false, message }.
+func writeAuthResponse(ctx context.Context, w http.ResponseWriter, message string) {
+	pkghttp.WriteJSON(ctx, w, http.StatusUnauthorized, AuthResponse{
+		Authenticated: false,
 		Message:       message,
 	})
 }

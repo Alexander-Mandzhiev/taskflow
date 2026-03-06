@@ -26,9 +26,9 @@ func (_m *SessionCacheRepository) EXPECT() *SessionCacheRepository_Expecter {
 	return &SessionCacheRepository_Expecter{mock: &_m.Mock}
 }
 
-// Delete provides a mock function with given fields: ctx, sessionID
-func (_m *SessionCacheRepository) Delete(ctx context.Context, sessionID uuid.UUID) error {
-	ret := _m.Called(ctx, sessionID)
+// Delete provides a mock function with given fields: ctx, jti
+func (_m *SessionCacheRepository) Delete(ctx context.Context, jti uuid.UUID) error {
+	ret := _m.Called(ctx, jti)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
@@ -36,7 +36,7 @@ func (_m *SessionCacheRepository) Delete(ctx context.Context, sessionID uuid.UUI
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
-		r0 = rf(ctx, sessionID)
+		r0 = rf(ctx, jti)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -51,12 +51,12 @@ type SessionCacheRepository_Delete_Call struct {
 
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
-//   - sessionID uuid.UUID
-func (_e *SessionCacheRepository_Expecter) Delete(ctx interface{}, sessionID interface{}) *SessionCacheRepository_Delete_Call {
-	return &SessionCacheRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, sessionID)}
+//   - jti uuid.UUID
+func (_e *SessionCacheRepository_Expecter) Delete(ctx interface{}, jti interface{}) *SessionCacheRepository_Delete_Call {
+	return &SessionCacheRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, jti)}
 }
 
-func (_c *SessionCacheRepository_Delete_Call) Run(run func(ctx context.Context, sessionID uuid.UUID)) *SessionCacheRepository_Delete_Call {
+func (_c *SessionCacheRepository_Delete_Call) Run(run func(ctx context.Context, jti uuid.UUID)) *SessionCacheRepository_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uuid.UUID))
 	})
@@ -73,9 +73,9 @@ func (_c *SessionCacheRepository_Delete_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
-// Get provides a mock function with given fields: ctx, sessionID
-func (_m *SessionCacheRepository) Get(ctx context.Context, sessionID uuid.UUID) (*model.Session, error) {
-	ret := _m.Called(ctx, sessionID)
+// Get provides a mock function with given fields: ctx, jti
+func (_m *SessionCacheRepository) Get(ctx context.Context, jti uuid.UUID) (*model.Session, error) {
+	ret := _m.Called(ctx, jti)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -84,10 +84,10 @@ func (_m *SessionCacheRepository) Get(ctx context.Context, sessionID uuid.UUID) 
 	var r0 *model.Session
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*model.Session, error)); ok {
-		return rf(ctx, sessionID)
+		return rf(ctx, jti)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *model.Session); ok {
-		r0 = rf(ctx, sessionID)
+		r0 = rf(ctx, jti)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.Session)
@@ -95,7 +95,7 @@ func (_m *SessionCacheRepository) Get(ctx context.Context, sessionID uuid.UUID) 
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, sessionID)
+		r1 = rf(ctx, jti)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -110,12 +110,12 @@ type SessionCacheRepository_Get_Call struct {
 
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
-//   - sessionID uuid.UUID
-func (_e *SessionCacheRepository_Expecter) Get(ctx interface{}, sessionID interface{}) *SessionCacheRepository_Get_Call {
-	return &SessionCacheRepository_Get_Call{Call: _e.mock.On("Get", ctx, sessionID)}
+//   - jti uuid.UUID
+func (_e *SessionCacheRepository_Expecter) Get(ctx interface{}, jti interface{}) *SessionCacheRepository_Get_Call {
+	return &SessionCacheRepository_Get_Call{Call: _e.mock.On("Get", ctx, jti)}
 }
 
-func (_c *SessionCacheRepository_Get_Call) Run(run func(ctx context.Context, sessionID uuid.UUID)) *SessionCacheRepository_Get_Call {
+func (_c *SessionCacheRepository_Get_Call) Run(run func(ctx context.Context, jti uuid.UUID)) *SessionCacheRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uuid.UUID))
 	})
@@ -132,9 +132,9 @@ func (_c *SessionCacheRepository_Get_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// Set provides a mock function with given fields: ctx, sessionID, session, ttl
-func (_m *SessionCacheRepository) Set(ctx context.Context, sessionID uuid.UUID, session *model.Session, ttl time.Duration) error {
-	ret := _m.Called(ctx, sessionID, session, ttl)
+// Set provides a mock function with given fields: ctx, jti, session, ttl
+func (_m *SessionCacheRepository) Set(ctx context.Context, jti uuid.UUID, session *model.Session, ttl time.Duration) error {
+	ret := _m.Called(ctx, jti, session, ttl)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Set")
@@ -142,7 +142,7 @@ func (_m *SessionCacheRepository) Set(ctx context.Context, sessionID uuid.UUID, 
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *model.Session, time.Duration) error); ok {
-		r0 = rf(ctx, sessionID, session, ttl)
+		r0 = rf(ctx, jti, session, ttl)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -157,14 +157,14 @@ type SessionCacheRepository_Set_Call struct {
 
 // Set is a helper method to define mock.On call
 //   - ctx context.Context
-//   - sessionID uuid.UUID
+//   - jti uuid.UUID
 //   - session *model.Session
 //   - ttl time.Duration
-func (_e *SessionCacheRepository_Expecter) Set(ctx interface{}, sessionID interface{}, session interface{}, ttl interface{}) *SessionCacheRepository_Set_Call {
-	return &SessionCacheRepository_Set_Call{Call: _e.mock.On("Set", ctx, sessionID, session, ttl)}
+func (_e *SessionCacheRepository_Expecter) Set(ctx interface{}, jti interface{}, session interface{}, ttl interface{}) *SessionCacheRepository_Set_Call {
+	return &SessionCacheRepository_Set_Call{Call: _e.mock.On("Set", ctx, jti, session, ttl)}
 }
 
-func (_c *SessionCacheRepository_Set_Call) Run(run func(ctx context.Context, sessionID uuid.UUID, session *model.Session, ttl time.Duration)) *SessionCacheRepository_Set_Call {
+func (_c *SessionCacheRepository_Set_Call) Run(run func(ctx context.Context, jti uuid.UUID, session *model.Session, ttl time.Duration)) *SessionCacheRepository_Set_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*model.Session), args[3].(time.Duration))
 	})

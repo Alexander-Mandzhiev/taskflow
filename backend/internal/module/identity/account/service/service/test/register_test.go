@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
 	usermodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
 )
 
@@ -15,7 +16,7 @@ func (s *ServiceSuite) TestRegister_Success() {
 	}), mock.AnythingOfType("string")).
 		Return(&usermodel.User{}, nil).Once()
 
-	err := s.svc.Register(s.ctx, "newuser@example.com", "password123", "New User")
+	err := s.svc.Register(s.ctx, accountmodel.RegisterInput{Email: "newuser@example.com", Password: "password123", Name: "New User"})
 
 	assert.NoError(s.T(), err)
 	s.userRepo.AssertExpectations(s.T())
@@ -26,7 +27,7 @@ func (s *ServiceSuite) TestRegister_EmailDuplicate() {
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "existing@example.com").
 		Return(existing, nil).Once()
 
-	err := s.svc.Register(s.ctx, "existing@example.com", "password123", "User")
+	err := s.svc.Register(s.ctx, accountmodel.RegisterInput{Email: "existing@example.com", Password: "password123", Name: "User"})
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, usermodel.ErrEmailDuplicate)
@@ -39,7 +40,7 @@ func (s *ServiceSuite) TestRegister_CreateReturnsDuplicate() {
 	s.userRepo.On("Create", mock.Anything, mock.Anything, mock.Anything, mock.AnythingOfType("string")).
 		Return((*usermodel.User)(nil), usermodel.ErrEmailDuplicate).Once()
 
-	err := s.svc.Register(s.ctx, "race@example.com", "password123", "User")
+	err := s.svc.Register(s.ctx, accountmodel.RegisterInput{Email: "race@example.com", Password: "password123", Name: "User"})
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, usermodel.ErrEmailDuplicate)
@@ -52,7 +53,7 @@ func (s *ServiceSuite) TestRegister_CreateError() {
 	s.userRepo.On("Create", mock.Anything, mock.Anything, mock.Anything, mock.AnythingOfType("string")).
 		Return((*usermodel.User)(nil), assert.AnError).Once()
 
-	err := s.svc.Register(s.ctx, "user@example.com", "password123", "User")
+	err := s.svc.Register(s.ctx, accountmodel.RegisterInput{Email: "user@example.com", Password: "password123", Name: "User"})
 
 	assert.Error(s.T(), err)
 	s.userRepo.AssertExpectations(s.T())

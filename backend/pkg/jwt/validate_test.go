@@ -1,11 +1,12 @@
 package jwt
 
 import (
-	"context"
 	"errors"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestValidateToken_EmptySecret(t *testing.T) {
@@ -29,7 +30,7 @@ func TestValidateToken_InvalidToken(t *testing.T) {
 }
 
 func TestValidateToken_WrongSecret(t *testing.T) {
-	token, err := GenerateToken(validUserID, validClientID, secret, time.Hour)
+	token, err := GenerateToken(validUserID, validClient, secret, time.Hour)
 	if err != nil {
 		t.Fatalf("GenerateToken: %v", err)
 	}
@@ -44,15 +45,24 @@ func TestValidateToken_WrongSecret(t *testing.T) {
 }
 
 func TestValidateToken_Expired(t *testing.T) {
-	// генерируем токен с истечением через 1 мс
-	token, err := GenerateToken(validUserID, validClientID, secret, time.Millisecond)
-	if err != nil {
-		t.Fatalf("GenerateToken: %v", err)
+	// токен с истёкшим сроком (ExpiresAt в прошлом) — стабильно в CI, без ожидания по таймауту
+	now := time.Now()
+	expiredAt := now.Add(-time.Hour)
+	claims := &Claims{
+		Client: validClient,
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   validUserID,
+			Audience:  jwt.ClaimStrings{validClient},
+			ExpiresAt: jwt.NewNumericDate(expiredAt),
+			IssuedAt:  jwt.NewNumericDate(now.Add(-2 * time.Hour)),
+			Issuer:    "taskflow",
+		},
 	}
-	// ждём истечения токена через контекст (вместо time.Sleep)
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
-	<-ctx.Done()
-	cancel()
+	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, err := tok.SignedString([]byte(secret))
+	if err != nil {
+		t.Fatalf("sign expired token: %v", err)
+	}
 
 	_, err = ValidateToken(token, secret)
 	if err == nil {
@@ -64,7 +74,7 @@ func TestValidateToken_Expired(t *testing.T) {
 }
 
 func TestValidateToken_Success(t *testing.T) {
-	token, err := GenerateToken(validUserID, validClientID, secret, time.Hour)
+	token, err := GenerateToken(validUserID, validClient, secret, time.Hour)
 	if err != nil {
 		t.Fatalf("GenerateToken: %v", err)
 	}
@@ -73,7 +83,7 @@ func TestValidateToken_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ValidateToken: %v", err)
 	}
-	if claims.UserID != validUserID || claims.ClientID != validClientID {
-		t.Errorf("claims = UserID %q ClientID %q, want %q %q", claims.UserID, claims.ClientID, validUserID, validClientID)
+	if claims.Subject != validUserID || claims.Client != validClient {
+		t.Errorf("claims = Subject %q Client %q, want %q %q", claims.Subject, claims.Client, validUserID, validClient)
 	}
 }

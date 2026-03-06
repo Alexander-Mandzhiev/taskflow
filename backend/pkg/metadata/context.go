@@ -11,18 +11,18 @@ import (
 
 var ErrNotFound = errors.New("metadata: value not found in context")
 
-// SessionID возвращает session_id из контекста.
-func SessionID(ctx context.Context) (uuid.UUID, error) {
-	v, ok := ctx.Value(ctxkey.SessionID).(uuid.UUID)
+// SessionKey возвращает ключ сессии из контекста (в JWT flow — jti из refresh-токена, для logout).
+func SessionKey(ctx context.Context) (uuid.UUID, error) {
+	v, ok := ctx.Value(ctxkey.SessionKey).(uuid.UUID)
 	if !ok || v == uuid.Nil {
 		return uuid.Nil, ErrNotFound
 	}
 	return v, nil
 }
 
-// SetSessionIDUUID записывает session_id (uuid.UUID) в контекст.
-func SetSessionIDUUID(ctx context.Context, id uuid.UUID) context.Context {
-	return context.WithValue(ctx, ctxkey.SessionID, id)
+// SetSessionKey записывает ключ сессии (jti в JWT flow) в контекст.
+func SetSessionKey(ctx context.Context, id uuid.UUID) context.Context {
+	return context.WithValue(ctx, ctxkey.SessionKey, id)
 }
 
 // UserID возвращает user_id из контекста.

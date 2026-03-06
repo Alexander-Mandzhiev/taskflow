@@ -14,8 +14,8 @@ import (
 // Get возвращает сессию из кеша по sessionID.
 // При отсутствии или истечении ключа — model.ErrSessionNotFound.
 // При повреждённых данных удаляет запись и возвращает model.ErrSessionNotFound (self-healing).
-func (r *repository) Get(ctx context.Context, sessionID uuid.UUID) (*model.Session, error) {
-	key := Key(sessionID)
+func (r *repository) Get(ctx context.Context, jti uuid.UUID) (*model.Session, error) {
+	key := Key(jti)
 	data, err := r.redis.Get(ctx, key)
 	if err != nil {
 		return nil, err

@@ -58,6 +58,10 @@ func (s *ServiceSuite) SetupTest() {
 		s.userRepo,
 		s.txManager,
 		s.hasher,
+		"test-access-secret",
+		"test-refresh-secret",
+		15*time.Minute,
+		7*24*time.Hour,
 	)
 }
 

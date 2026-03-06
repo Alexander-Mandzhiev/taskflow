@@ -20,10 +20,12 @@ func (s *ServiceSuite) TestLogin_Success() {
 	}), mock.AnythingOfType("time.Duration")).
 		Return(nil).Once()
 
-	sessionID, err := s.svc.Login(s.ctx, "user@example.com", "password123", "Mozilla/5.0", "192.168.1.1")
+	input := accountmodel.LoginInput{Email: "user@example.com", Password: "password123", UserAgent: "Mozilla/5.0", IP: "192.168.1.1"}
+	accessToken, refreshToken, err := s.svc.Login(s.ctx, input)
 
 	assert.NoError(s.T(), err)
-	assert.NotEqual(s.T(), uuid.Nil, sessionID)
+	assert.NotEmpty(s.T(), accessToken)
+	assert.NotEmpty(s.T(), refreshToken)
 	s.userRepo.AssertExpectations(s.T())
 	s.sessionRepo.AssertExpectations(s.T())
 }
@@ -32,11 +34,11 @@ func (s *ServiceSuite) TestLogin_UserNotFound() {
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "nonexistent@example.com").
 		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
 
-	sessionID, err := s.svc.Login(s.ctx, "nonexistent@example.com", "password123", "", "")
+	input := accountmodel.LoginInput{Email: "nonexistent@example.com", Password: "password123"}
+	_, _, err := s.svc.Login(s.ctx, input)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, accountmodel.ErrInvalidCredentials)
-	assert.Equal(s.T(), uuid.Nil, sessionID)
 	s.userRepo.AssertExpectations(s.T())
 }
 
@@ -47,11 +49,11 @@ func (s *ServiceSuite) TestLogin_InvalidPassword() {
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "user@example.com").
 		Return(user, nil).Once()
 
-	sessionID, err := s.svc.Login(s.ctx, "user@example.com", "wrongpassword", "", "")
+	input := accountmodel.LoginInput{Email: "user@example.com", Password: "wrongpassword"}
+	_, _, err := s.svc.Login(s.ctx, input)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, accountmodel.ErrInvalidCredentials)
-	assert.Equal(s.T(), uuid.Nil, sessionID)
 	s.userRepo.AssertExpectations(s.T())
 }
 
@@ -64,10 +66,10 @@ func (s *ServiceSuite) TestLogin_SetSessionError() {
 	s.sessionRepo.On("Set", mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.Anything, mock.AnythingOfType("time.Duration")).
 		Return(assert.AnError).Once()
 
-	sessionID, err := s.svc.Login(s.ctx, "user@example.com", "password123", "", "")
+	input := accountmodel.LoginInput{Email: "user@example.com", Password: "password123"}
+	_, _, err := s.svc.Login(s.ctx, input)
 
 	assert.Error(s.T(), err)
-	assert.Equal(s.T(), uuid.Nil, sessionID)
 	s.userRepo.AssertExpectations(s.T())
 	s.sessionRepo.AssertExpectations(s.T())
 }
