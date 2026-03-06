@@ -78,19 +78,26 @@ jobs:
         run: task test-coverage
 
       # 1. Сохраняем процент покрытия в переменную и показываем в сводке джоба
+      # go tool cover требует контекст модуля (go.mod) → запускаем из backend/, файл в ../coverage/
       - name: Show coverage total in summary
         id: coverage
+        working-directory: backend
         run: |
-          COVER_FILE="${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }}"
+          COVER_FILE="../${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }}"
           if [ ! -f "$COVER_FILE" ]; then
             echo "::error::Coverage file not found: $COVER_FILE"
-            echo "## Coverage (overall)" >> $GITHUB_STEP_SUMMARY
-            echo "❌ Report not generated (see logs)" >> $GITHUB_STEP_SUMMARY
+            echo "## 📊 Coverage (overall)" >> $GITHUB_STEP_SUMMARY
+            echo "❌ Файл отчёта не найден. Проверьте генерацию покрытия." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
-          LINE=$(go tool cover -func="$COVER_FILE" | tail -1)
+          LINE=$(go tool cover -func="$COVER_FILE" 2>&1 | tail -1)
           echo "$LINE"
-          TOTAL=$(echo "$LINE" | awk '{print $NF}')
+          if [[ "$LINE" =~ total:.*[[:space:]]([0-9.]+%)$ ]]; then
+            TOTAL="${BASH_REMATCH[1]}"
+          else
+            echo "::warning::Не удалось распознать процент покрытия. Вывод: $LINE"
+            TOTAL="N/A"
+          fi
           echo "total=$TOTAL" >> $GITHUB_OUTPUT
           {
             echo "## 📊 Coverage (overall)"
