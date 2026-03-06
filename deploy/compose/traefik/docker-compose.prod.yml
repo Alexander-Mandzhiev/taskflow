@@ -1,0 +1,52 @@
+services:
+  traefik:
+    build:
+      context: ../../docker/traefik
+      dockerfile: Dockerfile
+      args:
+        # Указываем, что используем prod конфигурацию
+        TRAEFIK_CONFIG: traefik.prod.yml
+        DYNAMIC_CONFIG: dynamic.prod.yml
+    container_name: traefik
+    environment:
+      - ACME_EMAIL=${ACME_EMAIL}
+    command:
+      - --configFile=/etc/traefik/traefik.prod.yml
+      - --certificatesresolvers.le.acme.email=${ACME_EMAIL}
+    ports:
+      # Публичные порты для production (HTTP и HTTPS)
+      - "80:80"
+      - "443:443"
+      # Dashboard только на localhost для безопасности
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - traefik_letsencrypt:/letsencrypt
+      - traefik_logs:/var/log/traefik
+    restart: unless-stopped
+    networks:
+      - school_net
+
+  fail2ban:
+    image: crazymax/fail2ban:1.1.0
+    container_name: fail2ban
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TZ=UTC
+    volumes:
+      - traefik_logs:/var/log/traefik:ro
+      - ../../docker/fail2ban:/data
+    restart: unless-stopped
+
+volumes:
+  traefik_letsencrypt:
+    name: traefik_letsencrypt
+  traefik_logs:
+    name: traefik_logs
+
+networks:
+  school_net:
+    external: true
+

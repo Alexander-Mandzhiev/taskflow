@@ -1,0 +1,80 @@
+services:
+  prometheus:
+    image: prom/prometheus:v3.3.1
+    container_name: prometheus
+    env_file:
+      - ${ENV_FILE}
+    # Проброс портов для Prometheus закрыт - доступ только через Docker сеть
+    # Prometheus используется как хранилище метрик и доступен только внутри Docker сети
+    # Grafana и OTEL Collector подключаются к Prometheus через Docker сеть: prometheus:9090
+    # Для отладки напрямую раскомментируйте следующую строку:
+    # ports:
+    #   - "${PROMETHEUS_HOST_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'  # Хранить метрики 30 дней
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - school_net
+
+  grafana:
+    image: grafana/grafana:12.0.0
+    container_name: grafana
+    env_file:
+      - ${ENV_FILE}
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    # Проброс портов для dev закрыт за Traefik
+    # Для тестирования напрямую раскомментируйте следующую строку:
+    # ports:
+    #   - "${GRAFANA_HOST_PORT:-3000}:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      # URL для работы за reverse proxy (Traefik)
+      # В dev: http://grafana.localhost
+      # В prod: https://metrics.classplanner.ru
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://grafana.localhost}
+      - GF_SERVER_SERVE_FROM_SUB_PATH=${GRAFANA_SERVE_FROM_SUB_PATH:-false}
+      
+      # Безопасность
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      
+      # Дополнительные настройки (опционально)
+      - GF_SERVER_DOMAIN=${GRAFANA_DOMAIN:-grafana.localhost}
+      - GF_INSTALL_PLUGINS=${GRAFANA_PLUGINS:-}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - school_net
+
+volumes:
+  prometheus_data:
+    name: prometheus_data
+  grafana_data:
+    name: grafana_data
+
+networks:
+  school_net:
+    external: true

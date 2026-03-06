@@ -1,0 +1,167 @@
+services:
+  elasticsearch:
+    image: elasticsearch:8.15.0
+    container_name: elasticsearch
+    env_file:
+      - ${ENV_FILE:-../../env/local/.env}
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -u elastic:${ELASTIC_PASSWORD} http://localhost:9200/_cluster/health >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - school_net
+
+  kibana_setup:
+    image: curlimages/curl:8.9.1
+    container_name: kibana_setup
+    env_file:
+      - ${ENV_FILE:-../../env/local/.env}
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - >
+        until curl -fsS -u elastic:${ELASTIC_PASSWORD} http://elasticsearch:9200/_security/_authenticate >/dev/null;
+        do sleep 2; done;
+        curl -fsS -u elastic:${ELASTIC_PASSWORD}
+        -H 'Content-Type: application/json'
+        -X POST http://elasticsearch:9200/_security/user/kibana_system/_password
+        -d "{\"password\":\"${KIBANA_SYSTEM_PASSWORD}\"}" >/dev/null;
+        curl -fsS -u elastic:${ELASTIC_PASSWORD}
+        -H 'Content-Type: application/json'
+        -X PUT http://elasticsearch:9200/_security/user/${KIBANA_ADMIN_USERNAME}
+        -d "{\"password\":\"${KIBANA_ADMIN_PASSWORD}\",\"roles\":[\"superuser\"],\"full_name\":\"Kibana Admin\"}" >/dev/null;
+        echo "Setting up ILM policy and index template for logs...";
+        curl -fsS -u elastic:${ELASTIC_PASSWORD} \
+        -H 'Content-Type: application/json' \
+        -X PUT http://elasticsearch:9200/_ilm/policy/logs-policy \
+        -d '{"policy":{"phases":{"hot":{"min_age":"0ms","actions":{"rollover":{"max_size":"10GB","max_age":"1d"},"set_priority":{"priority":100}}},"warm":{"min_age":"1d","actions":{"shrink":{"number_of_shards":1},"forcemerge":{"max_num_segments":1},"set_priority":{"priority":50}}},"delete":{"min_age":"7d","actions":{"delete":{}}}}}}' >/dev/null || true;
+        curl -fsS -u elastic:${ELASTIC_PASSWORD} \
+        -H 'Content-Type: application/json' \
+        -X PUT http://elasticsearch:9200/_index_template/logs-template \
+        -d '{"index_patterns":["logs*"],"template":{"settings":{"number_of_shards":1,"number_of_replicas":1,"index.lifecycle.name":"logs-policy","index.lifecycle.rollover_alias":"logs"},"mappings":{"properties":{"@timestamp":{"type":"date"}}}}}' >/dev/null || true;
+        curl -fsS -u elastic:${ELASTIC_PASSWORD} \
+        -H 'Content-Type: application/json' \
+        -X PUT http://elasticsearch:9200/logs-000001 \
+        -d '{"aliases":{"logs":{"is_write_index":true}}}' >/dev/null || true;
+        echo "Waiting for Kibana to be ready...";
+        until curl -fsS -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} http://kibana:5601/api/status >/dev/null;
+        do sleep 5; done;
+        echo "Creating Data Views for modules...";
+        echo "Note: Data Views are created without filters. Use KQL query in Discover to filter by module:";
+        echo "  - IAM: service.module:iam";
+        echo "  - Organization: service.module:organization";
+        echo "  - Education: service.module:education";
+        echo "  - Infrastructure: service.module:infrastructure";
+        echo "Creating Data View for All Logs...";
+        curl -sS -X POST http://kibana:5601/api/data_views/data_view \
+          -H "kbn-xsrf: true" \
+          -H "Content-Type: application/json" \
+          -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+          --data '{"data_view":{"title":"logs*","name":"All Logs","timeFieldName":"@timestamp","allowNoIndex":true},"override":true}' || true;
+        echo "Creating Data View for IAM module...";
+        curl -sS -X POST http://kibana:5601/api/data_views/data_view \
+          -H "kbn-xsrf: true" \
+          -H "Content-Type: application/json" \
+          -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+          --data '{"data_view":{"title":"logs*","name":"IAM Module Logs","timeFieldName":"@timestamp","allowNoIndex":true},"override":true}' || true;
+        echo "Creating Data View for Organization module...";
+        curl -sS -X POST http://kibana:5601/api/data_views/data_view \
+          -H "kbn-xsrf: true" \
+          -H "Content-Type: application/json" \
+          -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+          --data '{"data_view":{"title":"logs*","name":"Organization Module Logs","timeFieldName":"@timestamp","allowNoIndex":true},"override":true}' || true;
+        echo "Creating Data View for Education module...";
+        curl -sS -X POST http://kibana:5601/api/data_views/data_view \
+          -H "kbn-xsrf: true" \
+          -H "Content-Type: application/json" \
+          -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+          --data '{"data_view":{"title":"logs*","name":"Education Module Logs","timeFieldName":"@timestamp","allowNoIndex":true},"override":true}' || true;
+        echo "Creating Data View for Infrastructure module...";
+        curl -sS -X POST http://kibana:5601/api/data_views/data_view \
+          -H "kbn-xsrf: true" \
+          -H "Content-Type: application/json" \
+          -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+          --data '{"data_view":{"title":"logs*","name":"Infrastructure Module Logs","timeFieldName":"@timestamp","allowNoIndex":true},"override":true}' || true;
+        echo "Creating saved searches for modules...";
+        DATA_VIEW_ID=$(curl -sS -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} "http://kibana:5601/api/saved_objects/_find?type=index-pattern&search=logs*&search_fields=title" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4);
+        if [ -n "$DATA_VIEW_ID" ]; then \
+          curl -sS -X POST "http://kibana:5601/api/saved_objects/search/logs-all-search?overwrite=true" \
+            -H "kbn-xsrf: true" \
+            -H "Content-Type: application/json" \
+            -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+            --data "{\"attributes\":{\"title\":\"All Logs\",\"description\":\"All logs\",\"columns\":[\"@timestamp\",\"message\",\"level\",\"service.module\"],\"sort\":[[\"@timestamp\",\"desc\"]],\"kibanaSavedObjectMeta\":{\"searchSourceJSON\":\"{\\\"index\\\":\\\"$DATA_VIEW_ID\\\",\\\"query\\\":{\\\"language\\\":\\\"kuery\\\",\\\"query\\\":\\\"*\\\"},\\\"filter\\\":[]}\"}}}" || true; \
+          curl -sS -X POST "http://kibana:5601/api/saved_objects/search/logs-iam-search?overwrite=true" \
+            -H "kbn-xsrf: true" \
+            -H "Content-Type: application/json" \
+            -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+            --data "{\"attributes\":{\"title\":\"IAM Logs\",\"description\":\"service.module:iam\",\"columns\":[\"@timestamp\",\"message\",\"level\",\"service.module\"],\"sort\":[[\"@timestamp\",\"desc\"]],\"kibanaSavedObjectMeta\":{\"searchSourceJSON\":\"{\\\"index\\\":\\\"$DATA_VIEW_ID\\\",\\\"query\\\":{\\\"language\\\":\\\"kuery\\\",\\\"query\\\":\\\"service.module:iam\\\"},\\\"filter\\\":[]}\"}}}" || true; \
+          curl -sS -X POST "http://kibana:5601/api/saved_objects/search/logs-organization-search?overwrite=true" \
+            -H "kbn-xsrf: true" \
+            -H "Content-Type: application/json" \
+            -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+            --data "{\"attributes\":{\"title\":\"Organization Logs\",\"description\":\"service.module:organization\",\"columns\":[\"@timestamp\",\"message\",\"level\",\"service.module\"],\"sort\":[[\"@timestamp\",\"desc\"]],\"kibanaSavedObjectMeta\":{\"searchSourceJSON\":\"{\\\"index\\\":\\\"$DATA_VIEW_ID\\\",\\\"query\\\":{\\\"language\\\":\\\"kuery\\\",\\\"query\\\":\\\"service.module:organization\\\"},\\\"filter\\\":[]}\"}}}" || true; \
+          curl -sS -X POST "http://kibana:5601/api/saved_objects/search/logs-education-search?overwrite=true" \
+            -H "kbn-xsrf: true" \
+            -H "Content-Type: application/json" \
+            -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+            --data "{\"attributes\":{\"title\":\"Education Logs\",\"description\":\"service.module:education\",\"columns\":[\"@timestamp\",\"message\",\"level\",\"service.module\"],\"sort\":[[\"@timestamp\",\"desc\"]],\"kibanaSavedObjectMeta\":{\"searchSourceJSON\":\"{\\\"index\\\":\\\"$DATA_VIEW_ID\\\",\\\"query\\\":{\\\"language\\\":\\\"kuery\\\",\\\"query\\\":\\\"service.module:education\\\"},\\\"filter\\\":[]}\"}}}" || true; \
+          curl -sS -X POST "http://kibana:5601/api/saved_objects/search/logs-infrastructure-search?overwrite=true" \
+            -H "kbn-xsrf: true" \
+            -H "Content-Type: application/json" \
+            -u ${KIBANA_ADMIN_USERNAME}:${KIBANA_ADMIN_PASSWORD} \
+            --data "{\"attributes\":{\"title\":\"Infrastructure Logs\",\"description\":\"service.module:infrastructure\",\"columns\":[\"@timestamp\",\"message\",\"level\",\"service.module\"],\"sort\":[[\"@timestamp\",\"desc\"]],\"kibanaSavedObjectMeta\":{\"searchSourceJSON\":\"{\\\"index\\\":\\\"$DATA_VIEW_ID\\\",\\\"query\\\":{\\\"language\\\":\\\"kuery\\\",\\\"query\\\":\\\"service.module:infrastructure\\\"},\\\"filter\\\":[]}\"}}}" || true; \
+        fi;
+        echo "All module Data Views created successfully."
+    restart: "no"
+    networks:
+      - school_net
+
+  kibana:
+    image: kibana:8.15.0
+    container_name: kibana
+    env_file:
+      - ${ENV_FILE:-../../env/local/.env}
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
+      - XPACK_SECURITY_ENABLED=true
+      - SERVER_PUBLICBASEURL=http://${LOGS_DOMAIN}
+      - XPACK_SECURITY_ENCRYPTIONKEY=${XPACK_SECURITY_ENCRYPTIONKEY}
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY}
+      - XPACK_REPORTING_ENCRYPTIONKEY=${XPACK_REPORTING_ENCRYPTIONKEY}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -u kibana_system:${KIBANA_SYSTEM_PASSWORD} http://localhost:5601/api/status >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - school_net
+
+volumes:
+  es_data:
+    name: es_data
+
+networks:
+  school_net:
+    external: true

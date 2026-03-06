@@ -1,0 +1,41 @@
+extensions:
+  health_check:
+    endpoint: "0.0.0.0:13133"
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+
+processors:
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: "development"
+        action: insert
+  batch:
+    send_batch_size: 1024
+    timeout: "1s"
+    send_batch_max_size: 1024
+  probabilistic_sampler:
+    sampling_percentage: 15
+
+exporters:
+  otlp/jaeger:
+    endpoint: "jaeger:4317"
+    tls:
+      insecure: true
+  debug:
+    verbosity: "normal"
+
+service:
+  extensions: [health_check]
+  telemetry:
+    metrics:
+      level: detailed
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [probabilistic_sampler, batch]
+      exporters: [otlp/jaeger, debug]

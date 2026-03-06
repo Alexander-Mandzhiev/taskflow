@@ -1,0 +1,87 @@
+groups:
+- name: alerts
+  rules:
+  - alert: TargetIsDown
+    expr: up == 0
+    for: 30s
+    labels:
+      severity: medium
+    annotations:
+      summary: "The target {{ $labels.job }} is down"
+      description: "Instance {{ $labels.instance }} из job {{ $labels.job }} не отвечает в течении 30 секунд."
+
+- name: security_scanner_detection
+  interval: 30s
+  rules:
+    # Много 404 -> сканер
+    - alert: VulnerabilityScannerDetected
+      expr: |
+        rate(school_schedule_monolith_http_responses_total{status="not_found"}[5m]) > 10
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Vulnerability scanner detected"
+        description: |
+          {{ $value }} 404 requests/sec — possible scanner activity.
+          Check logs (DEBUG level) for request paths and IPs.
+          Common scanner paths: /.env, /.git, /wp-*, /_next, /actuator
+
+    # Много попыток логина -> brute force
+    - alert: BruteForceDetected
+      expr: |
+        rate(school_schedule_monolith_http_responses_total{path="/api/v1/session/login", status="auth_error"}[5m]) > 5
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Possible login brute force attack"
+        description: |
+          {{ $value }} failed login attempts/sec on /api/v1/session/login.
+          Check application logs (WARN level) for IP addresses and login attempts.
+          Consider blocking IPs at Traefik level if attack persists.
+
+    # Много rate limit ошибок (429)
+    - alert: RateLimitExceeded
+      expr: |
+        rate(school_schedule_monolith_http_responses_total{status="rate_limit"}[1m]) > 50
+      for: 30s
+      labels:
+        severity: warning
+      annotations:
+        summary: "High rate limit hits"
+        description: |
+          {{ $value }} requests/sec hitting rate limits (429).
+          This may indicate DDoS or legitimate high traffic.
+          Check logs and metrics to identify source IPs and paths.
+          See DDoSFromSpecificIP alert for top attacking IPs.
+
+    # Отслеживание конкретных IPs с высокой rate-limit активностью
+    - alert: DDoSFromSpecificIP
+      expr: |
+        topk(5, rate(school_schedule_monolith_http_responses_total{status="rate_limit"}[1m])) > 10
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: "DDoS attack from specific IPs"
+        description: |
+          Top 5 IPs hitting rate limits: {{ $labels.client_ip }}
+          Rate: {{ $value }} requests/sec
+          Path: {{ $labels.path }}
+          Method: {{ $labels.method }}
+          Action: Consider adding IP {{ $labels.client_ip }} to Traefik blocklist
+
+    # Много 5xx ошибок
+    - alert: HighErrorRate
+      expr: |
+        rate(school_schedule_monolith_http_responses_total{status="server_error"}[5m]) > 1
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "High server error rate"
+        description: |
+          {{ $value }} server errors/sec (5xx).
+          Check application logs (ERROR level) for stack traces and error details.
+          Path: {{ $labels.path }}, Method: {{ $labels.method }}

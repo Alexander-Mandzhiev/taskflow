@@ -1,0 +1,36 @@
+services:
+  otel:
+    build:
+      context: ../../docker/otel
+      dockerfile: Dockerfile
+    container_name: otel-collector
+    env_file:
+      - ${ENV_FILE}
+    # В otelcol-contrib 0.133.x метрики собственного telemetry по умолчанию слушают только localhost
+    # (feature gate telemetry.UseLocalHostAsDefaultMetricsAddress включен).
+    # Prometheus в dev/prod скрейпит otel:8888, поэтому отключаем этот feature gate.
+    command:
+      - "--feature-gates=-telemetry.UseLocalHostAsDefaultMetricsAddress"
+    volumes:
+      # Монтируем сертификаты для TLS (если используются)
+      # Если ELASTICSEARCH_CA_FILE указан, файл должен быть в этой директории
+      - ./certs:/etc/otel/certs:ro
+    ports:
+      # OTLP с хоста (локальная разработка)
+      - "127.0.0.1:${OTEL_GRPC_PORT:-4317}:4317"
+      - "127.0.0.1:${OTEL_HTTP_PORT:-4318}:4318"
+    restart: unless-stopped
+    networks:
+      - school_net
+    healthcheck:
+      # Healthcheck использует имя сервиса в Docker сети
+      # Конфиг использует localhost:13133, но внутри контейнера это работает
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:13133"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+networks:
+  school_net:
+    external: true

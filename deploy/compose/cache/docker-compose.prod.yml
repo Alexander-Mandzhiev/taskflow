@@ -1,0 +1,32 @@
+services:
+  # Redis для production (один узел, без кластера)
+  # Порт не пробрасывается - доступ только через Docker сеть
+  redis-master-1:
+    image: redis:7.2.5-alpine3.20
+    container_name: redis-master-1
+    env_file:
+      - ${ENV_FILE}
+    command: >
+      redis-server
+      --port 6379
+      --appendonly yes
+      --bind 0.0.0.0
+      --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - school_net
+
+volumes:
+  redis_data:
+    name: redis_master_1_data
+
+networks:
+  school_net:
+    external: true

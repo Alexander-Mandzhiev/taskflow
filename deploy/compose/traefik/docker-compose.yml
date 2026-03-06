@@ -1,0 +1,32 @@
+services:
+  traefik:
+    build:
+      context: ../../docker/traefik
+      dockerfile: Dockerfile
+    container_name: traefik
+    env_file:
+      - ${ENV_FILE}
+    command:
+      - --configFile=/etc/traefik/traefik.yml
+    ports:
+      # Привязываем порты только к localhost для безопасности
+      - "127.0.0.1:80:80"
+      # HTTPS порт отключен для dev
+      # - "127.0.0.1:443:443"
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_letsencrypt:/letsencrypt
+    restart: unless-stopped
+    networks:
+      - school_net
+
+volumes:
+  traefik_letsencrypt:
+    name: traefik_letsencrypt
+
+networks:
+  school_net:
+    external: true
+
+
