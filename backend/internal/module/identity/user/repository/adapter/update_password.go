@@ -5,7 +5,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache"
+	usercache "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache/user"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 )
 
@@ -18,7 +18,7 @@ func (r *Repository) UpdatePasswordHash(ctx context.Context, tx *sqlx.Tx, id, pa
 	registry := txmanager.GetHookRegistry(ctx)
 	if registry != nil {
 		userID := id
-		registry.Register(cache.Key(userID), func(ctx context.Context) error {
+		registry.Register(usercache.Key(userID), func(ctx context.Context) error {
 			return r.cache.Delete(ctx, userID)
 		})
 	}

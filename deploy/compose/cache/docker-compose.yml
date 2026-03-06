@@ -5,6 +5,9 @@ services:
     container_name: redis-master-1
     env_file:
       - ${ENV_FILE}
+    # Пароль подставляется из --env-file при запуске compose (обязателен для requirepass)
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     command: >
       redis-server
       --port 6379
@@ -22,12 +25,13 @@ services:
       retries: 3
     restart: unless-stopped
     networks:
-      - school_net
+      - app_net
 
 volumes:
   redis_data:
     name: redis_master_1_data
 
 networks:
-  school_net:
+  app_net:
+    name: ${DOCKER_NETWORK_NAME:-taskflow-local}
     external: true

@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache"
+	usercache "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache/user"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 )
 
@@ -20,7 +20,7 @@ func (r *Repository) Create(ctx context.Context, tx *sqlx.Tx, input *model.UserI
 	registry := txmanager.GetHookRegistry(ctx)
 	if registry != nil {
 		id := user.ID.String()
-		registry.Register(cache.Key(id), func(ctx context.Context) error {
+		registry.Register(usercache.Key(id), func(ctx context.Context) error {
 			return r.cache.Set(ctx, id, user)
 		})
 	}

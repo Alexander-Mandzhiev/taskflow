@@ -1,0 +1,31 @@
+services:
+  backend:
+    build:
+      # Корень репозитория (нужно для COPY backend/... в Dockerfile)
+      context: ../../..
+      # Путь к Dockerfile относительно context
+      dockerfile: deploy/docker/backend/Dockerfile
+    # При наличии build + image, compose соберёт и затегирует как IMAGE_TAG (удобно для переиспользования)
+    image: ${BACKEND_IMAGE:-ghcr.io/alexander-mandzhiev/taskflow-backend}:${IMAGE_TAG:-dev}
+    container_name: schedule_backend
+    restart: unless-stopped
+    env_file:
+      - ../../env/${MODE:-dev}/.env
+    environment:
+      CONFIG_PATH: ${CONFIG_PATH:-/app/config/production.yaml}
+    ports:
+      - "${BACKEND_PORT:-4000}:4000"
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  app_net:
+    name: ${DOCKER_NETWORK_NAME:-taskflow-dev}
+    external: true
+

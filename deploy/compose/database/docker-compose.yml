@@ -2,7 +2,13 @@ services:
   mysql:
     image: mysql:8.4
     env_file:
-      - ../../env/local/.env
+      - ../../env/${MODE:-local}/.env
+    # Обязательные для инициализации MySQL (подставляются из --env-file при запуске compose)
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mkk}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     container_name: mkk-mysql
     restart: unless-stopped
     ports:
@@ -16,6 +22,13 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - app_net
 
 volumes:
   mysql_data:
+
+networks:
+  app_net:
+    name: ${DOCKER_NETWORK_NAME:-taskflow-local}
+    external: true

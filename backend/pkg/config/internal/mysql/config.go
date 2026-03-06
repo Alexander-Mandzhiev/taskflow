@@ -11,15 +11,17 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 )
 
-var _ contracts.MySQLConfig = (*Config)(nil)
-var _ contracts.Validatable = (*Config)(nil)
+var (
+	_ contracts.MySQLConfig = (*Config)(nil)
+	_ contracts.Validatable = (*Config)(nil)
+)
 
 // rawConnection — параметры подключения. TODO: Add TLS support if moving to Public Cloud.
 type rawConnection struct {
 	Host     string `mapstructure:"host"     env:"HOST"`
 	Port     int    `mapstructure:"port"     env:"PORT"`
 	User     string `mapstructure:"user"     env:"USER"`
-	Password string `mapstructure:"password" env:"PASSWORD"`
+	Password string `mapstructure:"password" env:"PASSWORD"` //nolint:gosec // конфиг хранит только ссылку на секрет (env), не сам секрет; поле не сериализуется наружу
 	Database string `mapstructure:"database" env:"DATABASE"`
 }
 
@@ -32,7 +34,7 @@ type rawPool struct {
 
 type rawConfig struct {
 	Connection rawConnection `mapstructure:"connection" envPrefix:"MYSQL_"`
-	Pool       rawPool        `mapstructure:"pool" envPrefix:"MYSQL_"`
+	Pool       rawPool       `mapstructure:"pool" envPrefix:"MYSQL_"`
 }
 
 // Config — конфиг модуля mysql (connection + pool).
@@ -64,9 +66,9 @@ func (c *Config) DSN() string {
 	return c.dsn
 }
 
-func (c *Config) MaxOpenConns() int               { return c.raw.Pool.MaxOpenConns }
-func (c *Config) MaxIdleConns() int               { return c.raw.Pool.MaxIdleConns }
-func (c *Config) ConnMaxLifetime() time.Duration  { return c.raw.Pool.ConnMaxLifetime }
+func (c *Config) MaxOpenConns() int              { return c.raw.Pool.MaxOpenConns }
+func (c *Config) MaxIdleConns() int              { return c.raw.Pool.MaxIdleConns }
+func (c *Config) ConnMaxLifetime() time.Duration { return c.raw.Pool.ConnMaxLifetime }
 func (c *Config) ConnMaxIdleTime() time.Duration { return c.raw.Pool.ConnMaxIdleTime }
 
 // Validate проверяет корректность настроек MySQL.

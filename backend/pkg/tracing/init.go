@@ -106,8 +106,6 @@ func ParseDuration(s string, defaultValue time.Duration) time.Duration {
 // initTracer выполняет фактическую инициализацию трассировки для конкретного экземпляра
 func (t *Tracing) initTracer(ctx context.Context, cfg *Config) error {
 	// 1. Создаем OTLP gRPC экспортер для отправки трейсов в OpenTelemetry Collector
-	t.logger.Info(ctx, "[Tracing] Creating OTLP exporter", zap.String("endpoint", cfg.endpoint))
-
 	exporter, err := otlptracegrpc.New(
 		ctx,
 		otlptracegrpc.WithEndpoint(cfg.endpoint), // Адрес коллектора
@@ -127,11 +125,6 @@ func (t *Tracing) initTracer(ctx context.Context, cfg *Config) error {
 	}
 
 	// 2. Создаем ресурс с метаданными о сервисе
-	t.logger.Info(ctx, "[Tracing] Creating resource",
-		zap.String("service.name", cfg.name),
-		zap.String("service.version", cfg.version),
-		zap.String("deployment.environment", cfg.environment))
-
 	attributeResource, err := resource.New(ctx,
 		resource.WithAttributes(
 			// Используем стандартные атрибуты OpenTelemetry
@@ -152,8 +145,6 @@ func (t *Tracing) initTracer(ctx context.Context, cfg *Config) error {
 	}
 
 	// 3. Создаем TracerProvider с настроенным экспортером и ресурсом
-	t.logger.Info(ctx, "[Tracing] Creating TracerProvider", zap.Float64("sample_ratio", cfg.sampleRatio))
-
 	t.tracerProvider = sdktrace.NewTracerProvider(
 		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(attributeResource),
@@ -194,8 +185,6 @@ func (t *Tracing) initTracer(ctx context.Context, cfg *Config) error {
 	}
 
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagators...))
-
-	t.logger.Info(ctx, "[Tracing] Initialized successfully")
 
 	return nil
 }

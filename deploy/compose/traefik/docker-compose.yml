@@ -19,14 +19,15 @@ services:
       - traefik_letsencrypt:/letsencrypt
     restart: unless-stopped
     networks:
-      - school_net
+      - app_net
 
 volumes:
   traefik_letsencrypt:
     name: traefik_letsencrypt
 
 networks:
-  school_net:
+  app_net:
+    name: ${DOCKER_NETWORK_NAME:-taskflow-local}
     external: true
 
 

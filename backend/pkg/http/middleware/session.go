@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/ctxkey"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
@@ -13,7 +14,7 @@ import (
 // Это позволяет публичным эндпоинтам работать без сессии, а защищенным - проверять наличие сессии
 func SessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("session_id")
+		cookie, err := r.Cookie(string(ctxkey.SessionID))
 		if err == nil && cookie != nil && cookie.Value != "" {
 			sessionID, err := uuid.Parse(cookie.Value)
 			if err == nil {

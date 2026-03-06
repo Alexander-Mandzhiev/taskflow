@@ -7,8 +7,10 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 )
 
-var _ contracts.TracingConfig = (*Config)(nil)
-var _ contracts.Validatable = (*Config)(nil)
+var (
+	_ contracts.TracingConfig = (*Config)(nil)
+	_ contracts.Validatable   = (*Config)(nil)
+)
 
 type rawConfig struct {
 	Enable   bool          `mapstructure:"enable"   env:"TRACING_ENABLE"`
@@ -59,7 +61,7 @@ func (c *Config) RetryMaxInterval() time.Duration     { return c.raw.RetryMaxInt
 func (c *Config) RetryMaxElapsedTime() time.Duration  { return c.raw.RetryMaxElapsedTime }
 func (c *Config) EnableTraceContext() bool            { return c.raw.EnableTraceContext }
 func (c *Config) EnableBaggage() bool                 { return c.raw.EnableBaggage }
-func (c *Config) ShutdownTimeout() time.Duration       { return c.raw.ShutdownTimeout }
+func (c *Config) ShutdownTimeout() time.Duration      { return c.raw.ShutdownTimeout }
 
 // Validate проверяет корректность настроек трейсинга.
 func (c *Config) Validate() error {

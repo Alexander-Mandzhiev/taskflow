@@ -10,11 +10,9 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/routes/public"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/routes/session_auth"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
 )
-
-// maxRequestBodyBytes — лимит тела запроса для POST, защита от исчерпания памяти.
-const maxRequestBodyBytes = 1 << 20 // 1 MiB
 
 // Middlewares содержит middleware для роутов (auth, body limit, session, user rate limit).
 // StopUserRateLimit вызывать при graceful shutdown (main).
@@ -29,13 +27,15 @@ type Middlewares struct {
 // NewMiddlewares создаёт middleware для публичных и защищённых роутов.
 // sessionService используется в AuthMiddleware для проверки сессии (Whoami).
 func NewMiddlewares(
+	ctx context.Context,
 	sessionService service.AccountService,
 	isSecure bool,
 	cookieDomain string,
 ) *Middlewares {
-	userRateLimitMw, stopUserLimiter := middleware.UserRateLimitMiddleware()
+	userRateLimitMw, stopUserLimiter := middleware.UserRateLimitMiddleware(ctx)
+
 	return &Middlewares{
-		BodyLimit:         middleware.BodyLimitMiddleware(maxRequestBodyBytes),
+		BodyLimit:         middleware.BodyLimitMiddleware(pkghttp.MaxRequestBodyBytes),
 		Session:           middleware.SessionMiddleware,
 		Auth:              middleware.NewAuthMiddleware(sessionService, isSecure, cookieDomain),
 		UserRateLimit:     userRateLimitMw,

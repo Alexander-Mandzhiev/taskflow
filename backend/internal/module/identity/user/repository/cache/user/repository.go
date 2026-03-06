@@ -1,7 +1,7 @@
 package cache
 
 import (
-	def "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
+	def "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache"
 	redisclient "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/cache"
 )
 

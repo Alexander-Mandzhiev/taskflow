@@ -29,9 +29,13 @@ Taskflow — бэкенд-сервис, который позволяет ком
 
 Подробности — в [deploy/docker/README.md](deploy/docker/README.md). Кратко: поднять окружение через Docker Compose, задать переменные по примеру из `deploy/env/local/.env.example`.
 
+## Покрытие тестами
+
+При расчёте покрытия учитывается только **бизнес-логика**: API account v1 и сервис account (пакеты `cmd`, моки, `app` и остальные `pkg` в тотал не входят). Отчёты в `backend/coverage/` (по образцу монорепо; при добавлении модулей — расширить `MODULES` и при необходимости склейку в `total.out`). Команды: `task test-coverage`, `task coverage:html` (файл `backend/coverage/coverage.html`).
+
 ## Требования к окружению
 
-- Go 1.25+
+- Go 1.25.7
 - MySQL 8+
 - Redis 6+
 - Docker и Docker Compose (для развёртывания)

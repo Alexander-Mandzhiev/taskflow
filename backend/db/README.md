@@ -55,4 +55,12 @@ cd deploy/compose/database && docker compose --env-file ../../env/local/.env up 
 goose -dir db/migration mysql "mkk:mkk_secret@tcp(localhost:3306)/mkk?parseTime=true" up
 ```
 
+## Автозапуск при старте backend
+
+По умолчанию backend применяет миграции при старте приложения (до поднятия HTTP сервера).
+Управляется переменными окружения:
+
+- `MIGRATIONS_AUTO=true|false` — включить/выключить автозапуск (по умолчанию `true`)
+- `MIGRATIONS_DIR=/path/to/migration` — путь к каталогу миграций (если не задан, пробуем `./db/migration` и `./backend/db/migration`)
+
 **Без Docker:** создайте базу вручную: `CREATE DATABASE mkk CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`

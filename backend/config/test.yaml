@@ -4,6 +4,7 @@ app:
   name: testapp
   environment: test
   version: "1.0.0"
+  migrations_dir: db/migration
 
 http:
   address: ":8080"

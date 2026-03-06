@@ -18,8 +18,9 @@ services:
       start_period: 10s
     restart: unless-stopped
     networks:
-      - school_net
+      - app_net
 
 networks:
-  school_net:
+  app_net:
+    name: ${DOCKER_NETWORK_NAME:-taskflow-local}
     external: true

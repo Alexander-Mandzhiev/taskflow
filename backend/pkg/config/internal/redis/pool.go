@@ -36,9 +36,9 @@ func defaultPool() rawPool {
 }
 
 func (p *Pool) ConnTimeout() time.Duration  { return p.raw.ConnTimeout }
-func (p *Pool) ReadTimeout() time.Duration   { return p.raw.ReadTimeout }
+func (p *Pool) ReadTimeout() time.Duration  { return p.raw.ReadTimeout }
 func (p *Pool) WriteTimeout() time.Duration { return p.raw.WriteTimeout }
 func (p *Pool) PoolTimeout() time.Duration  { return p.raw.PoolTimeout }
-func (p *Pool) MaxActive() int               { return p.raw.MaxActive }
-func (p *Pool) MaxIdle() int                 { return p.raw.MaxIdle }
-func (p *Pool) IdleTimeout() time.Duration   { return p.raw.IdleTimeout }
+func (p *Pool) MaxActive() int              { return p.raw.MaxActive }
+func (p *Pool) MaxIdle() int                { return p.raw.MaxIdle }
+func (p *Pool) IdleTimeout() time.Duration  { return p.raw.IdleTimeout }

@@ -3,7 +3,6 @@ package closer
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"os/signal"
 	"sync"
@@ -74,22 +73,6 @@ func (c *Closer) handleSignals(signals ...os.Signal) {
 	case <-c.done:
 		// CloseAll уже вызван вручную
 	}
-}
-
-// AddNamed добавляет функцию закрытия с именем для логирования.
-func (c *Closer) AddNamed(name string, f func(context.Context) error) {
-	c.Add(func(ctx context.Context) error {
-		start := time.Now()
-		c.logger.Info(ctx, fmt.Sprintf("Closing %s", name))
-		err := f(ctx)
-		duration := time.Since(start)
-		if err != nil {
-			c.logger.Error(ctx, fmt.Sprintf("Failed to close %s: %v (%s)", name, err, duration))
-		} else {
-			c.logger.Info(ctx, fmt.Sprintf("Closed %s in %s", name, duration))
-		}
-		return err
-	})
 }
 
 // Add добавляет одну или несколько функций закрытия.

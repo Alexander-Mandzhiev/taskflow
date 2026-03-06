@@ -24,7 +24,7 @@ services:
       - traefik_logs:/var/log/traefik
     restart: unless-stopped
     networks:
-      - school_net
+      - app_net
 
   fail2ban:
     image: crazymax/fail2ban:1.1.0
@@ -47,6 +47,7 @@ volumes:
     name: traefik_logs
 
 networks:
-  school_net:
+  app_net:
+    name: ${DOCKER_NETWORK_NAME:-taskflow-prod}
     external: true
 

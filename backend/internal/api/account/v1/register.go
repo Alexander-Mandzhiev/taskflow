@@ -6,6 +6,7 @@ import (
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1/dto"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/validation"
 )
 
 // Register обрабатывает регистрацию пользователя.
@@ -18,7 +19,7 @@ func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.Struct(req); err != nil {
+	if err := validation.Validator.Struct(req); err != nil {
 		mapError(w, r, err)
 		return
 	}
@@ -28,7 +29,7 @@ func (api *API) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pkghttp.WriteJSON(w, http.StatusCreated, dto.RegisterResponse{
+	pkghttp.WriteJSON(r.Context(), w, http.StatusCreated, dto.RegisterResponse{
 		Success: true,
 		Message: "Пользователь успешно зарегистрирован",
 	})

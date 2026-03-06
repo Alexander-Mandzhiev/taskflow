@@ -7,8 +7,10 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 )
 
-var _ contracts.SessionConfig = (*Config)(nil)
-var _ contracts.Validatable = (*Config)(nil)
+var (
+	_ contracts.SessionConfig = (*Config)(nil)
+	_ contracts.Validatable   = (*Config)(nil)
+)
 
 type rawConfig struct {
 	TTL          time.Duration `mapstructure:"ttl" env:"SESSION_TTL"`
@@ -30,7 +32,7 @@ func defaultConfig() rawConfig {
 }
 
 func (c *Config) TTL() time.Duration   { return c.raw.TTL }
-func (c *Config) IsSecure() bool        { return c.raw.IsSecure }
+func (c *Config) IsSecure() bool       { return c.raw.IsSecure }
 func (c *Config) CookieDomain() string { return c.raw.CookieDomain }
 
 // Validate проверяет корректность настроек сессии.

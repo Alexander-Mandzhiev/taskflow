@@ -3,35 +3,13 @@ package middleware
 import (
 	"net/http"
 	"path"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 )
-
-// SecurityHeadersMiddleware добавляет базовые security headers.
-// KISS: безопасные значения по умолчанию, без жёсткой CSP (чтобы не ломать фронт).
-func SecurityHeadersMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Не даём браузерам пытаться угадать тип контента.
-		w.Header().Set("X-Content-Type-Options", "nosniff")
-		// Запрещаем встраивание в iframe (защита от clickjacking).
-		w.Header().Set("X-Frame-Options", "DENY")
-		// Минимизируем утечки реферера.
-		w.Header().Set("Referrer-Policy", "no-referrer")
-		// Отключаем “фичи” браузера, которыми API обычно не пользуется.
-		w.Header().Set("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
-
-		// HSTS только если запрос пришёл по HTTPS (или прокси сообщает об этом).
-		// Иначе можно случайно “прибить” доступ к dev по http.
-		if r.TLS != nil || strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https") {
-			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
 
 // RequestFirewallMiddleware делает KISS-защиту от типичных scanner-запросов:
 // - всё, что не похоже на API/health, отвечает 404 (быстро)
@@ -125,7 +103,7 @@ func newIPRateLimiter(ttl, interval time.Duration) *ipRateLimiter {
 		stopCh:   make(chan struct{}),
 		ttl:      ttl,
 		interval: interval,
-		maxSize:  10000,
+		maxSize:  pkghttp.RateLimiterMaxSize,
 	}
 	l.startCleanup()
 	return l
@@ -217,7 +195,7 @@ var sensitiveEndpoints = map[string]struct{}{
 // Отдельно ужесточаем лимиты на чувствительные endpoints (login, register, password reset).
 // Возвращает middleware и функцию stop для graceful shutdown (остановка фоновой очистки).
 func RateLimitMiddleware() (func(http.Handler) http.Handler, func()) {
-	limiterStore := newIPRateLimiter(15*time.Minute, 5*time.Minute)
+	limiterStore := newIPRateLimiter(pkghttp.IPRateLimiterTTL, pkghttp.RateLimitWindow5Min)
 
 	mw := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -229,17 +207,19 @@ func RateLimitMiddleware() (func(http.Handler) http.Handler, func()) {
 
 			ip := pkghttp.ClientIP(r)
 
-			maxPerSecond := 30
-
+			maxPerSecond := pkghttp.IPRateLimitDefaultPerSecond
 			if r.Method == http.MethodPost {
 				if _, ok := sensitiveEndpoints[r.URL.Path]; ok {
-					maxPerSecond = 7
+					maxPerSecond = pkghttp.IPRateLimitSensitivePerSecond
 				}
 			}
 
 			if !limiterStore.allow(ip, maxPerSecond, time.Second) {
-				w.Header().Set("Retry-After", "1")
-				http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
+				w.Header().Set("Retry-After", strconv.Itoa(pkghttp.RateLimitRetryAfterSeconds))
+				pkghttp.WriteJSON(r.Context(), w, http.StatusTooManyRequests, pkghttp.ErrorBody{
+					Code:    http.StatusTooManyRequests,
+					Message: "Превышен лимит запросов. Повторите позже",
+				})
 				return
 			}
 

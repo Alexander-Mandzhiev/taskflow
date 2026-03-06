@@ -16,12 +16,10 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
-var validate = validator.New()
-
 // mapError маппит все ошибки ручки (JSON-декодирование, валидация, домен, сессия) в HTTP-ответ.
 // Использование: mapError(w, r, err); return
 func mapError(w http.ResponseWriter, r *http.Request, err error) {
-	if middleware.IsBodyError(w, err) {
+	if middleware.IsBodyError(r.Context(), w, err) {
 		return
 	}
 
@@ -29,7 +27,7 @@ func mapError(w http.ResponseWriter, r *http.Request, err error) {
 	var jsonErr *json.SyntaxError
 	var jsonTypeErr *json.UnmarshalTypeError
 	if errors.As(err, &jsonErr) || errors.As(err, &jsonTypeErr) {
-		pkghttp.WriteJSON(w, http.StatusBadRequest, pkghttp.ErrorBody{
+		pkghttp.WriteJSON(r.Context(), w, http.StatusBadRequest, pkghttp.ErrorBody{
 			Code:    http.StatusBadRequest,
 			Message: "Некорректное тело запроса",
 		})
@@ -42,11 +40,13 @@ func mapError(w http.ResponseWriter, r *http.Request, err error) {
 		items := make([]pkghttp.ValidationErrorItem, 0, len(valErrs))
 		for _, e := range valErrs {
 			items = append(items, pkghttp.ValidationErrorItem{
-				Field:   e.Field(),
+				Field: e.Field(),
+
 				Message: validationMessage(e),
 			})
 		}
-		pkghttp.WriteJSON(w, http.StatusBadRequest, pkghttp.ValidationErrorBody{
+
+		pkghttp.WriteJSON(r.Context(), w, http.StatusBadRequest, pkghttp.ValidationErrorBody{
 			Code:    http.StatusBadRequest,
 			Message: "Ошибка валидации запроса",
 			Errors:  items,
@@ -61,7 +61,14 @@ func mapError(w http.ResponseWriter, r *http.Request, err error) {
 			zap.Error(err),
 		)
 	}
-	pkghttp.WriteJSON(w, code, pkghttp.ErrorBody{Code: code, Message: message})
+
+	pkghttp.WriteJSON(r.Context(), w, code, pkghttp.ErrorBody{Code: code, Message: message})
+}
+
+// isSessionInvalidOrExpiredError возвращает true, если ошибка связана с отсутствием или истечением сессии.
+// Используется в Logout: при таких ошибках cookie удаляется, чтобы клиент не оставался с мёртвой cookie.
+func isSessionInvalidOrExpiredError(err error) bool {
+	return errors.Is(err, accountmodel.ErrSessionNotFound) || errors.Is(err, metadata.ErrNotFound)
 }
 
 // mapDomainError возвращает HTTP-код и сообщение для доменных ошибок.

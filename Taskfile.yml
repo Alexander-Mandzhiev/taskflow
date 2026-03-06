@@ -4,11 +4,13 @@ version: '3'
 # ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ПРОЕКТА
 # =============================================================================
 vars:
-  GO_VERSION: '1.25'
+  # GO_VERSION — для локальной установки; в CI версия берётся из backend/go.mod (go-version-file).
+  GO_VERSION: '1.25.7'
   GOLANGCI_LINT_VERSION: 'v2.10.1'
   GCI_VERSION: 'v0.13.6'
   GOFUMPT_VERSION: 'v0.8.0'
   MOCKERY_VERSION: 'v2.53.3'
+  GO_MODULE: 'github.com/Alexander-Mandzhiev/taskflow/backend'
 
   ROOT_DIR: '{{.TASKFILE_DIR | replace "\\" "/"}}'
   BIN_DIR: '{{.ROOT_DIR}}/bin'
@@ -20,8 +22,43 @@ vars:
   GOFUMPT: '{{.BIN_DIR}}/gofumpt{{.EXE}}'
   MOCKERY: '{{.BIN_DIR}}/mockery{{.EXE}}'
 
+  # Режимы деплоя: local (инфра в Docker, backend на хосте) | dev | prod (всё в контейнерах).
+  # ENV_FILE — путь относительно deploy/compose/<service>; для интерполяции в compose и как env_file в сервисах.
   MODE: '{{.MODE | default "local"}}'
   ENV_FILE: '{{if .ENV_FILE}}{{.ENV_FILE}}{{else}}../../env/{{.MODE | default "local"}}/.env{{end}}'
+  # Имя образа backend по режиму (local/dev — локальная сборка, prod — из registry).
+  BACKEND_IMAGE_BASE: 'ghcr.io/alexander-mandzhiev/taskflow-backend'
+
+  # Модули для тестов и покрытия (при росте — вынести в отдельные сервисы и добавить в список).
+  MODULES: backend
+
+  # Покрытие: бизнес-логика (API, service, adapter); отчёты в coverage/ в корне (cmd, mocks, cache, app не в тотале).
+  COVERAGE_DIR: '{{.ROOT_DIR}}/coverage'
+  COVERAGE_FILE: total.out
+  COVERAGE_API_FILE: api.out
+  COVERAGE_SERVICE_FILE: service.out
+  COVERAGE_ADAPTER_FILE: adapter.out
+
+  # Базовые пути: internal/module/<домен>/<модуль>/<слой>. Добавление домена = новая переменная (TEAMS, …).
+  INTERNAL: "./internal"
+  MODULE: "{{.INTERNAL}}/module"
+  IDENTITY: "{{.MODULE}}/identity"
+  TEAMS: "{{.MODULE}}/teams"
+  # Слои по доменам/модулям — при добавлении модуля дописать строку и в COVER_* ниже.
+  API_ACCOUNT: "{{.INTERNAL}}/api/account/v1"
+  SVC_ACCOUNT: "{{.IDENTITY}}/account/service/service"
+  SVC_USER: "{{.IDENTITY}}/user/service/service"
+  ADP_USER: "{{.IDENTITY}}/user/repository/adapter"
+  # Пример для teams (раскомментировать и добавить в COVER_PKG_* / COVER_TEST_PKGS при появлении):
+  # SVC_TEAM: "{{.TEAMS}}/team/service/service"
+  # ADP_TEAM: "{{.TEAMS}}/team/repository/adapter"
+
+  COVER_PKG_API: "{{.API_ACCOUNT}}"
+  COVER_PKG_SERVICE: "{{.SVC_ACCOUNT}},{{.SVC_USER}}"
+  COVER_PKG_ADAPTER: "{{.ADP_USER}}"
+  COVER_PKG: "{{.COVER_PKG_API}},{{.COVER_PKG_SERVICE}},{{.COVER_PKG_ADAPTER}}"
+  # Тест-пакеты: через пробелы (не запятые).
+  COVER_TEST_PKGS: "{{.API_ACCOUNT}}/test {{.SVC_ACCOUNT}}/test {{.SVC_USER}}/test {{.ADP_USER}}/test"
 
 # =============================================================================
 # УСТАНОВКА ИНСТРУМЕНТОВ
@@ -73,8 +110,8 @@ tasks:
     desc: "Форматирует backend: gci + gofumpt"
     deps: [install-formatters]
     cmds:
-      - '{{.GCI}} write --skip-generated -s standard -s default -s "prefix(github.com/Alexander-Mandzhiev/taskflow/backend)" backend/'
-      - '{{.GOFUMPT}} -modpath github.com/Alexander-Mandzhiev/taskflow/backend -extra -w backend/'
+      - '{{.GCI}} write --skip-generated -s standard -s default -s "prefix({{.GO_MODULE}})" backend/'
+      - '{{.GOFUMPT}} -modpath {{.GO_MODULE}} -extra -w backend/'
 
   lint:
     desc: "Запускает golangci-lint для backend"
@@ -90,15 +127,6 @@ tasks:
     cmds:
       - task: format
       - task: lint
-
-  lint:fix:
-    desc: "golangci-lint с автоисправлением"
-    deps: [install-golangci-lint]
-    dir: backend
-    env:
-      GOTOOLCHAIN: auto
-    cmds:
-      - '{{.GOLANGCI_LINT}} run --fix ./... --config={{.ROOT_DIR}}/.golangci.yml'
 
   # ===========================================================================
   # ГЕНЕРАЦИЯ МОКОВ
@@ -116,17 +144,172 @@ tasks:
       - task: mockery:gen
 
   # ===========================================================================
-  # ДЕПЛОЙ (Docker Compose — БД)
+  # ТЕСТИРОВАНИЕ И ПОКРЫТИЕ
   # ===========================================================================
-  compose:net:
-    desc: Создать сеть taskflow
+  test:
+    desc: "Запускает все тесты в backend"
+    dir: backend
     cmds:
-      - cmd: docker network create taskflow
+      - go test ./... -count=1 -v
+
+  test-coverage:
+    desc: "Тесты с покрытием по API, service, adapter; отчёт в coverage/"
+    dir: backend
+    env:
+      COVERAGE_DIR: '{{.COVERAGE_DIR}}'
+    cmds:
+      - cmd: mkdir -p {{.COVERAGE_DIR}}
+        silent: true
+      - cmd: go test {{.COVER_TEST_PKGS}} -coverpkg={{.COVER_PKG_API}} -coverprofile={{.COVERAGE_DIR}}/{{.COVERAGE_API_FILE}} -covermode=atomic -count=1
+        silent: true
+      - cmd: go test {{.COVER_TEST_PKGS}} -coverpkg={{.COVER_PKG_SERVICE}} -coverprofile={{.COVERAGE_DIR}}/{{.COVERAGE_SERVICE_FILE}} -covermode=atomic -count=1
+        silent: true
+      - cmd: go test {{.COVER_TEST_PKGS}} -coverpkg={{.COVER_PKG_ADAPTER}} -coverprofile={{.COVERAGE_DIR}}/{{.COVERAGE_ADAPTER_FILE}} -covermode=atomic -count=1
+        silent: true
+      - cmd: go test {{.COVER_TEST_PKGS}} -coverpkg={{.COVER_PKG}} -coverprofile={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} -covermode=atomic -count=1
+        silent: true
+      - cmd: |
+          echo "" && echo "Coverage:" && \
+          echo "  API:     $(go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_API_FILE}} | tail -1 | awk '{print $NF}')" && \
+          echo "  SERVICE: $(go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_SERVICE_FILE}} | tail -1 | awk '{print $NF}')" && \
+          echo "  ADAPTER: $(go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_ADAPTER_FILE}} | tail -1 | awk '{print $NF}')" && \
+          echo "  OVERALL: $(go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} | tail -1 | awk '{print $NF}')"
+        platforms: [linux, darwin]
+      - cmd: powershell -NoProfile -Command 'Write-Host ""; Write-Host "Coverage:"; $d=$env:COVERAGE_DIR; Write-Host "API:"; go tool cover "-func=$d/api.out" | Select-Object -Last 1; Write-Host "SERVICE:"; go tool cover "-func=$d/service.out" | Select-Object -Last 1; Write-Host "ADAPTER:"; go tool cover "-func=$d/adapter.out" | Select-Object -Last 1; Write-Host "OVERALL:"; go tool cover "-func=$d/total.out" | Select-Object -Last 1'
+        silent: true
+        platforms: [windows]
+
+  coverage:func:
+    desc: "Показывает покрытие по функциям (go tool cover -func)"
+    deps: [test-coverage]
+    dir: backend
+    cmds:
+      - go tool cover -func={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}}
+
+  coverage:html:
+    desc: "Генерирует HTML-отчёт покрытия (coverage/coverage.html)"
+    deps: [test-coverage]
+    dir: backend
+    cmds:
+      - cmd: go tool cover -html={{.COVERAGE_DIR}}/{{.COVERAGE_FILE}} -o {{.COVERAGE_DIR}}/coverage.html
+        silent: true
+      - cmd: echo Report saved to {{.COVERAGE_DIR}}/coverage.html
+        silent: true
+
+  # ===========================================================================
+  # DOCKER COMPOSE — атомарные задачи + сценарии local/dev/prod
+  # ===========================================================================
+  # Сеть: taskflow-local | taskflow-dev | taskflow-prod (должна совпадать с DOCKER_NETWORK_NAME в .env).
+  compose:net:
+    desc: "Создать Docker-сеть по окружению (MODE=local|dev|prod → taskflow-<MODE>)"
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      NET_NAME: 'taskflow-{{.MODE | default "local"}}'
+    cmds:
+      - cmd: docker network create {{.NET_NAME}}
         ignore_error: true
 
   compose:up:database:
-    desc: Поднять PostgreSQL (MODE=local|dev|prod)
+    desc: "Поднять MySQL (MODE=local|dev|prod)"
     dir: deploy/compose/database
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      # путь относительно deploy/compose/<service> (стабильно на Windows)
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+    env:
+      MODE: '{{.MODE}}'
+    cmds:
+      - task: compose:net
+        vars: { MODE: '{{.MODE}}' }
+      - docker compose --env-file {{.ENV_FILE}} up -d
+
+  compose:down:database:
+    desc: "Остановить MySQL (MODE=local|dev|prod)"
+    dir: deploy/compose/database
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+    cmds:
+      - docker compose --env-file {{.ENV_FILE}} down
+
+  compose:up:backend:
+    desc: "Поднять backend (MODE=local|dev|prod). Dev собирается через build."
+    dir: deploy/compose/backend
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "dev"}}docker-compose.dev.yml{{else}}docker-compose.yml{{end}}'
+      BUILD_FLAG: '{{if eq .MODE "dev"}}--build{{else}}{{end}}'
+    env:
+      MODE: '{{.MODE}}'
+    cmds:
+      - task: compose:net
+        vars: { MODE: '{{.MODE}}' }
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} up -d {{.BUILD_FLAG}}
+
+  compose:down:backend:
+    desc: "Остановить backend (MODE=local|dev|prod)"
+    dir: deploy/compose/backend
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "dev"}}docker-compose.dev.yml{{else}}docker-compose.yml{{end}}'
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} down
+
+  compose:up:cache:
+    desc: "Поднять Redis (MODE=local|dev|prod)"
+    dir: deploy/compose/cache
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "prod"}}docker-compose.prod.yml{{else}}docker-compose.yml{{end}}'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - task: compose:net
+        vars: { MODE: '{{.MODE}}' }
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} up -d
+
+  compose:down:cache:
+    desc: "Остановить Redis (MODE=local|dev|prod)"
+    dir: deploy/compose/cache
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "prod"}}docker-compose.prod.yml{{else}}docker-compose.yml{{end}}'
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} down
+
+  compose:up:traefik:
+    desc: "Поднять Traefik (MODE=local|dev|prod)"
+    dir: deploy/compose/traefik
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "prod"}}docker-compose.prod.yml{{else}}docker-compose.yml{{end}}'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - task: compose:net
+        vars: { MODE: '{{.MODE}}' }
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} up -d --build
+
+  compose:down:traefik:
+    desc: "Остановить Traefik (MODE=local|dev|prod)"
+    dir: deploy/compose/traefik
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "prod"}}docker-compose.prod.yml{{else}}docker-compose.yml{{end}}'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} down
+
+  compose:up:otel:
+    desc: "Поднять OTEL Collector (MODE=local|dev|prod)"
+    dir: deploy/compose/otel
     vars:
       MODE: '{{.MODE | default "local"}}'
       ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
@@ -134,11 +317,12 @@ tasks:
       ENV_FILE: '{{.ENV_FILE}}'
     cmds:
       - task: compose:net
-      - docker compose --env-file {{.ENV_FILE}} up -d
+        vars: { MODE: '{{.MODE}}' }
+      - docker compose --env-file {{.ENV_FILE}} up -d --build
 
-  compose:down:database:
-    desc: Остановить PostgreSQL (MODE=local|dev|prod)
-    dir: deploy/compose/database
+  compose:down:otel:
+    desc: "Остановить OTEL Collector (MODE=local|dev|prod)"
+    dir: deploy/compose/otel
     vars:
       MODE: '{{.MODE | default "local"}}'
       ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
@@ -147,14 +331,209 @@ tasks:
     cmds:
       - docker compose --env-file {{.ENV_FILE}} down
 
+  compose:up:metrics:
+    desc: "Поднять Prometheus + Grafana (MODE=local|dev|prod)"
+    dir: deploy/compose/metrics
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "prod"}}docker-compose.prod.yml{{else}}docker-compose.yaml{{end}}'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - task: compose:net
+        vars: { MODE: '{{.MODE}}' }
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} up -d
+
+  compose:down:metrics:
+    desc: "Остановить Prometheus + Grafana (MODE=local|dev|prod)"
+    dir: deploy/compose/metrics
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "prod"}}docker-compose.prod.yml{{else}}docker-compose.yaml{{end}}'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} down
+
+  compose:up:tracing:
+    desc: "Поднять Jaeger (MODE=local|dev|prod)"
+    dir: deploy/compose/tracing
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - task: compose:net
+        vars: { MODE: '{{.MODE}}' }
+      - docker compose --env-file {{.ENV_FILE}} up -d
+
+  compose:down:tracing:
+    desc: "Остановить Jaeger (MODE=local|dev|prod)"
+    dir: deploy/compose/tracing
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - docker compose --env-file {{.ENV_FILE}} down
+
+  compose:up:logs:
+    desc: "Поднять Elasticsearch + Kibana (MODE=local|dev|prod)"
+    dir: deploy/compose/logs
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "prod"}}docker-compose.prod.yml{{else}}docker-compose.yml{{end}}'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - task: compose:net
+        vars: { MODE: '{{.MODE}}' }
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} up -d
+
+  compose:down:logs:
+    desc: "Остановить Elasticsearch + Kibana (MODE=local|dev|prod)"
+    dir: deploy/compose/logs
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+      ENV_FILE: '../../env/{{.MODE | default "local"}}/.env'
+      COMPOSE_FILE: '{{if eq .MODE "prod"}}docker-compose.prod.yml{{else}}docker-compose.yml{{end}}'
+    env:
+      ENV_FILE: '{{.ENV_FILE}}'
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} --env-file {{.ENV_FILE}} down
+
+  compose:up:observability:
+    desc: "Поднять observability (otel + metrics + tracing + logs) (MODE=local|dev|prod)"
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+    cmds:
+      - task: compose:up:otel
+        vars: { MODE: '{{.MODE}}' }
+      - task: compose:up:metrics
+        vars: { MODE: '{{.MODE}}' }
+      - task: compose:up:tracing
+        vars: { MODE: '{{.MODE}}' }
+      - task: compose:up:logs
+        vars: { MODE: '{{.MODE}}' }
+
+  compose:down:observability:
+    desc: "Остановить observability (otel + metrics + tracing + logs) (MODE=local|dev|prod)"
+    vars:
+      MODE: '{{.MODE | default "local"}}'
+    cmds:
+      - task: compose:down:logs
+        vars: { MODE: '{{.MODE}}' }
+      - task: compose:down:tracing
+        vars: { MODE: '{{.MODE}}' }
+      - task: compose:down:metrics
+        vars: { MODE: '{{.MODE}}' }
+      - task: compose:down:otel
+        vars: { MODE: '{{.MODE}}' }
+
+  # ---------------------------------------------------------------------------
+  # Сценарии local/dev/prod
+  # ---------------------------------------------------------------------------
+  compose:local:up:
+    desc: "LOCAL: поднять инфру (db + cache + observability + traefik). Backend запускается на хосте."
+    cmds:
+      - task: compose:up:traefik
+        vars: { MODE: local }
+      - task: compose:up:database
+        vars: { MODE: local }
+      - task: compose:up:cache
+        vars: { MODE: local }
+      - task: compose:up:observability
+        vars: { MODE: local }
+
+  compose:local:down:
+    desc: "LOCAL: остановить инфру"
+    cmds:
+      - task: compose:down:observability
+        vars: { MODE: local }
+      - task: compose:down:cache
+        vars: { MODE: local }
+      - task: compose:down:database
+        vars: { MODE: local }
+      - task: compose:down:traefik
+        vars: { MODE: local }
+
+  compose:dev:up:
+    desc: "DEV: поднять всё в Docker (traefik + db + cache + backend(build) + observability)"
+    cmds:
+      - task: compose:up:traefik
+        vars: { MODE: dev }
+      - task: compose:up:database
+        vars: { MODE: dev }
+      - task: compose:up:cache
+        vars: { MODE: dev }
+      - task: compose:up:observability
+        vars: { MODE: dev }
+      - task: compose:up:backend
+        vars: { MODE: dev }
+
+  compose:dev:down:
+    desc: "DEV: остановить всё"
+    cmds:
+      - task: compose:down:backend
+        vars: { MODE: dev }
+      - task: compose:down:observability
+        vars: { MODE: dev }
+      - task: compose:down:cache
+        vars: { MODE: dev }
+      - task: compose:down:database
+        vars: { MODE: dev }
+      - task: compose:down:traefik
+        vars: { MODE: dev }
+
+  compose:prod:up:
+    desc: "PROD: поднять всё (traefik(prod) + db + cache(prod) + observability + backend(image))"
+    cmds:
+      - task: compose:up:traefik
+        vars: { MODE: prod }
+      - task: compose:up:database
+        vars: { MODE: prod }
+      - task: compose:up:cache
+        vars: { MODE: prod }
+      - task: compose:up:observability
+        vars: { MODE: prod }
+      - task: compose:up:backend
+        vars: { MODE: prod }
+
+  compose:prod:down:
+    desc: "PROD: остановить всё"
+    cmds:
+      - task: compose:down:backend
+        vars: { MODE: prod }
+      - task: compose:down:observability
+        vars: { MODE: prod }
+      - task: compose:down:cache
+        vars: { MODE: prod }
+      - task: compose:down:database
+        vars: { MODE: prod }
+      - task: compose:down:traefik
+        vars: { MODE: prod }
+
   db:up:
-    desc: Поднять БД (сеть + PostgreSQL)
+    desc: "Поднять сеть + MySQL (MODE=local|dev|prod)"
     cmds:
       - task: compose:up:database
         vars: { MODE: '{{.MODE | default "local"}}' }
 
   db:down:
-    desc: Остановить БД
+    desc: "Остановить MySQL"
     cmds:
       - task: compose:down:database
         vars: { MODE: '{{.MODE | default "local"}}' }
+
+  # Локальная сборка образа backend (без push). Для проверки Dockerfile и запуска через compose.
+  compose:build:backend:
+    desc: "Собрать образ backend локально (тег taskflow-backend:local)"
+    vars:
+      IMAGE: '{{.BACKEND_IMAGE_BASE}}:local'
+    cmds:
+      - docker build -f deploy/docker/backend/Dockerfile -t {{.IMAGE}} .

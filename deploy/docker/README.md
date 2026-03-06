@@ -1,13 +1,19 @@
-# Docker-образы для деплоя (otel, traefik)
+# Docker-образы для деплоя (backend, otel, traefik)
 
 Краткая проверка для **локального** развёртывания.
 
+---
+
+## deploy/docker/backend (приложение)
+
+Образ собирается в **CI** (см. `.github/workflows/build-push.yml`) и публикуется в GitHub Container Registry. На сервере используется только **pull + up** (вариант B), без сборки на проде. Подробные шаги — в [deploy/DEPLOY.md](../DEPLOY.md) и [deploy/compose/backend/README.md](../compose/backend/README.md).
+
 ## Общие требования для локального запуска
 
-1. **Сеть:** все сервисы должны быть в одной Docker-сети (например `tmkk`).  
-   Создание: `docker network create tmkk` (или через `task compose:net`).
+1. **Сеть:** имя сети задаётся по окружению в `.env`: **`DOCKER_NETWORK_NAME=taskflow-local`** (или `taskflow-dev` / `taskflow-prod`).  
+   Создание: `docker network create taskflow-local` (или соответствующее окружению). Все сервисы одного окружения должны быть в одной сети.
 
-2. **Переменные:** в `deploy/env/local/.env` должны быть заданы переменные из `deploy/env/local/.env.example`, в т.ч. **`DOCKER_NETWORK_NAME=tmkk`** для Traefik.
+2. **Переменные:** в `deploy/env/local/.env` (или dev/prod) — переменные из `.env.example`, в т.ч. **`DOCKER_NETWORK_NAME`** для Traefik и всех compose.
 
 ---
 
@@ -30,7 +36,7 @@
 - **Для локального режима** при запуске контейнера нужно указать конфиг:  
   `--configFile=/etc/traefik/traefik.yml`  
   (образ по умолчанию не выбирает dev/prod сам).
-- **Обязательная переменная:** `DOCKER_NETWORK_NAME` — имя сети, в которой находятся контейнеры приложений (например `tmkk`). Подставляется в `traefik.yml` в `providers.docker.network`.
+- **Обязательная переменная:** `DOCKER_NETWORK_NAME` — имя сети по окружению (`taskflow-local` / `taskflow-dev` / `taskflow-prod`). Подставляется в `traefik.yml` в `providers.docker.network` и во все compose.
 - **Файл маршрутизации (локально):** `dynamic.yml`. В нём зашиты имена сервисов и порты:
   - Frontend: `school_schedule_frontend:3001`
   - Backend: `school_schedule_backend:4000`

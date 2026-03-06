@@ -1,0 +1,108 @@
+# Local (ноутбук): конфиг по умолчанию при запуске на хосте (go run, IDE).
+# Секреты и настройки здесь; .env для backend не нужен.
+# Dev (Docker) и prod используют production.yaml + env_file.
+
+app:
+  name: mkk
+  environment: development
+  migrations_dir: db/migration
+
+http:
+  address: "0.0.0.0:4000"
+  timeout: 60s
+  read_header_timeout: 5s
+  read_timeout: 15s
+  write_timeout: 15s
+  idle_timeout: 60s
+  max_header_bytes: 1048576
+  shutdown_timeout: 10s
+
+cors:
+  allowed_origins:
+    - "http://127.0.0.1:3001"
+    - "http://127.0.0.1:3000"
+    - "http://localhost:3001"
+    - "http://localhost:3000"
+  allowed_methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+  allowed_headers: ["Content-Type", "Authorization", "Accept", "X-Requested-With", "Origin"]
+  exposed_headers: []
+  allow_credentials: true
+  max_age: 3600
+
+mysql:
+  connection:
+    host: localhost
+    port: 3306
+    user: mkk
+    password: mkk_secret
+    database: mkk
+  pool:
+    max_open_conns: 25
+    max_idle_conns: 5
+    conn_max_lifetime: 5m
+    conn_max_idle_time: 3m
+
+redis:
+  addr: localhost:6379
+  password: redis_secret
+  pool:
+    max_active: 10
+    max_idle: 5
+    conn_timeout: 5s
+    read_timeout: 3s
+    write_timeout: 3s
+    idle_timeout: 240s
+    pool_timeout: 4s
+
+session:
+  ttl: 24h
+  is_secure: false
+  cookie_domain: ""
+
+logger:
+  level: debug
+  as_json: true
+  name: mkk
+  environment: development
+  otlp_enable: true
+  otlp_endpoint: localhost:4317
+  otlp_shutdown_timeout: 30s
+
+tracing:
+  enable: true
+  endpoint: localhost:4317
+  timeout: 5s
+  sample_ratio: 100
+  retry_enabled: true
+  retry_initial_interval: 500ms
+  retry_max_interval: 5s
+  retry_max_elapsed_time: 30s
+  enable_trace_context: true
+  enable_baggage: true
+  shutdown_timeout: 30s
+
+metric:
+  enable: true
+  endpoint: localhost:4317
+  timeout: 30s
+  namespace: mkk
+  app_name: mkk
+  export_interval: 5s
+  shutdown_timeout: 30s
+  bucket_boundaries:
+    - 0.0001
+    - 0.0002
+    - 0.0004
+    - 0.0008
+    - 0.0016
+    - 0.0032
+    - 0.0064
+    - 0.0128
+    - 0.0256
+    - 0.0512
+    - 0.1024
+    - 0.2048
+    - 0.4096
+    - 0.8192
+    - 1.6384
+    - 3.2768

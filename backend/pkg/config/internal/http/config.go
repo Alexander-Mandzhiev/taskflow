@@ -7,8 +7,10 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 )
 
-var _ contracts.HTTPConfig = (*Config)(nil)
-var _ contracts.Validatable = (*Config)(nil)
+var (
+	_ contracts.HTTPConfig  = (*Config)(nil)
+	_ contracts.Validatable = (*Config)(nil)
+)
 
 type rawConfig struct {
 	Address           string        `mapstructure:"address" env:"HTTP_ADDRESS"`
@@ -34,19 +36,19 @@ func defaultConfig() rawConfig {
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      15 * time.Second,
 		IdleTimeout:       60 * time.Second,
-		MaxHeaderBytes:  1 << 20, // 1 MiB
-		ShutdownTimeout: 10 * time.Second,
+		MaxHeaderBytes:    1 << 20, // 1 MiB
+		ShutdownTimeout:   10 * time.Second,
 	}
 }
 
-func (c *Config) Address() string              { return c.raw.Address }
-func (c *Config) Timeout() time.Duration      { return c.raw.Timeout }
+func (c *Config) Address() string                  { return c.raw.Address }
+func (c *Config) Timeout() time.Duration           { return c.raw.Timeout }
 func (c *Config) ReadHeaderTimeout() time.Duration { return c.raw.ReadHeaderTimeout }
-func (c *Config) ReadTimeout() time.Duration  { return c.raw.ReadTimeout }
-func (c *Config) WriteTimeout() time.Duration { return c.raw.WriteTimeout }
-func (c *Config) IdleTimeout() time.Duration  { return c.raw.IdleTimeout }
-func (c *Config) MaxHeaderBytes() int         { return c.raw.MaxHeaderBytes }
-func (c *Config) ShutdownTimeout() time.Duration { return c.raw.ShutdownTimeout }
+func (c *Config) ReadTimeout() time.Duration       { return c.raw.ReadTimeout }
+func (c *Config) WriteTimeout() time.Duration      { return c.raw.WriteTimeout }
+func (c *Config) IdleTimeout() time.Duration       { return c.raw.IdleTimeout }
+func (c *Config) MaxHeaderBytes() int              { return c.raw.MaxHeaderBytes }
+func (c *Config) ShutdownTimeout() time.Duration   { return c.raw.ShutdownTimeout }
 
 // Validate проверяет корректность настроек HTTP.
 func (c *Config) Validate() error {

@@ -93,6 +93,13 @@ func (a *App) initLogger(ctx context.Context) error {
 	); err != nil {
 		return err
 	}
+
+	a.closer.Add(func(ctx context.Context) error {
+		err := logger.Shutdown(ctx, a.cfg.Logger().OTLPShutdownTimeout())
+		logger.Info(ctx, "📝 [Shutdown] Closed Logger")
+		return err
+	})
+
 	logger.Info(ctx, "✅ [Logger] Логгер инициализирован", zap.String("name", a.cfg.Logger().Name()), zap.String("level", a.cfg.Logger().Level()))
 	return nil
 }
@@ -117,9 +124,10 @@ func (a *App) initTracer(ctx context.Context) error {
 		return fmt.Errorf("init tracer: %w", err)
 	}
 	logger.Info(ctx, "✅ [Tracing] Трейсинг инициализирован", zap.String("service", a.cfg.App().Name()))
-	a.closer.AddNamed("Tracer", func(ctx context.Context) error {
-		logger.Info(ctx, "🔍 [Shutdown] Закрытие Tracer")
-		return tracing.Shutdown(ctx, a.cfg.Tracing().ShutdownTimeout())
+	a.closer.Add(func(ctx context.Context) error {
+		err := tracing.Shutdown(ctx, a.cfg.Tracing().ShutdownTimeout())
+		logger.Info(ctx, "🔍 [Shutdown] Closed Tracer")
+		return err
 	})
 	return nil
 }
@@ -141,9 +149,10 @@ func (a *App) initMetrics(ctx context.Context) error {
 		return fmt.Errorf("init metrics: %w", err)
 	}
 	logger.Info(ctx, "✅ [Metrics] Метрики инициализированы", zap.String("service", a.cfg.App().Name()))
-	a.closer.AddNamed("Metrics", func(ctx context.Context) error {
-		logger.Info(ctx, "📊 [Shutdown] Закрытие Metrics")
-		return metric.Shutdown(ctx, a.cfg.Metric().ShutdownTimeout())
+	a.closer.Add(func(ctx context.Context) error {
+		err := metric.Shutdown(ctx, a.cfg.Metric().ShutdownTimeout())
+		logger.Info(ctx, "📊 [Shutdown] Closed Metrics")
+		return err
 	})
 	return nil
 }
@@ -159,6 +168,10 @@ func (a *App) initDatabase(ctx context.Context) error {
 		return fmt.Errorf("mysql pool: %w", err)
 	}
 	logger.Info(ctx, "✅ [Database] MySQL пул создан и проверен")
+
+	if err := a.di.RunMigrations(ctx); err != nil {
+		return fmt.Errorf("migrations: %w", err)
+	}
 
 	if _, err := a.di.RedisClient(ctx); err != nil {
 		return fmt.Errorf("redis client: %w", err)
@@ -176,11 +189,12 @@ func (a *App) initListener(ctx context.Context) error {
 	a.listener = listener
 	logger.Info(ctx, "✅ [HTTP] Listener создан", zap.String("address", addr))
 
-	a.closer.AddNamed("TCP listener", func(ctx context.Context) error {
-		logger.Info(ctx, "🔌 [Shutdown] Закрытие listener")
-		if err := listener.Close(); err != nil && !errors.Is(err, net.ErrClosed) {
+	a.closer.Add(func(ctx context.Context) error {
+		err := listener.Close()
+		if err != nil && !errors.Is(err, net.ErrClosed) {
 			return err
 		}
+		logger.Info(ctx, "🔌 [Shutdown] Closed TCP listener")
 		return nil
 	})
 	return nil
@@ -221,12 +235,13 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 		httpCfg.MaxHeaderBytes(),
 	)
 
-	a.closer.AddNamed("HTTP server", func(ctx context.Context) error {
-		logger.Info(ctx, "⚡ [Shutdown] Остановка HTTP сервера")
+	a.closer.Add(func(ctx context.Context) error {
 		a.stopRouter()
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), httpCfg.ShutdownTimeout())
+		shutdownCtx, cancel := context.WithTimeout(ctx, httpCfg.ShutdownTimeout())
 		defer cancel()
-		return a.httpServer.Shutdown(shutdownCtx)
+		err := a.httpServer.Shutdown(shutdownCtx)
+		logger.Info(ctx, "⚡ [Shutdown] Closed HTTP server")
+		return err
 	})
 
 	logger.Info(ctx, "✅ [HTTP] Роуты зарегистрированы, сервер готов к запуску", zap.String("address", addr))

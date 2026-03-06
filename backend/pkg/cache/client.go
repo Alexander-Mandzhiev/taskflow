@@ -83,14 +83,6 @@ func (c *client) withTrace(
 		return err
 	}
 
-	c.logger.Debug(ctx, "Redis operation success",
-		zap.String("trace_id", traceID),
-		zap.String("span_id", spanID),
-		zap.String("operation", operation),
-		zap.String("key", key),
-		zap.Duration("duration", duration),
-	)
-
 	span.SetStatus(codes.Ok, "success")
 	span.SetAttributes(
 		attribute.String("redis.status", "success"),
@@ -143,19 +135,6 @@ func (c *client) withTraceGet(
 	status := "miss"
 	if isHit {
 		status = "hit"
-		c.logger.Debug(ctx, "Redis hit",
-			zap.String("trace_id", traceID),
-			zap.String("span_id", spanID),
-			zap.String("key", key),
-			zap.Duration("duration", duration),
-		)
-	} else {
-		c.logger.Debug(ctx, "Redis miss",
-			zap.String("trace_id", traceID),
-			zap.String("span_id", spanID),
-			zap.String("key", key),
-			zap.Duration("duration", duration),
-		)
 	}
 
 	span.SetStatus(codes.Ok, status)
@@ -288,13 +267,6 @@ func (c *client) HGet(ctx context.Context, key, field string) (string, error) {
 	duration := time.Since(start)
 
 	if errors.Is(err, redis.Nil) {
-		c.logger.Debug(ctx, "Redis hget miss",
-			zap.String("trace_id", traceID),
-			zap.String("span_id", spanID),
-			zap.String("key", key),
-			zap.String("field", field),
-			zap.Duration("duration", duration),
-		)
 		span.SetStatus(codes.Ok, "miss")
 		span.SetAttributes(
 			attribute.String("redis.status", "miss"),
@@ -318,14 +290,6 @@ func (c *client) HGet(ctx context.Context, key, field string) (string, error) {
 		span.SetAttributes(attribute.String("redis.status", "error"))
 		return "", err
 	}
-
-	c.logger.Debug(ctx, "Redis hget hit",
-		zap.String("trace_id", traceID),
-		zap.String("span_id", spanID),
-		zap.String("key", key),
-		zap.String("field", field),
-		zap.Duration("duration", duration),
-	)
 
 	span.SetStatus(codes.Ok, "hit")
 	span.SetAttributes(
@@ -370,14 +334,6 @@ func (c *client) HGetAll(ctx context.Context, key string) (map[string]string, er
 		span.SetAttributes(attribute.String("redis.status", "error"))
 		return nil, err
 	}
-
-	c.logger.Debug(ctx, "Redis hgetall",
-		zap.String("trace_id", traceID),
-		zap.String("span_id", spanID),
-		zap.String("key", key),
-		zap.Int("items", len(result)),
-		zap.Duration("duration", duration),
-	)
 
 	span.SetStatus(codes.Ok, "success")
 	span.SetAttributes(

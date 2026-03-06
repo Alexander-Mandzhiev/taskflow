@@ -23,11 +23,12 @@ type Provider interface {
 	Metric() MetricConfig
 }
 
-// AppConfig — базовые настройки приложения (имя, окружение, версия).
+// AppConfig — базовые настройки приложения (имя, окружение, версия, каталог миграций).
 type AppConfig interface {
 	Name() string
 	Environment() string
 	Version() string
+	MigrationsDir() string
 }
 
 // CORSConfig — настройки CORS для HTTP-сервера.

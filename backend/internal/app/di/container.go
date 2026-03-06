@@ -7,7 +7,9 @@ import (
 	account_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1"
 	accountRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository"
 	accountServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service"
-	userRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
+	userRepoAdapterDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
+	userCacheRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache"
+	userReaderRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/user"
 	userServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/cache"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/closer"
@@ -28,15 +30,15 @@ type Container struct {
 	sqlxDB *sqlx.DB
 
 	// Redis
-	redisClient cache.RedisClient
+	redisClient  cache.RedisClient
 	redisCmdable redis.Cmdable
 
 	// User module (сервисный слой поверх репозиториев)
 	userService    userServiceDef.UserService
-	userReaderRepo userRepoDef.UserReaderRepository
-	userWriterRepo userRepoDef.UserWriterRepository
-	userCacheRepo  userRepoDef.UserCacheRepository
-	userRepo       userRepoDef.UserRepository
+	userReaderRepo userReaderRepoDef.UserReaderRepository
+	userWriterRepo userReaderRepoDef.UserWriterRepository
+	userCacheRepo  userCacheRepoDef.UserCacheRepository
+	userRepo       userRepoAdapterDef.UserRepository
 	userTxManager  *txmanager.Manager
 
 	// Account module (session + account service)

@@ -2,6 +2,15 @@
 
 Все переменные окружения для разных режимов запуска: **local / dev / prod**.
 
+## Стратегия: где хранить секреты
+
+| Окружение | Backend | Compose (MySQL, Redis, observability) |
+|-----------|---------|----------------------------------------|
+| **Local** | Секреты и настройки в `backend/config/local.yaml`. Запуск на хосте (`go run`) — конфиг по умолчанию, без .env. | `.env` из `deploy/env/local/` — только для контейнеров (database, cache, otel, logs, grafana). |
+| **Dev / Prod** | Секреты в `.env`, в YAML только подстановки `${VAR}`. В контейнер передаётся `env_file` при запуске. | Тот же `.env` — compose и backend читают одни переменные. |
+
+Итого: локально пароли можно хранить в YAML бэкенда; в dev/prod — только в .env, без секретов в репозитории.
+
 ## 📁 Структура
 
 ```
@@ -35,19 +44,25 @@ cd ../prod
 cp .env.example .env
 ```
 
-### 2. Использование в docker-compose:
+### 2. Сеть по окружению
+
+Имя Docker-сети задаётся переменной **`DOCKER_NETWORK_NAME`** и должно совпадать во всех compose при одном режиме:
+
+| Окружение | Сеть            |
+|-----------|------------------|
+| local     | `taskflow-local` |
+| dev       | `taskflow-dev`   |
+| prod      | `taskflow-prod`  |
+
+Перед первым запуском создайте сеть:  
+`docker network create taskflow-local` (или taskflow-dev / taskflow-prod).
+
+### 3. Использование в docker-compose
 
 ```bash
-# Через Taskfile (рекомендуется)
-task compose:up MODE=local
-task compose:up MODE=dev
-task compose:up MODE=prod
-
-# Или напрямую (пример: backend)
+# С env-файлом (в .env должна быть DOCKER_NETWORK_NAME=taskflow-local и т.д.)
 cd deploy/compose/backend
-set ENV_FILE=../../env/local/.env
-set DOCKER_NETWORK_NAME=school_local
-docker compose --env-file %ENV_FILE% up -d --build
+docker compose --env-file ../../env/local/.env up -d
 ```
 
 ## 📝 Переменные
@@ -62,13 +77,14 @@ docker compose --env-file %ENV_FILE% up -d --build
 - `*_MEMORY_LIMIT` - лимит памяти
 - `*_CPU_LIMIT` - лимит CPU
 
-### Application Variables
+### Application Variables (dev/prod — backend в контейнере)
 
-Переменные для приложения внутри контейнера:
-- `POSTGRES_HOST` - имя сервиса в docker-compose (для подключения)
-- `POSTGRES_PORT` - порт внутри контейнера
-- `REDIS_HOST` - имя сервиса в docker-compose
-- И т.д.
+В dev/prod backend получает переменные из `env_file`; в YAML (`production.yaml`) только подстановки `${VAR}`:
+- `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE` — MySQL
+- `REDIS_ADDR`, `REDIS_PASSWORD` — Redis
+- `DOCKER_NETWORK_NAME` — имя сети (`taskflow-local` / `taskflow-dev` / `taskflow-prod`)
+
+Для **local** при запуске backend на хосте конфиг по умолчанию — `backend/config/local.yaml` (секреты там).
 
 ### Frontend build-time variables (ВАЖНО)
 

@@ -26,7 +26,7 @@ import (
 
 // NewRouter создаёт роутер и настраивает middleware в порядке:
 // 1. Идентификация (RequestID, RealIP)
-// 2. Быстрая защита (SecurityHeaders, RequestFirewall, IP RateLimit) — до тяжёлых логеров
+// 2. Быстрая защита (security headers — reverse proxy; RequestFirewall, IP RateLimit) — до тяжёлых логеров
 // 3. Стабильность (Recoverer, Timeout)
 // 4. Наблюдаемость (Logging, метрики)
 // 5. CORS (если настроено)
@@ -45,8 +45,7 @@ func NewRouter(
 	r.Use(chimw.RequestID)
 	r.Use(chimw.RealIP)
 
-	// 2. Быстрая защита (до логеров и метрик)
-	r.Use(middleware.SecurityHeadersMiddleware)
+	// 2. Быстрая защита (до логеров и метрик); security headers — reverse proxy
 	r.Use(middleware.RequestFirewallMiddleware)
 	ipRateLimitMw, stopIPLimiter := middleware.RateLimitMiddleware()
 	r.Use(ipRateLimitMw)

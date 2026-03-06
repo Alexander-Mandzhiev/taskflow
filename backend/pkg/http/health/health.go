@@ -15,7 +15,7 @@ type Response struct {
 
 // Handler возвращает простой JSON-ответ статуса для healthcheck.
 func Handler(w http.ResponseWriter, r *http.Request) {
-	pkghttp.WriteJSON(w, http.StatusOK, Response{Status: "ok"})
+	pkghttp.WriteJSON(r.Context(), w, http.StatusOK, Response{Status: "ok"})
 }
 
 // LiveHandler — эндпоинт liveness (приложение запущено).

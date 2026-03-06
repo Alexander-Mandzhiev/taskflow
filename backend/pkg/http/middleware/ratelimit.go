@@ -9,15 +9,8 @@ import (
 
 	"github.com/google/uuid"
 
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
-)
-
-const (
-	userRateLimitWindow   = time.Minute
-	userRateLimitMax      = 100
-	userLimiterTTL        = 5 * time.Minute
-	userLimiterCleanupInt = 2 * time.Minute
-	userLimiterMaxSize    = 50000
 )
 
 type userLimiterEntry struct {
@@ -32,8 +25,8 @@ type userRateLimiter struct {
 	cancel  context.CancelFunc
 }
 
-func newUserRateLimiter() *userRateLimiter {
-	ctx, cancel := context.WithCancel(context.Background())
+func newUserRateLimiter(ctx context.Context) *userRateLimiter {
+	ctx, cancel := context.WithCancel(ctx)
 	l := &userRateLimiter{
 		entries: make(map[uuid.UUID]*userLimiterEntry),
 		cancel:  cancel,
@@ -43,7 +36,7 @@ func newUserRateLimiter() *userRateLimiter {
 }
 
 func (l *userRateLimiter) cleanupLoop(ctx context.Context) {
-	ticker := time.NewTicker(userLimiterCleanupInt)
+	ticker := time.NewTicker(pkghttp.UserLimiterCleanupInt)
 	defer ticker.Stop()
 	for {
 		select {
@@ -56,7 +49,7 @@ func (l *userRateLimiter) cleanupLoop(ctx context.Context) {
 }
 
 func (l *userRateLimiter) cleanup() {
-	cutoff := time.Now().Add(-userLimiterTTL)
+	cutoff := time.Now().Add(-pkghttp.RateLimitWindow5Min)
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	for k, v := range l.entries {
@@ -83,10 +76,10 @@ func (l *userRateLimiter) allow(userID uuid.UUID) (allowed bool, retryAfter time
 		e.lastSeen = now
 		if now.After(e.windowTo) {
 			e.count = 1
-			e.windowTo = now.Add(userRateLimitWindow)
+			e.windowTo = now.Add(pkghttp.UserRateLimitWindow)
 			return true, 0
 		}
-		if e.count >= userRateLimitMax {
+		if e.count >= pkghttp.UserRateLimitMax {
 			d := max(0, time.Until(e.windowTo))
 			return false, d
 		}
@@ -95,13 +88,13 @@ func (l *userRateLimiter) allow(userID uuid.UUID) (allowed bool, retryAfter time
 	}
 
 	// Fail-open: при переполнении карты пропускаем запрос, чтобы не блокировать новых пользователей.
-	if len(l.entries) >= userLimiterMaxSize {
+	if len(l.entries) >= pkghttp.RateLimiterMaxSize {
 		return true, 0
 	}
 
 	l.entries[userID] = &userLimiterEntry{
 		count:    1,
-		windowTo: now.Add(userRateLimitWindow),
+		windowTo: now.Add(pkghttp.UserRateLimitWindow),
 		lastSeen: now,
 	}
 	return true, 0
@@ -111,8 +104,8 @@ func (l *userRateLimiter) allow(userID uuid.UUID) (allowed bool, retryAfter time
 // Применяется после AuthMiddleware — использует user_id из контекста.
 // Неаутентифицированные запросы пропускаются (их покрывает IP rate limiter).
 // Возвращает middleware и функцию stop для graceful shutdown.
-func UserRateLimitMiddleware() (func(http.Handler) http.Handler, func()) {
-	limiter := newUserRateLimiter()
+func UserRateLimitMiddleware(ctx context.Context) (func(http.Handler) http.Handler, func()) {
+	limiter := newUserRateLimiter(ctx)
 
 	mw := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -125,11 +118,14 @@ func UserRateLimitMiddleware() (func(http.Handler) http.Handler, func()) {
 			allowed, retryAfter := limiter.allow(userID)
 			if !allowed {
 				seconds := int(retryAfter.Seconds())
-				if seconds < 1 {
-					seconds = 1
+				if seconds < pkghttp.RateLimitRetryAfterSeconds {
+					seconds = pkghttp.RateLimitRetryAfterSeconds
 				}
 				w.Header().Set("Retry-After", strconv.Itoa(seconds))
-				http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
+				pkghttp.WriteJSON(r.Context(), w, http.StatusTooManyRequests, pkghttp.ErrorBody{
+					Code:    http.StatusTooManyRequests,
+					Message: "Превышен лимит запросов. Повторите позже",
+				})
 				return
 			}
 

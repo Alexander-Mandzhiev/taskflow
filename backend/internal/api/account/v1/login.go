@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1/dto"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/ctxkey"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/validation"
 )
 
 // Login обрабатывает вход по email и паролю.
@@ -19,7 +21,7 @@ func (api *API) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := validate.Struct(req); err != nil {
+	if err := validation.Validator.Struct(req); err != nil {
 		mapError(w, r, err)
 		return
 	}
@@ -30,9 +32,8 @@ func (api *API) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pkghttp.SetCookie(w, "session_id", sessionID.String(), int(api.sessionTTL.Seconds()), api.isSecure, api.cookieDomain)
-
-	pkghttp.WriteJSON(w, http.StatusOK, dto.LoginResponse{
+	pkghttp.SetCookie(w, string(ctxkey.SessionID), sessionID.String(), int(api.sessionTTL.Seconds()), api.isSecure, api.cookieDomain)
+	pkghttp.WriteJSON(r.Context(), w, http.StatusOK, dto.LoginResponse{
 		Success: true,
 		Message: "Сессия создана, session_id установлен в httpOnly cookie",
 	})

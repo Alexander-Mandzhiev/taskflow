@@ -27,7 +27,7 @@ services:
       start_period: 30s
     restart: unless-stopped
     networks:
-      - school_net
+      - app_net
 
   grafana:
     image: grafana/grafana:12.0.0
@@ -67,7 +67,7 @@ services:
       start_period: 30s
     restart: unless-stopped
     networks:
-      - school_net
+      - app_net
 
 volumes:
   prometheus_data:
@@ -76,5 +76,6 @@ volumes:
     name: grafana_data
 
 networks:
-  school_net:
+  app_net:
+    name: ${DOCKER_NETWORK_NAME:-taskflow-local}
     external: true

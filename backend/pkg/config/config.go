@@ -76,8 +76,15 @@ func buildModularConfig() (*config, error) {
 		name string
 		cfg  interface{}
 	}{
-		{"app", appCfg}, {"http", httpCfg}, {"cors", corsCfg}, {"mysql", mysqlCfg}, {"redis", redisCfg},
-		{"session", sessionCfg}, {"logger", loggerCfg}, {"tracing", tracingCfg}, {"metric", metricCfg},
+		{"app", appCfg},
+		{"http", httpCfg},
+		{"cors", corsCfg},
+		{"mysql", mysqlCfg},
+		{"redis", redisCfg},
+		{"session", sessionCfg},
+		{"logger", loggerCfg},
+		{"tracing", tracingCfg},
+		{"metric", metricCfg},
 	}
 	for _, m := range modules {
 		if v, ok := m.cfg.(contracts.Validatable); ok {
@@ -100,14 +107,13 @@ func buildModularConfig() (*config, error) {
 }
 
 // Load инициализирует Viper из YAML и собирает модульную конфигурацию.
-// Путь к файлу задаётся в helpers.ResolveConfigPath: --config > CONFIG_PATH > ./config/development.yaml.
-// Парсинг флагов выполняется при первом вызове (внутри helpers).
-// Если файл не найден — ENV-only режим. Если файл найден, но невалиден — ошибка.
+// Путь к файлу задаётся в helpers.ResolveConfigPath: --config > CONFIG_PATH > ./config/local.yaml (local = ноутбук).
+// Dev/prod в контейнерах используют production.yaml + env_file.
 func Load(ctx context.Context) (contracts.Provider, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	path := helpers.ResolveConfigPath("./config/development.yaml")
+	path := helpers.ResolveConfigPath("./config/local.yaml")
 	if err := helpers.InitViper(path); err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return nil, fmt.Errorf("load config: %w", err)
@@ -120,12 +126,12 @@ func Load(ctx context.Context) (contracts.Provider, error) {
 	return cfg, nil
 }
 
-func (c *config) App() contracts.AppConfig    { return c.appConfig }
-func (c *config) HTTP() contracts.HTTPConfig   { return c.httpConfig }
-func (c *config) CORS() contracts.CORSConfig   { return c.corsConfig }
-func (c *config) MySQL() contracts.MySQLConfig { return c.mysqlConfig }
-func (c *config) Redis() contracts.RedisConfig    { return c.redisConfig }
+func (c *config) App() contracts.AppConfig         { return c.appConfig }
+func (c *config) HTTP() contracts.HTTPConfig       { return c.httpConfig }
+func (c *config) CORS() contracts.CORSConfig       { return c.corsConfig }
+func (c *config) MySQL() contracts.MySQLConfig     { return c.mysqlConfig }
+func (c *config) Redis() contracts.RedisConfig     { return c.redisConfig }
 func (c *config) Session() contracts.SessionConfig { return c.sessionConfig }
 func (c *config) Logger() contracts.LoggerConfig   { return c.loggerConfig }
 func (c *config) Tracing() contracts.TracingConfig { return c.tracingConfig }
-func (c *config) Metric() contracts.MetricConfig    { return c.metricConfig }
+func (c *config) Metric() contracts.MetricConfig   { return c.metricConfig }

@@ -1,10 +1,10 @@
-# Пример конфигурации. Путь: CONFIG_PATH или defaultPath при вызове config.Load().
-# В значениях можно использовать ${VAR} — подставится из окружения.
-# Символ $ в значениях зарезервирован для переменных окружения (избегайте буквального $ в строках).
+# Устаревшее имя. Для local (ноутбук) используется config/local.yaml по умолчанию.
+# Оставлен для совместимости: конфиг совпадает с local.yaml.
 
 app:
   name: mkk
   environment: development
+  migrations_dir: db/migration
 
 http:
   address: "0.0.0.0:4000"
@@ -13,7 +13,7 @@ http:
   read_timeout: 15s
   write_timeout: 15s
   idle_timeout: 60s
-  max_header_bytes: 1048576  # 1 MiB
+  max_header_bytes: 1048576
   shutdown_timeout: 10s
 
 cors:
@@ -32,8 +32,8 @@ mysql:
   connection:
     host: localhost
     port: 3306
-    user: root
-    password: ""
+    user: mkk
+    password: mkk_secret
     database: mkk
   pool:
     max_open_conns: 25
@@ -43,7 +43,7 @@ mysql:
 
 redis:
   addr: localhost:6379
-  password: ""
+  password: redis_secret
   pool:
     max_active: 10
     max_idle: 5
@@ -59,19 +59,19 @@ session:
   cookie_domain: ""
 
 logger:
-  level: info
+  level: debug
   as_json: true
   name: mkk
   environment: development
-  otlp_enable: false
+  otlp_enable: true
   otlp_endpoint: localhost:4317
   otlp_shutdown_timeout: 30s
 
 tracing:
-  enable: false
+  enable: true
   endpoint: localhost:4317
   timeout: 5s
-  sample_ratio: 10   # процент трейсов (0–100), 10 = 10%
+  sample_ratio: 100
   retry_enabled: true
   retry_initial_interval: 500ms
   retry_max_interval: 5s
@@ -81,7 +81,7 @@ tracing:
   shutdown_timeout: 30s
 
 metric:
-  enable: false
+  enable: true
   endpoint: localhost:4317
   timeout: 30s
   namespace: mkk

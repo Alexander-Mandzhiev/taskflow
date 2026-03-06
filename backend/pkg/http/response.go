@@ -11,12 +11,13 @@ import (
 )
 
 // WriteJSON пишет ответ с кодом statusCode и телом body в формате JSON.
-func WriteJSON(w http.ResponseWriter, statusCode int, body interface{}) {
+
+func WriteJSON(ctx context.Context, w http.ResponseWriter, statusCode int, body interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	if body != nil {
 		if err := json.NewEncoder(w).Encode(body); err != nil {
-			logger.Error(context.Background(), "[WriteJSON] failed to encode response", zap.Error(err))
+			logger.Error(ctx, "[WriteJSON] failed to encode response", zap.Error(err))
 		}
 	}
 }

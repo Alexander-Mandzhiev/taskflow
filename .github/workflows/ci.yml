@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# Версии и пути берём из Taskfile.yml через extract-versions.sh (один источник правды).
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Extract vars from Taskfile
+        run: bash .github/scripts/extract-versions.sh
+
+      - name: Set up Go
+        uses: actions/setup-go@v5.4.0
+        with:
+          go-version-file: backend/go.mod
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Install Task
+        uses: arduino/setup-task@v2.0.0
+
+      - name: Run lint
+        run: task lint
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Extract vars from Taskfile
+        run: bash .github/scripts/extract-versions.sh
+
+      - name: Set up Go
+        uses: actions/setup-go@v5.4.0
+        with:
+          go-version-file: backend/go.mod
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Install Task
+        uses: arduino/setup-task@v2.0.0
+
+      - name: Run tests
+        run: task test
+
+  coverage:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: Coverage
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      COVERAGE_DIR: coverage
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Extract vars from Taskfile
+        run: bash .github/scripts/extract-versions.sh
+
+      - name: Set up Go
+        uses: actions/setup-go@v5.4.0
+        with:
+          go-version-file: backend/go.mod
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Install Task
+        uses: arduino/setup-task@v2.0.0
+
+      - name: Run tests with coverage
+        run: task test-coverage
+
+      - name: Show coverage total
+        run: go tool cover -func=${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }} | tail -1
+
+  # Проверка сборки образа в основном CI (на main).
+  docker-build:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: Build image (no push)
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.0.0
+
+      - name: Build backend image (cached, no push)
+        uses: docker/build-push-action@v6.0.0
+        with:
+          context: .
+          file: deploy/docker/backend/Dockerfile
+          push: false
+          tags: taskflow-backend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

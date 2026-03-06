@@ -3,15 +3,12 @@ package di
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/redis/go-redis/v9"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/cache"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
-
-const defaultRedisTimeout = 3 * time.Second
 
 // RedisClient возвращает обёртку над Redis с трейсингом и логированием. При первом вызове создаёт клиент и регистрирует закрытие в closer.
 func (d *Container) RedisClient(ctx context.Context) (cache.RedisClient, error) {
@@ -28,29 +25,24 @@ func (d *Container) RedisClient(ctx context.Context) (cache.RedisClient, error) 
 		return nil, fmt.Errorf("redis addr is empty")
 	}
 
-	timeout := redisCfg.Timeout()
-	if timeout == 0 {
-		timeout = defaultRedisTimeout
-	}
-
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: redisCfg.Password(),
 	})
 
-	client := cache.NewClient(rdb, logger.Logger(), timeout, "cache.redis")
+	client := cache.NewClient(rdb, logger.Logger(), redisCfg.Timeout(), "cache.redis")
 
 	if err := client.Ping(ctx); err != nil {
 		_ = rdb.Close()
 		return nil, fmt.Errorf("redis ping: %w", err)
 	}
 
-	d.cl.AddNamed("Redis client", func(ctx context.Context) error {
-		logger.Info(ctx, "Закрытие Redis клиента")
-		return rdb.Close()
+	d.cl.Add(func(ctx context.Context) error {
+		err := rdb.Close()
+		logger.Info(ctx, "🔴 [Shutdown] Closed Redis client")
+		return err
 	})
 
-	logger.Info(ctx, "Redis клиент создан")
 	d.redisClient = client
 	d.redisCmdable = rdb
 	return d.redisClient, nil

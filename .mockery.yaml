@@ -14,7 +14,16 @@ packages:
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service:
     config:
       include-regex: ".*Service"
+  # User repository — адаптер
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository:
+    config:
+      include-regex: ".*Repository"
+  # User repository — контракты reader/writer
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/user:
+    config:
+      include-regex: ".*Repository"
+  # User repository — контракт кеша
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache:
     config:
       include-regex: ".*Repository"
 

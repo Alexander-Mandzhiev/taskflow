@@ -8,12 +8,14 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 )
 
-var _ contracts.RedisConfig = (*Config)(nil)
-var _ contracts.Validatable = (*Config)(nil)
+var (
+	_ contracts.RedisConfig = (*Config)(nil)
+	_ contracts.Validatable = (*Config)(nil)
+)
 
 type rawConfig struct {
 	Addr     string  `mapstructure:"addr"     env:"REDIS_ADDR"`
-	Password string  `mapstructure:"password" env:"REDIS_PASSWORD"`
+	Password string  `mapstructure:"password" env:"REDIS_PASSWORD"` //nolint:gosec // конфиг хранит только ссылку на секрет (env), не логируем и не сериализуем наружу
 	Pool     rawPool `mapstructure:"pool"     envPrefix:"REDIS_POOL_"`
 }
 

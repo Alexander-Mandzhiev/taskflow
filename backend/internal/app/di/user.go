@@ -7,8 +7,10 @@ import (
 	userRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
 	userRepoAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/adapter"
 	userRepoCache "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache"
-	userRepoReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/reader"
-	userRepoWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/writer"
+	userRepoCacheUser "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache/user"
+	userRepo "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/user"
+	userRepoReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/user/reader"
+	userRepoWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/user/writer"
 	userServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service"
 	userServiceImpl "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service/service"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
@@ -78,7 +80,7 @@ func (d *Container) UserTxManager(ctx context.Context) (*txmanager.Manager, erro
 
 // UserReaderRepository возвращает репозиторий чтения пользователей.
 // Ленивая загрузка: запрашиваем SqlxDB через геттер.
-func (d *Container) UserReaderRepository(ctx context.Context) (userRepoDef.UserReaderRepository, error) {
+func (d *Container) UserReaderRepository(ctx context.Context) (userRepo.UserReaderRepository, error) {
 	if d.userReaderRepo != nil {
 		return d.userReaderRepo, nil
 	}
@@ -95,7 +97,7 @@ func (d *Container) UserReaderRepository(ctx context.Context) (userRepoDef.UserR
 
 // UserWriterRepository возвращает репозиторий записи пользователей.
 // Ленивая загрузка: запрашиваем SqlxDB через геттер.
-func (d *Container) UserWriterRepository(ctx context.Context) (userRepoDef.UserWriterRepository, error) {
+func (d *Container) UserWriterRepository(ctx context.Context) (userRepo.UserWriterRepository, error) {
 	if d.userWriterRepo != nil {
 		return d.userWriterRepo, nil
 	}
@@ -112,7 +114,7 @@ func (d *Container) UserWriterRepository(ctx context.Context) (userRepoDef.UserW
 
 // UserCacheRepository возвращает кеш-репозиторий пользователей.
 // Ленивая загрузка: запрашиваем RedisClient через геттер.
-func (d *Container) UserCacheRepository(ctx context.Context) (userRepoDef.UserCacheRepository, error) {
+func (d *Container) UserCacheRepository(ctx context.Context) (userRepoCache.UserCacheRepository, error) {
 	if d.userCacheRepo != nil {
 		return d.userCacheRepo, nil
 	}
@@ -122,7 +124,7 @@ func (d *Container) UserCacheRepository(ctx context.Context) (userRepoDef.UserCa
 		return nil, fmt.Errorf("redis client: %w", err)
 	}
 
-	d.userCacheRepo = userRepoCache.NewRepository(redisClient)
+	d.userCacheRepo = userRepoCacheUser.NewRepository(redisClient)
 
 	return d.userCacheRepo, nil
 }

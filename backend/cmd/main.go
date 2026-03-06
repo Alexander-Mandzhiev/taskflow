@@ -21,7 +21,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "logger init: %v\n", err)
 		os.Exit(1)
 	}
-	defer logger.Shutdown(context.Background(), 5*time.Second)
 
 	appCtx, appCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer appCancel()

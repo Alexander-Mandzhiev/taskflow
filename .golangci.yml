@@ -94,11 +94,11 @@ formatters: # Форматтеры кода (проверка стиля)
     - gci      # Форматтер импортов (гибкая альтернатива goimports)
   settings:
     gofumpt:
-      module-path: mkk  # Путь модуля — чтобы gofumpt не путал mkk/* с stdlib (нет домена в пути)
-      extra-rules: true  # Включить дополнительные строгие правила (например, удаление лишних пустых строк)
+      module-path: github.com/Alexander-Mandzhiev/taskflow/backend
+      extra-rules: true
     gci:
-      sections: # Порядок группировки импортов
-        - Standard  # Стандартная библиотека
-        - Default   # Сторонние зависимости
-        - Prefix(mkk)  # Локальные импорты проекта (модуль из go.mod)
-      no-inline-comments: false  # Разрешить комментарии после импортов (true — запретит)
+      sections:
+        - Standard
+        - Default
+        - Prefix(github.com/Alexander-Mandzhiev/taskflow/backend)
+      no-inline-comments: false

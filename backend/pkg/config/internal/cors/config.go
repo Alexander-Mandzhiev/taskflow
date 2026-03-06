@@ -31,9 +31,9 @@ func defaultConfig() rawConfig {
 	}
 }
 
-func (c *Config) AllowedOrigins() []string   { return c.raw.AllowedOrigins }
-func (c *Config) AllowedMethods() []string   { return c.raw.AllowedMethods }
-func (c *Config) AllowedHeaders() []string   { return c.raw.AllowedHeaders }
-func (c *Config) ExposedHeaders() []string   { return c.raw.ExposedHeaders }
-func (c *Config) AllowCredentials() bool    { return c.raw.AllowCredentials }
-func (c *Config) MaxAge() int                { return c.raw.MaxAge }
+func (c *Config) AllowedOrigins() []string { return c.raw.AllowedOrigins }
+func (c *Config) AllowedMethods() []string { return c.raw.AllowedMethods }
+func (c *Config) AllowedHeaders() []string { return c.raw.AllowedHeaders }
+func (c *Config) ExposedHeaders() []string { return c.raw.ExposedHeaders }
+func (c *Config) AllowCredentials() bool   { return c.raw.AllowCredentials }
+func (c *Config) MaxAge() int              { return c.raw.MaxAge }

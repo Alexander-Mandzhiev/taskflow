@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"errors"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -19,6 +20,19 @@ import (
 func testConfigPath(t *testing.T) string {
 	t.Helper()
 	return filepath.Join("..", "..", "config", "test.yaml")
+}
+
+func TestLoad_CancelledContext(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := Load(ctx)
+	if err == nil {
+		t.Fatal("Load with cancelled context expected to return error")
+	}
+	if !errors.Is(err, context.Canceled) {
+		t.Errorf("Load with cancelled context: got %v, want context.Canceled", err)
+	}
 }
 
 func TestLoad_FromTestYAML(t *testing.T) {

@@ -2,54 +2,82 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
 
+	accountmodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/ctxkey"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
 // SessionWhoamiService определяет интерфейс сервиса для проверки сессии.
+
 type SessionWhoamiService interface {
 	Whoami(ctx context.Context, sessionID uuid.UUID) (uuid.UUID, error)
 }
 
 // AuthMiddleware выполняет проверку аутентификации на основе session_id из контекста
+
 // и сервиса сессий (Whoami). При успешной проверке записывает user_id в контекст.
+
 type AuthMiddleware struct {
 	sessionService SessionWhoamiService
-	isSecure       bool
-	cookieDomain   string
+
+	isSecure bool
+
+	cookieDomain string
 }
 
 // NewAuthMiddleware создаёт новый экземпляр AuthMiddleware.
+
 func NewAuthMiddleware(sessionService SessionWhoamiService, isSecure bool, cookieDomain string) *AuthMiddleware {
 	return &AuthMiddleware{
 		sessionService: sessionService,
-		isSecure:       isSecure,
-		cookieDomain:   cookieDomain,
+
+		isSecure: isSecure,
+
+		cookieDomain: cookieDomain,
 	}
 }
 
 // Handle проверяет, что запрос аутентифицирован сессией.
+
 // 1. Достаёт session_id из контекста (его туда положил SessionMiddleware)
+
 // 2. Вызывает Whoami для проверки сессии
+
 // 3. Кладёт user_id в контекст
-// 4. При невалидной/отсутствующей сессии удаляет куку и возвращает 401 — фронт по 401 редиректит на логин.
+
+// 4. При ошибке Whoami: если сессия не найдена/истекла (ErrSessionNotFound) — удаляет куку и 401;
+//    при внутренней ошибке (таймаут БД и т.п.) — 500 без удаления cookie, чтобы не разлогинивать пользователя.
+
 func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionID, err := metadata.SessionID(r.Context())
+
 		if err != nil || sessionID == uuid.Nil {
-			pkghttp.DeleteCookie(w, "session_id", m.isSecure, m.cookieDomain)
-			writeAuthResponse(w, false, "Требуется аутентификация")
+			pkghttp.DeleteCookie(w, string(ctxkey.SessionID), m.isSecure, m.cookieDomain)
+			writeAuthResponse(r.Context(), w, false, "Требуется аутентификация")
+
 			return
+
 		}
 
 		userID, err := m.sessionService.Whoami(r.Context(), sessionID)
 		if err != nil {
-			pkghttp.DeleteCookie(w, "session_id", m.isSecure, m.cookieDomain)
-			writeAuthResponse(w, false, "Сессия не найдена или истекла")
+			if errors.Is(err, accountmodel.ErrSessionNotFound) {
+				pkghttp.DeleteCookie(w, string(ctxkey.SessionID), m.isSecure, m.cookieDomain)
+				writeAuthResponse(r.Context(), w, false, "Сессия не найдена или истекла")
+				return
+			}
+			// Внутренняя ошибка (таймаут БД, недоступность хранилища и т.п.) — не удаляем cookie.
+			pkghttp.WriteJSON(r.Context(), w, http.StatusInternalServerError, pkghttp.ErrorBody{
+				Code:    http.StatusInternalServerError,
+				Message: "Внутренняя ошибка сервера",
+			})
 			return
 		}
 
@@ -59,17 +87,19 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 }
 
 // AuthResponse представляет ответ при невалидной сессии.
+
 type AuthResponse struct {
 	Authenticated bool   `json:"authenticated"`
 	Message       string `json:"message,omitempty"`
 }
 
-func writeAuthResponse(w http.ResponseWriter, authenticated bool, message string) {
+func writeAuthResponse(ctx context.Context, w http.ResponseWriter, authenticated bool, message string) {
 	code := http.StatusOK
 	if !authenticated {
 		code = http.StatusUnauthorized
 	}
-	pkghttp.WriteJSON(w, code, AuthResponse{
+
+	pkghttp.WriteJSON(ctx, w, code, AuthResponse{
 		Authenticated: authenticated,
 		Message:       message,
 	})

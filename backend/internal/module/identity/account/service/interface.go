@@ -15,4 +15,3 @@ type AccountService interface {
 	Logout(ctx context.Context, sessionID uuid.UUID) error
 	Whoami(ctx context.Context, sessionID uuid.UUID) (userID uuid.UUID, err error)
 }
-

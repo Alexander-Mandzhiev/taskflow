@@ -141,7 +141,6 @@ func (m *Metrics) initMetrics(ctx context.Context, cfg *Config) error {
 	m.meterProvider = meterProvider
 	otel.SetMeterProvider(meterProvider)
 
-	m.logInfo(ctx, "Metrics initialized successfully")
 	return nil
 }
 

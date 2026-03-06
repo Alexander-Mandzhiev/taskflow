@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/connectingpool"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/migrator"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
@@ -36,13 +37,30 @@ func (d *Container) SqlxDB(ctx context.Context) (*sqlx.DB, error) {
 		return nil, fmt.Errorf("create mysql pool: %w", err)
 	}
 
-	d.cl.AddNamed("MySQL pool", func(ctx context.Context) error {
-		logger.Info(ctx, "Закрытие MySQL pool")
-		return pool.Close()
+	d.cl.Add(func(ctx context.Context) error {
+		err := pool.Close()
+		logger.Info(ctx, "🔌 [Shutdown] Closed MySQL pool")
+		return err
 	})
 
-	logger.Info(ctx, "MySQL pool создан")
 	d.dbPool = pool
 	d.sqlxDB = pool.SqlxDB()
 	return d.sqlxDB, nil
+}
+
+// RunMigrations применяет миграции goose. Путь к каталогу — из конфига (app.migrations_dir / MIGRATIONS_DIR).
+func (d *Container) RunMigrations(ctx context.Context) error {
+	db, err := d.SqlxDB(ctx)
+	if err != nil {
+		return fmt.Errorf("mysql pool: %w", err)
+	}
+	dir := d.cfg.App().MigrationsDir()
+	if dir == "" {
+		return fmt.Errorf("migrations dir is empty (set app.migrations_dir or MIGRATIONS_DIR)")
+	}
+	m := migrator.NewGooseMigrator(db.DB, dir, "mysql", logger.Logger())
+	if err := m.Up(ctx); err != nil {
+		return fmt.Errorf("migrations: %w", err)
+	}
+	return nil
 }

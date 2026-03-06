@@ -38,7 +38,6 @@ func (s *accountService) Register(ctx context.Context, email, password, name str
 		_, errCreate := s.userRepo.Create(ctx, tx, input, hash)
 		return errCreate
 	})
-
 	if err != nil {
 		// Логируем только системные ошибки. Дубликат email — ожидаемая бизнес-ошибка.
 		if !errors.Is(err, usermodel.ErrEmailDuplicate) {

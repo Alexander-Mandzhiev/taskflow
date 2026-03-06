@@ -14,9 +14,10 @@ go.work
 go.work.sum
 vendor/
 
-# Coverage
+# Coverage (отчёты в coverage/ в корне проекта)
 coverage.out
 coverage.html
+coverage/
 *.cover
 *.coverprofile
 

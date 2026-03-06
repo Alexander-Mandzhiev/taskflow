@@ -7,8 +7,10 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
 )
 
-var _ contracts.MetricConfig = (*Config)(nil)
-var _ contracts.Validatable = (*Config)(nil)
+var (
+	_ contracts.MetricConfig = (*Config)(nil)
+	_ contracts.Validatable  = (*Config)(nil)
+)
 
 type rawConfig struct {
 	Enable           bool          `mapstructure:"enable" env:"METRIC_ENABLE"`
@@ -49,7 +51,7 @@ func (c *Config) Namespace() string              { return c.raw.Namespace }
 func (c *Config) AppName() string                { return c.raw.AppName }
 func (c *Config) ExportInterval() time.Duration  { return c.raw.ExportInterval }
 func (c *Config) ShutdownTimeout() time.Duration { return c.raw.ShutdownTimeout }
-func (c *Config) BucketBoundaries() []float64 { return c.raw.BucketBoundaries }
+func (c *Config) BucketBoundaries() []float64    { return c.raw.BucketBoundaries }
 
 // Validate проверяет корректность настроек метрик.
 func (c *Config) Validate() error {
