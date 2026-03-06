@@ -135,6 +135,74 @@ func (_c *AccountService_Logout_Call) RunAndReturn(run func(context.Context, str
 	return _c
 }
 
+// Refresh provides a mock function with given fields: ctx, refreshToken, userAgent, ip
+func (_m *AccountService) Refresh(ctx context.Context, refreshToken string, userAgent string, ip string) (string, uuid.UUID, error) {
+	ret := _m.Called(ctx, refreshToken, userAgent, ip)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Refresh")
+	}
+
+	var r0 string
+	var r1 uuid.UUID
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) (string, uuid.UUID, error)); ok {
+		return rf(ctx, refreshToken, userAgent, ip)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) string); ok {
+		r0 = rf(ctx, refreshToken, userAgent, ip)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string) uuid.UUID); ok {
+		r1 = rf(ctx, refreshToken, userAgent, ip)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(uuid.UUID)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, string, string, string) error); ok {
+		r2 = rf(ctx, refreshToken, userAgent, ip)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// AccountService_Refresh_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Refresh'
+type AccountService_Refresh_Call struct {
+	*mock.Call
+}
+
+// Refresh is a helper method to define mock.On call
+//   - ctx context.Context
+//   - refreshToken string
+//   - userAgent string
+//   - ip string
+func (_e *AccountService_Expecter) Refresh(ctx interface{}, refreshToken interface{}, userAgent interface{}, ip interface{}) *AccountService_Refresh_Call {
+	return &AccountService_Refresh_Call{Call: _e.mock.On("Refresh", ctx, refreshToken, userAgent, ip)}
+}
+
+func (_c *AccountService_Refresh_Call) Run(run func(ctx context.Context, refreshToken string, userAgent string, ip string)) *AccountService_Refresh_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *AccountService_Refresh_Call) Return(accessToken string, userID uuid.UUID, err error) *AccountService_Refresh_Call {
+	_c.Call.Return(accessToken, userID, err)
+	return _c
+}
+
+func (_c *AccountService_Refresh_Call) RunAndReturn(run func(context.Context, string, string, string) (string, uuid.UUID, error)) *AccountService_Refresh_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Register provides a mock function with given fields: ctx, input
 func (_m *AccountService) Register(ctx context.Context, input model.RegisterInput) error {
 	ret := _m.Called(ctx, input)
@@ -178,65 +246,6 @@ func (_c *AccountService_Register_Call) Return(_a0 error) *AccountService_Regist
 }
 
 func (_c *AccountService_Register_Call) RunAndReturn(run func(context.Context, model.RegisterInput) error) *AccountService_Register_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Whoami provides a mock function with given fields: ctx, sessionID
-func (_m *AccountService) Whoami(ctx context.Context, sessionID uuid.UUID) (uuid.UUID, error) {
-	ret := _m.Called(ctx, sessionID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Whoami")
-	}
-
-	var r0 uuid.UUID
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (uuid.UUID, error)); ok {
-		return rf(ctx, sessionID)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) uuid.UUID); ok {
-		r0 = rf(ctx, sessionID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(uuid.UUID)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
-		r1 = rf(ctx, sessionID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// AccountService_Whoami_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Whoami'
-type AccountService_Whoami_Call struct {
-	*mock.Call
-}
-
-// Whoami is a helper method to define mock.On call
-//   - ctx context.Context
-//   - sessionID uuid.UUID
-func (_e *AccountService_Expecter) Whoami(ctx interface{}, sessionID interface{}) *AccountService_Whoami_Call {
-	return &AccountService_Whoami_Call{Call: _e.mock.On("Whoami", ctx, sessionID)}
-}
-
-func (_c *AccountService_Whoami_Call) Run(run func(ctx context.Context, sessionID uuid.UUID)) *AccountService_Whoami_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID))
-	})
-	return _c
-}
-
-func (_c *AccountService_Whoami_Call) Return(userID uuid.UUID, err error) *AccountService_Whoami_Call {
-	_c.Call.Return(userID, err)
-	return _c
-}
-
-func (_c *AccountService_Whoami_Call) RunAndReturn(run func(context.Context, uuid.UUID) (uuid.UUID, error)) *AccountService_Whoami_Call {
 	_c.Call.Return(run)
 	return _c
 }

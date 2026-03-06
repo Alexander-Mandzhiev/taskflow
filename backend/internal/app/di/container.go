@@ -42,9 +42,10 @@ type Container struct {
 	userTxManager  *txmanager.Manager
 
 	// Account module (session + account service)
-	sessionRepo    accountRepoDef.SessionCacheRepository
-	accountService accountServiceDef.AccountService
-	accountAPI     *account_v1.API
+	sessionRepo        accountRepoDef.SessionCacheRepository
+	accountService     accountServiceDef.AccountService
+	accountAPI         *account_v1.API
+	accountMiddlewares *accountMiddlewares
 }
 
 // NewContainer создаёт контейнер с конфигурацией из pkg/config (результат config.Load).

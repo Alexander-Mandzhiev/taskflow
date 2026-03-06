@@ -15,7 +15,7 @@ import (
 type SessionCacheRepository interface {
 	// Set создаёт или обновляет сессию. session — user_id, created_at, device_type, user_agent, ip.
 	Set(ctx context.Context, jti uuid.UUID, session *model.Session, ttl time.Duration) error
-	// Get возвращает данные сессии по sessionID. Для Whoami достаточно session.UserID.
+	// Get возвращает данные сессии по jti (например для проверки при refresh).
 	Get(ctx context.Context, jti uuid.UUID) (*model.Session, error)
 	// Delete удаляет сессию (logout).
 	Delete(ctx context.Context, jti uuid.UUID) error

@@ -2,49 +2,102 @@ package di
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/routes"
+	account_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/routes/public"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/routes/session_auth"
+	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-// RegisterAccountRoutes регистрирует API account (register, login, logout, whoami) на роутере и добавляет
+// accountMiddlewares — набор middleware для роутов account. Создаётся лениво в getAccountMiddlewares.
+type accountMiddlewares struct {
+	bodyLimit         func(http.Handler) http.Handler
+	jwt               *middleware.JWTAuthMiddleware
+	userRateLimit     func(http.Handler) http.Handler
+	stopUserRateLimit func()
+}
 
-// остановку user rate limiter в closer для graceful shutdown.
-
+// RegisterAccountRoutes регистрирует API account на роутере. Middleware создаются лениво при первом вызове.
 func (d *Container) RegisterAccountRoutes(ctx context.Context, router *chi.Mux) error {
 	if err := d.requireCloser(); err != nil {
 		return err
 	}
-
 	api, err := d.AccountV1API(ctx)
 	if err != nil {
 		return err
 	}
-
-	_, err = d.AccountService(ctx)
+	mw, err := d.getAccountMiddlewares(ctx)
 	if err != nil {
 		return err
 	}
+	registerAccountRoutes(router, ctx, api, mw)
+	return nil
+}
 
+// getAccountMiddlewares возвращает middleware для account (ленивая инициализация, кеш в контейнере).
+func (d *Container) getAccountMiddlewares(ctx context.Context) (*accountMiddlewares, error) {
+	if d.accountMiddlewares != nil {
+		return d.accountMiddlewares, nil
+	}
+	accountSvc, err := d.AccountService(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("account service: %w", err)
+	}
 	jwtCfg := d.cfg.JWT()
 	sessionCfg := d.cfg.Session()
 
-	mw := routes.NewMiddlewares(ctx,
+	jwtMw := middleware.NewJWTAuthMiddleware(
 		jwtCfg.AccessSecret(),
 		sessionCfg.IsSecure(),
 		sessionCfg.CookieDomain(),
 		jwtCfg.AccessTokenCookieName(),
+		accountSvc,
+		jwtCfg.RefreshTokenCookieName(),
+		jwtCfg.AccessTTL(),
 	)
+	userRateLimitMw, stopUserRateLimit := middleware.UserRateLimitMiddleware(ctx)
 
-	routes.RegisterAPIs(ctx, router, api, mw)
-
+	d.accountMiddlewares = &accountMiddlewares{
+		bodyLimit:         middleware.BodyLimitMiddleware(pkghttp.MaxRequestBodyBytes),
+		jwt:               jwtMw,
+		userRateLimit:     userRateLimitMw,
+		stopUserRateLimit: stopUserRateLimit,
+	}
 	d.cl.Add(func(ctx context.Context) error {
-		mw.StopUserRateLimit()
+		d.accountMiddlewares.stopUserRateLimit()
 		logger.Info(ctx, "🚦 [Shutdown] Closed User rate limiter")
 		return nil
 	})
+	return d.accountMiddlewares, nil
+}
 
-	return nil
+// registerAccountRoutes вешает middleware и регистрирует группы путей на роутере.
+func registerAccountRoutes(router *chi.Mux, ctx context.Context, api *account_v1.API, mw *accountMiddlewares) {
+	router.Route("/api/v1", func(r chi.Router) {
+		r.Use(mw.bodyLimit)
+		r.Group(func(r chi.Router) {
+			registerAccountPublicGroup(r, ctx, api)
+		})
+		r.Group(func(r chi.Router) {
+			r.Use(mw.jwt.Handle)
+			r.Use(mw.userRateLimit)
+			registerAccountPrivateGroup(r, ctx, api)
+		})
+	})
+}
+
+// registerAccountPublicGroup регистрирует публичные роуты (register, login).
+func registerAccountPublicGroup(r chi.Router, ctx context.Context, api *account_v1.API) {
+	public.Register(ctx, r, api)
+}
+
+// registerAccountPrivateGroup регистрирует защищённые JWT роуты (logout).
+func registerAccountPrivateGroup(r chi.Router, ctx context.Context, api *account_v1.API) {
+	session_auth.Register(ctx, r, api)
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/password"
 )
 
-// AccountV1API возвращает HTTP API account v1 (register, login, logout, whoami).
+// AccountV1API возвращает HTTP API account v1 (register, login, logout).
 // Ленивая загрузка сверху вниз: API → Service → Repo → DB. Сначала запрашиваем сервис через геттер, затем собираем API.
 func (d *Container) AccountV1API(ctx context.Context) (*account_v1.API, error) {
 	if d.accountAPI != nil {
@@ -36,7 +36,7 @@ func (d *Container) AccountV1API(ctx context.Context) (*account_v1.API, error) {
 	return d.accountAPI, nil
 }
 
-// AccountService возвращает сервис учётных записей (login, register, logout, whoami).
+// AccountService возвращает сервис учётных записей (login, register, logout).
 // Ленивая загрузка: запрашиваем репозитории и tx manager через геттеры, затем собираем сервис.
 func (d *Container) AccountService(ctx context.Context) (accountServiceDef.AccountService, error) {
 	if d.accountService != nil {

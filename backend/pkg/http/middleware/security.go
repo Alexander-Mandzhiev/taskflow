@@ -183,7 +183,7 @@ func (l *ipRateLimiter) allow(ip string, maxPerWindow int, window time.Duration)
 }
 
 // Чувствительные endpoints, требующие строгого rate limit (только для POST).
-// Пути должны совпадать с роутером: routes.RegisterAPIs → /api/v1 + public.Register → /register, /login.
+// Пути должны совпадать с роутером: di.RegisterAccountRoutes → /api/v1 + public.Register → /register, /login.
 var sensitiveEndpoints = map[string]struct{}{
 	"/api/v1/login":           {},
 	"/api/v1/register":        {},
