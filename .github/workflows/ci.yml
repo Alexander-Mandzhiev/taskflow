@@ -52,7 +52,7 @@ jobs:
         run: task test
 
   coverage:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     name: Coverage
     needs: test
     runs-on: ubuntu-latest
@@ -80,9 +80,9 @@ jobs:
       - name: Show coverage total
         run: go tool cover -func=${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }} | tail -1
 
-  # Проверка сборки образа в основном CI (на main).
+  # Проверка сборки образа (на push в main и на PR).
   docker-build:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     name: Build image (no push)
     needs: [lint, test]
     runs-on: ubuntu-latest
