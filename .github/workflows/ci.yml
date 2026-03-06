@@ -76,16 +76,30 @@ jobs:
       - name: Run tests with coverage
         run: task test-coverage
 
-      # 1. Сохраняем процент покрытия в переменную и показываем в сводке
+      # 1. Сохраняем процент покрытия в переменную и показываем в сводке джоба
       - name: Show coverage total in summary
         id: coverage
         run: |
-          LINE=$(go tool cover -func=${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }} | tail -1)
+          COVER_FILE="${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }}"
+          if [ ! -f "$COVER_FILE" ]; then
+            echo "::error::Coverage file not found: $COVER_FILE"
+            echo "## Coverage (overall)" >> $GITHUB_STEP_SUMMARY
+            echo "❌ Report not generated (see logs)" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          LINE=$(go tool cover -func="$COVER_FILE" | tail -1)
           echo "$LINE"
           TOTAL=$(echo "$LINE" | awk '{print $NF}')
           echo "total=$TOTAL" >> $GITHUB_OUTPUT
-          echo "## Coverage (overall)" >> $GITHUB_STEP_SUMMARY
-          echo "**$TOTAL**" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## 📊 Coverage (overall)"
+            echo ""
+            echo "| Metric | Value |"
+            echo "|--------|-------|"
+            echo "| **Total** | **$TOTAL** |"
+            echo ""
+            echo "Подробный отчёт — в артефакте \`coverage-report\` (скачать и открыть \`coverage.html\`)."
+          } >> $GITHUB_STEP_SUMMARY
 
       # 2. Генерируем HTML-отчет для подробного просмотра
       - name: Generate coverage HTML
