@@ -56,6 +56,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     env:
+      # отчёты в coverage/ в корне репо (Taskfile: ROOT_DIR/coverage)
       COVERAGE_DIR: coverage
     steps:
       - uses: actions/checkout@v4.2.2
@@ -101,7 +102,7 @@ jobs:
             echo "Подробный отчёт — в артефакте \`coverage-report\` (скачать и открыть \`coverage.html\`)."
           } >> $GITHUB_STEP_SUMMARY
 
-      # 2. Генерируем HTML-отчет для подробного просмотра
+      # 2. Генерируем HTML-отчет для подробного просмотра (coverage/ в корне репо)
       - name: Generate coverage HTML
         working-directory: backend
         run: go tool cover -html=../${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }} -o ../${{ env.COVERAGE_DIR }}/coverage.html
