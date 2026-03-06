@@ -46,7 +46,7 @@ func TestInitViper(t *testing.T) {
 		Reset()
 		dir := t.TempDir()
 		path := filepath.Join(dir, "bad.yaml")
-		if err := os.WriteFile(path, []byte("invalid: yaml: [[["), 0600); err != nil {
+		if err := os.WriteFile(path, []byte("invalid: yaml: [[["), 0o600); err != nil {
 			t.Fatalf("write test file: %v", err)
 		}
 		err := InitViper(path)
@@ -64,7 +64,7 @@ func TestInitViper(t *testing.T) {
 		path := filepath.Join(dir, "app.yaml")
 		// ${TEST_CONFIG_VAR} will be expanded
 		yaml := "app:\n  name: ${TEST_CONFIG_VAR}\n  environment: test\n"
-		if err := os.WriteFile(path, []byte(yaml), 0600); err != nil {
+		if err := os.WriteFile(path, []byte(yaml), 0o600); err != nil {
 			t.Fatalf("write test file: %v", err)
 		}
 		t.Setenv("TEST_CONFIG_VAR", "expanded-name")
@@ -96,7 +96,7 @@ func TestGetSection(t *testing.T) {
 		dir := t.TempDir()
 		path := filepath.Join(dir, "cfg.yaml")
 		yaml := "mysql:\n  host: localhost\n  port: 3306\n"
-		if err := os.WriteFile(path, []byte(yaml), 0600); err != nil {
+		if err := os.WriteFile(path, []byte(yaml), 0o600); err != nil {
 			t.Fatalf("write test file: %v", err)
 		}
 		if err := InitViper(path); err != nil {

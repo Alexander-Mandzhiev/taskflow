@@ -6,9 +6,9 @@ import (
 
 func TestDeviceTypeFromUserAgent(t *testing.T) {
 	tests := []struct {
-		name     string
-		ua       string
-		want     string
+		name string
+		ua   string
+		want string
 	}{
 		{"empty", "", DeviceTypeUnknown},
 		{"whitespace only", "   \t  ", DeviceTypeUnknown},

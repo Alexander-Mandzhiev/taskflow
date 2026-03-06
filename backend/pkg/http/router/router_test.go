@@ -42,7 +42,14 @@ func TestNewRouter_HealthRequestSucceeds(t *testing.T) {
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		data := []byte("ok")
+		n, err := w.Write(data)
+		if err != nil {
+			t.Errorf("w.Write: %v", err)
+		}
+		if n != len(data) {
+			t.Errorf("w.Write wrote %d bytes, want %d", n, len(data))
+		}
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)

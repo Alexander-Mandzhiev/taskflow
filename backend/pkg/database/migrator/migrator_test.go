@@ -23,7 +23,7 @@ func TestMigrator_Up_NilDB(t *testing.T) {
 	m := NewGooseMigrator(nil, "migrations", "mysql", &logger.NoopLogger{})
 	ctx := context.Background()
 	err := m.Up(ctx)
-	if err != sql.ErrConnDone {
+	if !errors.Is(err, sql.ErrConnDone) {
 		t.Errorf("Up(nil db) = %v, want sql.ErrConnDone", err)
 	}
 }

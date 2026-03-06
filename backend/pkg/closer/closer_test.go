@@ -47,7 +47,7 @@ func TestCloser_CloseAll_ReturnsFirstError(t *testing.T) {
 	wantErr := errors.New("close failed")
 	c.Add(func(context.Context) error { return wantErr })
 	err := c.CloseAll(context.Background())
-	if err != wantErr {
+	if !errors.Is(err, wantErr) {
 		t.Errorf("CloseAll = %v, want %v", err, wantErr)
 	}
 }

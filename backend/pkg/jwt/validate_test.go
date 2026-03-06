@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"context"
 	"errors"
 	"strings"
 	"testing"
@@ -48,7 +49,10 @@ func TestValidateToken_Expired(t *testing.T) {
 	if err != nil {
 		t.Fatalf("GenerateToken: %v", err)
 	}
-	time.Sleep(2 * time.Millisecond)
+	// ждём истечения токена через контекст (вместо time.Sleep)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	<-ctx.Done()
+	cancel()
 
 	_, err = ValidateToken(token, secret)
 	if err == nil {

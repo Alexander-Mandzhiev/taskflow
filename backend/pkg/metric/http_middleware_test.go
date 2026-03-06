@@ -1,6 +1,7 @@
 package metric
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 )
@@ -66,7 +67,7 @@ func TestStatusWriter_Hijack_ErrNotHijacker(t *testing.T) {
 	rw := &mockResponseWriter{} // не реализует Hijacker
 	sw := &statusWriter{ResponseWriter: rw}
 	_, _, err := sw.Hijack()
-	if err != ErrNotHijacker {
+	if !errors.Is(err, ErrNotHijacker) {
 		t.Errorf("Hijack() = %v, want ErrNotHijacker", err)
 	}
 }
@@ -75,7 +76,7 @@ func TestStatusWriter_Push_ErrNotPusher(t *testing.T) {
 	rw := &mockResponseWriter{} // не реализует Pusher
 	sw := &statusWriter{ResponseWriter: rw}
 	err := sw.Push("/", nil)
-	if err != ErrNotPusher {
+	if !errors.Is(err, ErrNotPusher) {
 		t.Errorf("Push() = %v, want ErrNotPusher", err)
 	}
 }
@@ -92,6 +93,7 @@ func (m *mockResponseWriter) Header() http.Header {
 	}
 	return m.header
 }
+
 func (m *mockResponseWriter) Write(b []byte) (int, error) {
 	m.body = append(m.body, b...)
 	return len(b), nil

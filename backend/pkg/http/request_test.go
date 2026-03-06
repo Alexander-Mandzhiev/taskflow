@@ -7,11 +7,11 @@ import (
 
 func TestClientIP(t *testing.T) {
 	tests := []struct {
-		name     string
-		xff      string
-		xrip     string
-		remote   string
-		wantIP   string
+		name   string
+		xff    string
+		xrip   string
+		remote string
+		wantIP string
 	}{
 		{"X-Forwarded-For single", "192.168.1.1", "", "1.2.3.4:5678", "192.168.1.1"},
 		{"X-Forwarded-For multiple takes first", "10.0.0.1, 10.0.0.2, 10.0.0.3", "", "", "10.0.0.1"},
@@ -23,7 +23,7 @@ func TestClientIP(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &http.Request{
-				Header: http.Header{},
+				Header:     http.Header{},
 				RemoteAddr: tt.remote,
 			}
 			if tt.xff != "" {
