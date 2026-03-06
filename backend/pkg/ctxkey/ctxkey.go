@@ -12,6 +12,10 @@ const (
 	RequestID Key = "request_id"
 	// UserID — идентификатор пользователя (сессия, логирование).
 	UserID Key = "user_id"
-	// SessionID — идентификатор сессии (аутентификация).
+	// SessionID — идентификатор сессии (аутентификация по сессии).
 	SessionID Key = "session_id"
+	// AccessToken — имя cookie/заголовка для JWT access токена.
+	AccessToken Key = "access_token"
+	// RefreshToken — имя httpOnly cookie для JWT refresh токена (обновление access без перелогина).
+	RefreshToken Key = "refresh_token"
 )

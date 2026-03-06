@@ -18,6 +18,7 @@ type Provider interface {
 	MySQL() MySQLConfig
 	Redis() RedisConfig
 	Session() SessionConfig
+	JWT() JWTConfig
 	Logger() LoggerConfig
 	Tracing() TracingConfig
 	Metric() MetricConfig
@@ -86,6 +87,14 @@ type SessionConfig interface {
 	TTL() time.Duration
 	IsSecure() bool
 	CookieDomain() string
+}
+
+// JWTConfig — настройки JWT (секреты для access и refresh, сроки жизни).
+type JWTConfig interface {
+	AccessSecret() string  // для подписи access-токена
+	RefreshSecret() string // для подписи refresh-токена; если пустой — используется AccessSecret()
+	AccessTTL() time.Duration
+	RefreshTTL() time.Duration
 }
 
 // LoggerConfig — настройки логгера (уровень, OTLP).

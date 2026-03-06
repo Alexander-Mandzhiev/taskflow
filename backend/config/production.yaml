@@ -58,6 +58,12 @@ session:
   is_secure: false
   cookie_domain: ${SESSION_COOKIE_DOMAIN:-}
 
+jwt:
+  access_secret: ${JWT_ACCESS_SECRET}
+  refresh_secret: ${JWT_REFRESH_SECRET:-}
+  access_ttl: ${JWT_ACCESS_TTL:-15m}
+  refresh_ttl: ${JWT_REFRESH_TTL:-168h}
+
 logger:
   level: info
   as_json: true

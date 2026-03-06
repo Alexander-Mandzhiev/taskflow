@@ -16,6 +16,7 @@ import (
 	mysqlmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/mysql"
 	redismodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/redis"
 	sessionmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/session"
+	jwtmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/jwt"
 	tracingmodule "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/internal/tracing"
 )
 
@@ -27,6 +28,7 @@ type config struct {
 	mysqlConfig   contracts.MySQLConfig
 	redisConfig   contracts.RedisConfig
 	sessionConfig contracts.SessionConfig
+	jwtConfig     contracts.JWTConfig
 	loggerConfig  contracts.LoggerConfig
 	tracingConfig contracts.TracingConfig
 	metricConfig  contracts.MetricConfig
@@ -58,6 +60,10 @@ func buildModularConfig() (*config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("session: %w", err)
 	}
+	jwtCfg, err := jwtmodule.New()
+	if err != nil {
+		return nil, fmt.Errorf("jwt: %w", err)
+	}
 	loggerCfg, err := loggermodule.New()
 	if err != nil {
 		return nil, fmt.Errorf("logger: %w", err)
@@ -82,6 +88,7 @@ func buildModularConfig() (*config, error) {
 		{"mysql", mysqlCfg},
 		{"redis", redisCfg},
 		{"session", sessionCfg},
+		{"jwt", jwtCfg},
 		{"logger", loggerCfg},
 		{"tracing", tracingCfg},
 		{"metric", metricCfg},
@@ -100,6 +107,7 @@ func buildModularConfig() (*config, error) {
 		mysqlConfig:   mysqlCfg,
 		redisConfig:   redisCfg,
 		sessionConfig: sessionCfg,
+		jwtConfig:     jwtCfg,
 		loggerConfig:  loggerCfg,
 		tracingConfig: tracingCfg,
 		metricConfig:  metricCfg,
@@ -132,6 +140,7 @@ func (c *config) CORS() contracts.CORSConfig       { return c.corsConfig }
 func (c *config) MySQL() contracts.MySQLConfig     { return c.mysqlConfig }
 func (c *config) Redis() contracts.RedisConfig     { return c.redisConfig }
 func (c *config) Session() contracts.SessionConfig { return c.sessionConfig }
+func (c *config) JWT() contracts.JWTConfig         { return c.jwtConfig }
 func (c *config) Logger() contracts.LoggerConfig   { return c.loggerConfig }
 func (c *config) Tracing() contracts.TracingConfig { return c.tracingConfig }
 func (c *config) Metric() contracts.MetricConfig   { return c.metricConfig }

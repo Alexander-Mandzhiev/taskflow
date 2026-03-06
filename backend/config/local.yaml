@@ -59,6 +59,12 @@ session:
   is_secure: false
   cookie_domain: ""
 
+jwt:
+  access_secret: "local-dev-secret-change-in-production"
+  refresh_secret: ""  # пусто — используется access_secret; для разделения задайте свой
+  access_ttl: 15m
+  refresh_ttl: 168h
+
 logger:
   level: debug
   as_json: true

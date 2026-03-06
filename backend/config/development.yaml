@@ -58,6 +58,12 @@ session:
   is_secure: false
   cookie_domain: ""
 
+jwt:
+  access_secret: "dev-jwt-secret"
+  refresh_secret: ""
+  access_ttl: 15m
+  refresh_ttl: 168h
+
 logger:
   level: debug
   as_json: true
