@@ -78,7 +78,25 @@ jobs:
         run: task test-coverage
 
       - name: Show coverage total
-        run: go tool cover -func=${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }} | tail -1
+        id: coverage
+        run: |
+          LINE=$(go tool cover -func=${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }} | tail -1)
+          echo "$LINE"
+          TOTAL=$(echo "$LINE" | awk '{print $NF}')
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "## Coverage (overall)" >> $GITHUB_STEP_SUMMARY
+          echo "**$TOTAL**" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate coverage HTML
+        working-directory: backend
+        run: go tool cover -html=../${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }} -o ../${{ env.COVERAGE_DIR }}/coverage.html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ${{ env.COVERAGE_DIR }}/coverage.html
+          retention-days: 7
 
   # Проверка сборки образа (на push в main и на PR).
   docker-build:
