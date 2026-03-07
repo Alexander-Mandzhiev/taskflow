@@ -14,6 +14,4 @@ CREATE INDEX idx_team_members_user_id ON team_members(user_id);
 CREATE INDEX idx_team_members_team_id ON team_members(team_id);
 
 -- +goose Down
-DROP INDEX idx_team_members_team_id ON team_members;
-DROP INDEX idx_team_members_user_id ON team_members;
 DROP TABLE IF EXISTS team_members;

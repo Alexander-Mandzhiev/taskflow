@@ -14,5 +14,4 @@ CREATE TABLE task_comments (
 CREATE INDEX idx_task_comments_task_deleted ON task_comments(task_id, deleted_at);
 
 -- +goose Down
-DROP INDEX idx_task_comments_task_deleted ON task_comments;
 DROP TABLE IF EXISTS task_comments;

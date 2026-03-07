@@ -21,8 +21,4 @@ CREATE INDEX idx_team_invitations_status ON team_invitations(status);
 CREATE UNIQUE INDEX idx_team_invitations_token ON team_invitations(token);
 
 -- +goose Down
-DROP INDEX idx_team_invitations_token ON team_invitations;
-DROP INDEX idx_team_invitations_status ON team_invitations;
-DROP INDEX idx_team_invitations_email ON team_invitations;
-DROP INDEX idx_team_invitations_team_id ON team_invitations;
 DROP TABLE IF EXISTS team_invitations;

@@ -25,11 +25,4 @@ CREATE INDEX idx_tasks_team_status_completed ON tasks(team_id, status, completed
 CREATE INDEX idx_tasks_deleted_at ON tasks(deleted_at);
 
 -- +goose Down
-DROP INDEX idx_tasks_deleted_at ON tasks;
-DROP INDEX idx_tasks_team_status_completed ON tasks;
-DROP INDEX idx_tasks_team_status_updated ON tasks;
-DROP INDEX idx_tasks_team_status ON tasks;
-DROP INDEX idx_tasks_assignee_id ON tasks;
-DROP INDEX idx_tasks_status ON tasks;
-DROP INDEX idx_tasks_team_id ON tasks;
 DROP TABLE IF EXISTS tasks;

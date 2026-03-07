@@ -12,5 +12,4 @@ CREATE TABLE teams (
 CREATE INDEX idx_teams_deleted_at ON teams(deleted_at);
 
 -- +goose Down
-DROP INDEX idx_teams_deleted_at ON teams;
 DROP TABLE IF EXISTS teams;

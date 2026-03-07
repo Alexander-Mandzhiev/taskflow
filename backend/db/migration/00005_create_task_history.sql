@@ -15,6 +15,4 @@ CREATE INDEX idx_task_history_task_id ON task_history(task_id);
 CREATE INDEX idx_task_history_changed_at ON task_history(changed_at);
 
 -- +goose Down
-DROP INDEX idx_task_history_changed_at ON task_history;
-DROP INDEX idx_task_history_task_id ON task_history;
 DROP TABLE IF EXISTS task_history;

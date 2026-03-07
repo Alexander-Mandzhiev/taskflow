@@ -15,5 +15,4 @@ CREATE TABLE users (
 CREATE INDEX idx_users_deleted_at ON users(deleted_at);
 
 -- +goose Down
-DROP INDEX idx_users_deleted_at ON users;
 DROP TABLE IF EXISTS users;
