@@ -60,8 +60,8 @@ vars:
   COVER_PKG_SERVICE: "{{.SVC_ACCOUNT}},{{.SVC_USER}},{{.SVC_TEAM}},{{.SVC_TASK}}"
   COVER_PKG_ADAPTER: "{{.ADP_USER}},{{.ADP_TEAM}},{{.ADP_TASK}}"
   COVER_PKG: "{{.COVER_PKG_API}},{{.COVER_PKG_SERVICE}},{{.COVER_PKG_ADAPTER}}"
-  # Тест-пакеты: через пробелы (не запятые). Task: пакеты с кодом (тестов пока нет).
-  COVER_TEST_PKGS: "{{.API_ACCOUNT}}/test {{.API_TEAM}}/test {{.SVC_ACCOUNT}}/test {{.SVC_USER}}/test {{.SVC_TEAM}}/test {{.TASK}}/service/task {{.TASK}}/service/report {{.ADP_USER}}/test {{.ADP_TEAM}}/test {{.TASK}}/repository/adapter/task {{.TASK}}/repository/adapter/history {{.TASK}}/repository/adapter/report"
+  # Тест-пакеты: через пробелы (не запятые). Каждый пакет — путь к каталогу с *_test.go (часто .../test).
+  COVER_TEST_PKGS: "{{.API_ACCOUNT}}/test {{.API_TEAM}}/test {{.SVC_ACCOUNT}}/test {{.SVC_USER}}/test {{.SVC_TEAM}}/test {{.TASK}}/service/task/test {{.TASK}}/service/report/test {{.ADP_USER}}/test {{.ADP_TEAM}}/test {{.TASK}}/repository/adapter/task/test {{.TASK}}/repository/adapter/history/test {{.TASK}}/repository/adapter/report/test"
 
 # =============================================================================
 # УСТАНОВКА ИНСТРУМЕНТОВ

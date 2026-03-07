@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	historyAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/adapter/history"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository"
+	historyAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/adapter/history"
 	historyMocks "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/repository/history/mocks"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )

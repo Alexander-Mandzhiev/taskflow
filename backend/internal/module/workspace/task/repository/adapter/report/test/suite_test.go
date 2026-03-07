@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	reportAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/adapter/report"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository"
+	reportAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/adapter/report"
 	reportMocks "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/repository/report/mocks"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
