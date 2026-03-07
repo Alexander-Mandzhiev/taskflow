@@ -20,8 +20,8 @@ func (s *APISuite) TestReportTopCreators_Success() {
 	items := []*model.TeamTopCreator{
 		{
 			TeamID:       teamID,
-			UserID:      userID,
-			Rank:        1,
+			UserID:       userID,
+			Rank:         1,
 			CreatedCount: 10,
 		},
 	}

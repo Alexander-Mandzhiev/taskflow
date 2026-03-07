@@ -19,10 +19,10 @@ import (
 func (s *APISuite) TestCreate_Success() {
 	teamID := uuid.New().String()
 	body, _ := json.Marshal(map[string]interface{}{
-		"team_id":      teamID,
-		"title":        "New Task",
-		"description":  "Description",
-		"status":       model.TaskStatusTodo,
+		"team_id":     teamID,
+		"title":       "New Task",
+		"description": "Description",
+		"status":      model.TaskStatusTodo,
 	})
 	userID := uuid.MustParse(testUserID)
 	created := &model.Task{

@@ -20,13 +20,13 @@ func (s *APISuite) TestList_Success() {
 	userID := uuid.MustParse(testUserID)
 	tasks := []*model.Task{
 		{
-			ID:          uuid.New(),
-			Title:       "Task 1",
-			TeamID:      teamID,
-			CreatedBy:   userID,
-			Status:      model.TaskStatusTodo,
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:        uuid.New(),
+			Title:     "Task 1",
+			TeamID:    teamID,
+			CreatedBy: userID,
+			Status:    model.TaskStatusTodo,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		},
 	}
 

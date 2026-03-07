@@ -18,11 +18,11 @@ const (
 
 type APISuite struct {
 	suite.Suite
-	ctx             context.Context // nolint:containedctx
-	taskService     *taskServiceMocks.TaskService
-	reportService   *taskServiceMocks.TaskReportService
-	commentService  *taskServiceMocks.TaskCommentService
-	api             *task_v1.API
+	ctx            context.Context // nolint:containedctx
+	taskService    *taskServiceMocks.TaskService
+	reportService  *taskServiceMocks.TaskReportService
+	commentService *taskServiceMocks.TaskCommentService
+	api            *task_v1.API
 }
 
 func (s *APISuite) SetupTest() {

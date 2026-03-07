@@ -19,13 +19,13 @@ func (s *APISuite) TestReportInvalidAssignees_Success() {
 	userID := uuid.MustParse(testUserID)
 	tasks := []*model.Task{
 		{
-			ID:          uuid.New(),
-			Title:       "Task with bad assignee",
-			TeamID:      uuid.New(),
-			CreatedBy:   userID,
-			Status:      model.TaskStatusTodo,
-			CreatedAt:   time.Now(),
-			UpdatedAt:   time.Now(),
+			ID:        uuid.New(),
+			Title:     "Task with bad assignee",
+			TeamID:    uuid.New(),
+			CreatedBy: userID,
+			Status:    model.TaskStatusTodo,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		},
 	}
 
