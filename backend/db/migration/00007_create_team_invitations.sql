@@ -7,7 +7,7 @@ CREATE TABLE team_invitations (
     role VARCHAR(50) NOT NULL DEFAULT 'member',
     invited_by CHAR(36) NOT NULL,
     status ENUM('pending', 'accepted', 'declined', 'expired') NOT NULL DEFAULT 'pending',
-    token VARCHAR(64) NULL,
+    token VARCHAR(64) NOT NULL,
     expires_at DATETIME(3) NOT NULL,
     created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),

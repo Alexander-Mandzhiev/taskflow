@@ -51,3 +51,7 @@ packages:
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/member:
     config:
       include-regex: ".*Repository"
+  # Team repository — контракты reader/writer для team_invitations
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/invitation:
+    config:
+      include-regex: ".*Repository"

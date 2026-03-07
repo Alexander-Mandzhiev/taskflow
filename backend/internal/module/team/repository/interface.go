@@ -25,4 +25,10 @@ type TeamRepository interface {
 
 	// AddMember добавляет пользователя в команду с указанной ролью (для invite). При дубликате — ошибка (model.ErrAlreadyMember или от БД).
 	AddMember(ctx context.Context, tx *sqlx.Tx, teamID, userID, role string) (*model.TeamMember, error)
+
+	// CreateInvitation создаёт запись приглашения в team_invitations (status=pending, token и expires_at заданы вызывающим).
+	CreateInvitation(ctx context.Context, tx *sqlx.Tx, inv *model.TeamInvitation) error
+
+	// GetPendingInvitationByTeamAndEmail возвращает приглашение со статусом pending для (team_id, email) или model.ErrInvitationNotFound.
+	GetPendingInvitationByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, teamID, email string) (*model.TeamInvitation, error)
 }

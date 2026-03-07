@@ -30,4 +30,10 @@ var (
 
 	// ErrInvalidID — некорректный идентификатор в URL (не UUID или пустой).
 	ErrInvalidID = errors.New("invalid id")
+
+	// ErrAlreadyInvited — по данной паре (team_id, email) уже есть приглашение со статусом pending.
+	ErrAlreadyInvited = errors.New("invitation already sent")
+
+	// ErrInvitationNotFound — приглашение не найдено (по token или id).
+	ErrInvitationNotFound = errors.New("invitation not found")
 )

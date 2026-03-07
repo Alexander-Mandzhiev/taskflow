@@ -71,12 +71,18 @@ func mapDomainError(err error) (int, string) {
 		return http.StatusForbidden, "Недостаточно прав"
 	case errors.Is(err, model.ErrAlreadyMember):
 		return http.StatusConflict, "Пользователь уже в команде"
+	case errors.Is(err, model.ErrAlreadyInvited):
+		return http.StatusConflict, "Приглашение на этот email уже отправлено"
 	case errors.Is(err, model.ErrUserNotFound):
 		return http.StatusNotFound, "Пользователь с указанным email не найден"
 	case errors.Is(err, model.ErrNilInput):
 		return http.StatusBadRequest, "Некорректные данные запроса"
 	case errors.Is(err, model.ErrInvalidID):
 		return http.StatusBadRequest, "Некорректный идентификатор команды"
+	case errors.Is(err, model.ErrInvitationNotFound):
+		return http.StatusNotFound, "Приглашение не найдено"
+	case errors.Is(err, model.ErrTemporaryFailure):
+		return http.StatusServiceUnavailable, "Временная ошибка, попробуйте позже"
 	default:
 		return http.StatusInternalServerError, "Внутренняя ошибка сервера"
 	}

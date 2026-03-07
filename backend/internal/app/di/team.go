@@ -7,6 +7,8 @@ import (
 	team_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1"
 	teamRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository"
 	teamRepoAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/adapter"
+	teamRepoInvitationReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/invitation/reader"
+	teamRepoInvitationWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/invitation/writer"
 	teamRepoMemberReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/member/reader"
 	teamRepoMemberWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/member/writer"
 	teamRepoTeamReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/team/reader"
@@ -49,7 +51,7 @@ func (d *Container) TeamService(ctx context.Context) (teamServiceDef.TeamService
 	return d.teamService, nil
 }
 
-// TeamRepository возвращает адаптер репозитория команд (team reader/writer + member reader/writer).
+// TeamRepository возвращает адаптер репозитория команд (team + member + invitation reader/writer).
 func (d *Container) TeamRepository(ctx context.Context) (teamRepoDef.TeamRepository, error) {
 	if d.teamRepo != nil {
 		return d.teamRepo, nil
@@ -62,6 +64,8 @@ func (d *Container) TeamRepository(ctx context.Context) (teamRepoDef.TeamReposit
 	teamWriter := teamRepoTeamWriter.NewRepository(db)
 	memberReader := teamRepoMemberReader.NewRepository(db)
 	memberWriter := teamRepoMemberWriter.NewRepository(db)
-	d.teamRepo = teamRepoAdapter.NewRepository(teamReader, teamWriter, memberReader, memberWriter)
+	invitationReader := teamRepoInvitationReader.NewRepository(db)
+	invitationWriter := teamRepoInvitationWriter.NewRepository(db)
+	d.teamRepo = teamRepoAdapter.NewRepository(teamReader, teamWriter, memberReader, memberWriter, invitationReader, invitationWriter)
 	return d.teamRepo, nil
 }

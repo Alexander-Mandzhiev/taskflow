@@ -39,15 +39,15 @@ func (api *API) Invite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	invitedMember, err := api.teamService.InviteByEmail(r.Context(), teamID, userID, req.Email, req.Role)
+	invitation, err := api.teamService.InviteByEmail(r.Context(), teamID, userID, req.Email, req.Role)
 	if err != nil {
 		mapError(w, r, err)
 		return
 	}
 
 	pkghttp.WriteJSON(r.Context(), w, http.StatusCreated, dto.InviteResponse{
-		Success: true,
-		Message: "Пользователь приглашён в команду",
-		Member:  converter.MemberToResponse(invitedMember),
+		Success:    true,
+		Message:    "Приглашение создано",
+		Invitation: converter.InvitationToResponse(invitation),
 	})
 }

@@ -147,6 +147,54 @@ func (_c *TeamRepository_Create_Call) RunAndReturn(run func(context.Context, *sq
 	return _c
 }
 
+// CreateInvitation provides a mock function with given fields: ctx, tx, inv
+func (_m *TeamRepository) CreateInvitation(ctx context.Context, tx *sqlx.Tx, inv *model.TeamInvitation) error {
+	ret := _m.Called(ctx, tx, inv)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateInvitation")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TeamInvitation) error); ok {
+		r0 = rf(ctx, tx, inv)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// TeamRepository_CreateInvitation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateInvitation'
+type TeamRepository_CreateInvitation_Call struct {
+	*mock.Call
+}
+
+// CreateInvitation is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tx *sqlx.Tx
+//   - inv *model.TeamInvitation
+func (_e *TeamRepository_Expecter) CreateInvitation(ctx interface{}, tx interface{}, inv interface{}) *TeamRepository_CreateInvitation_Call {
+	return &TeamRepository_CreateInvitation_Call{Call: _e.mock.On("CreateInvitation", ctx, tx, inv)}
+}
+
+func (_c *TeamRepository_CreateInvitation_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, inv *model.TeamInvitation)) *TeamRepository_CreateInvitation_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(*model.TeamInvitation))
+	})
+	return _c
+}
+
+func (_c *TeamRepository_CreateInvitation_Call) Return(_a0 error) *TeamRepository_CreateInvitation_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *TeamRepository_CreateInvitation_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, *model.TeamInvitation) error) *TeamRepository_CreateInvitation_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByID provides a mock function with given fields: ctx, tx, teamID
 func (_m *TeamRepository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID string) (*model.TeamWithMembers, error) {
 	ret := _m.Called(ctx, tx, teamID)
@@ -264,6 +312,67 @@ func (_c *TeamRepository_GetMember_Call) Return(_a0 *model.TeamMember, _a1 error
 }
 
 func (_c *TeamRepository_GetMember_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, string, string) (*model.TeamMember, error)) *TeamRepository_GetMember_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetPendingInvitationByTeamAndEmail provides a mock function with given fields: ctx, tx, teamID, email
+func (_m *TeamRepository) GetPendingInvitationByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, teamID string, email string) (*model.TeamInvitation, error) {
+	ret := _m.Called(ctx, tx, teamID, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPendingInvitationByTeamAndEmail")
+	}
+
+	var r0 *model.TeamInvitation
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string, string) (*model.TeamInvitation, error)); ok {
+		return rf(ctx, tx, teamID, email)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string, string) *model.TeamInvitation); ok {
+		r0 = rf(ctx, tx, teamID, email)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.TeamInvitation)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, string, string) error); ok {
+		r1 = rf(ctx, tx, teamID, email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// TeamRepository_GetPendingInvitationByTeamAndEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPendingInvitationByTeamAndEmail'
+type TeamRepository_GetPendingInvitationByTeamAndEmail_Call struct {
+	*mock.Call
+}
+
+// GetPendingInvitationByTeamAndEmail is a helper method to define mock.On call
+//   - ctx context.Context
+//   - tx *sqlx.Tx
+//   - teamID string
+//   - email string
+func (_e *TeamRepository_Expecter) GetPendingInvitationByTeamAndEmail(ctx interface{}, tx interface{}, teamID interface{}, email interface{}) *TeamRepository_GetPendingInvitationByTeamAndEmail_Call {
+	return &TeamRepository_GetPendingInvitationByTeamAndEmail_Call{Call: _e.mock.On("GetPendingInvitationByTeamAndEmail", ctx, tx, teamID, email)}
+}
+
+func (_c *TeamRepository_GetPendingInvitationByTeamAndEmail_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, teamID string, email string)) *TeamRepository_GetPendingInvitationByTeamAndEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *TeamRepository_GetPendingInvitationByTeamAndEmail_Call) Return(_a0 *model.TeamInvitation, _a1 error) *TeamRepository_GetPendingInvitationByTeamAndEmail_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *TeamRepository_GetPendingInvitationByTeamAndEmail_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, string, string) (*model.TeamInvitation, error)) *TeamRepository_GetPendingInvitationByTeamAndEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }

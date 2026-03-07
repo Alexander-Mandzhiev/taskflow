@@ -204,23 +204,23 @@ func (_c *TeamService_GetMember_Call) RunAndReturn(run func(context.Context, uui
 }
 
 // InviteByEmail provides a mock function with given fields: ctx, teamID, inviterUserID, inviteeEmail, role
-func (_m *TeamService) InviteByEmail(ctx context.Context, teamID uuid.UUID, inviterUserID uuid.UUID, inviteeEmail string, role string) (*model.TeamMember, error) {
+func (_m *TeamService) InviteByEmail(ctx context.Context, teamID uuid.UUID, inviterUserID uuid.UUID, inviteeEmail string, role string) (*model.TeamInvitation, error) {
 	ret := _m.Called(ctx, teamID, inviterUserID, inviteeEmail, role)
 
 	if len(ret) == 0 {
 		panic("no return value specified for InviteByEmail")
 	}
 
-	var r0 *model.TeamMember
+	var r0 *model.TeamInvitation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string, string) (*model.TeamMember, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string, string) (*model.TeamInvitation, error)); ok {
 		return rf(ctx, teamID, inviterUserID, inviteeEmail, role)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string, string) *model.TeamMember); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string, string) *model.TeamInvitation); ok {
 		r0 = rf(ctx, teamID, inviterUserID, inviteeEmail, role)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.TeamMember)
+			r0 = ret.Get(0).(*model.TeamInvitation)
 		}
 	}
 
@@ -255,12 +255,12 @@ func (_c *TeamService_InviteByEmail_Call) Run(run func(ctx context.Context, team
 	return _c
 }
 
-func (_c *TeamService_InviteByEmail_Call) Return(_a0 *model.TeamMember, _a1 error) *TeamService_InviteByEmail_Call {
+func (_c *TeamService_InviteByEmail_Call) Return(_a0 *model.TeamInvitation, _a1 error) *TeamService_InviteByEmail_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamService_InviteByEmail_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, string, string) (*model.TeamMember, error)) *TeamService_InviteByEmail_Call {
+func (_c *TeamService_InviteByEmail_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, string, string) (*model.TeamInvitation, error)) *TeamService_InviteByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
