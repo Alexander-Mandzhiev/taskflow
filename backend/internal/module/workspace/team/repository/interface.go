@@ -9,9 +9,9 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
-// TeamRepository — единая точка доступа к данным команд и участников (контракт для адаптера).
+// TeamAdapter — контракт адаптера доступа к данным команд и участников (team + member + invitation).
 // tx: при tx != nil все операции в транзакции; при tx == nil — вне транзакции. ID передаются как uuid.UUID.
-type TeamRepository interface {
+type TeamAdapter interface {
 	// Create создаёт только запись в teams (created_by = ownerUserID). Добавление owner в team_members — зона ответственности сервиса (AddMember).
 	Create(ctx context.Context, tx *sqlx.Tx, input *model.TeamInput, ownerUserID uuid.UUID) (*model.Team, error)
 

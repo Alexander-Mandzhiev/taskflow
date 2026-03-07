@@ -22,82 +22,66 @@ func (s *taskService) Update(ctx context.Context, userID, taskID uuid.UUID, inpu
 		return nil, err
 	}
 
-	current, err := s.taskRepo.GetByID(ctx, nil, taskID)
-	if err != nil {
-		if errors.Is(err, model.ErrTaskNotFound) {
-			return nil, err
-		}
-		return nil, err
-	}
-	if _, err := s.teamSvc.GetMember(ctx, current.TeamID, userID); err != nil {
-		if errors.Is(err, teamModel.ErrMemberNotFound) {
-			return nil, model.ErrTaskNotFound
-		}
-		return nil, err
-	}
-	if input.AssigneeID != nil {
-		if _, err := s.teamSvc.GetMember(ctx, current.TeamID, *input.AssigneeID); err != nil {
-			if errors.Is(err, teamModel.ErrMemberNotFound) {
-				return nil, model.ErrAssigneeNotInTeam
-			}
-			return nil, err
-		}
-	}
-
 	var updated *model.Task
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
+		current, errTx := s.taskRepo.GetByID(ctx, tx, taskID)
+		if errTx != nil {
+			return errTx
+		}
+		if _, errTx := s.teamRepo.GetMember(ctx, tx, current.TeamID, userID); errTx != nil {
+			if errors.Is(errTx, teamModel.ErrMemberNotFound) {
+				return model.ErrTaskNotFound
+			}
+			return errTx
+		}
+		if input.AssigneeID != nil {
+			if _, errTx := s.teamRepo.GetMember(ctx, tx, current.TeamID, *input.AssigneeID); errTx != nil {
+				if errors.Is(errTx, teamModel.ErrMemberNotFound) {
+					return model.ErrAssigneeNotInTeam
+				}
+				return errTx
+			}
+		}
 		if errTx := s.taskRepo.Update(ctx, tx, taskID, input); errTx != nil {
 			return errTx
 		}
 		now := time.Now()
-		if errTx := writeHistory(ctx, tx, s.historyRepo, taskID, userID, now, current, input); errTx != nil {
-			return errTx
+		if current.Title != input.Title {
+			if errTx := s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{TaskID: taskID, ChangedBy: userID, FieldName: "title", OldValue: current.Title, NewValue: input.Title, ChangedAt: now}); errTx != nil {
+				return errTx
+			}
 		}
-		var errTx error
+		if current.Description != input.Description {
+			if errTx := s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{TaskID: taskID, ChangedBy: userID, FieldName: "description", OldValue: current.Description, NewValue: input.Description, ChangedAt: now}); errTx != nil {
+				return errTx
+			}
+		}
+		if current.Status != input.Status {
+			if errTx := s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{TaskID: taskID, ChangedBy: userID, FieldName: "status", OldValue: current.Status, NewValue: input.Status, ChangedAt: now}); errTx != nil {
+				return errTx
+			}
+		}
+		oldAssignee := ""
+		if current.AssigneeID != nil {
+			oldAssignee = current.AssigneeID.String()
+		}
+		newAssignee := ""
+		if input.AssigneeID != nil {
+			newAssignee = input.AssigneeID.String()
+		}
+		if oldAssignee != newAssignee {
+			if errTx := s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{TaskID: taskID, ChangedBy: userID, FieldName: "assignee_id", OldValue: oldAssignee, NewValue: newAssignee, ChangedAt: now}); errTx != nil {
+				return errTx
+			}
+		}
 		updated, errTx = s.taskRepo.GetByID(ctx, tx, taskID)
 		return errTx
 	}); err != nil {
+		if errors.Is(err, model.ErrTaskNotFound) || errors.Is(err, model.ErrAssigneeNotInTeam) {
+			return nil, err
+		}
 		logger.Error(ctx, "Update task failed", zap.Error(err))
 		return nil, err
 	}
 	return updated, nil
-}
-
-type historyWriter interface {
-	CreateHistoryEntry(ctx context.Context, tx *sqlx.Tx, entry *model.TaskHistory) error
-}
-
-func writeHistory(ctx context.Context, tx *sqlx.Tx, repo historyWriter, taskID, changedBy uuid.UUID, now time.Time, current *model.Task, input *model.TaskInput) error {
-	assigneeStr := func(p *uuid.UUID) string {
-		if p == nil {
-			return ""
-		}
-		return p.String()
-	}
-	entries := []struct {
-		field    string
-		old, new string
-	}{
-		{"title", current.Title, input.Title},
-		{"description", current.Description, input.Description},
-		{"status", current.Status, input.Status},
-		{"assignee_id", assigneeStr(current.AssigneeID), assigneeStr(input.AssigneeID)},
-	}
-	for _, e := range entries {
-		if e.old == e.new {
-			continue
-		}
-		entry := &model.TaskHistory{
-			TaskID:    taskID,
-			ChangedBy: changedBy,
-			FieldName: e.field,
-			OldValue:  e.old,
-			NewValue:  e.new,
-			ChangedAt: now,
-		}
-		if err := repo.CreateHistoryEntry(ctx, tx, entry); err != nil {
-			return err
-		}
-	}
-	return nil
 }

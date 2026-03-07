@@ -36,9 +36,9 @@ func (d *Container) TeamService(ctx context.Context) (teamServiceDef.TeamService
 	if d.teamService != nil {
 		return d.teamService, nil
 	}
-	repo, err := d.TeamRepository(ctx)
+	repo, err := d.TeamAdapter(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("team repository: %w", err)
+		return nil, fmt.Errorf("team adapter: %w", err)
 	}
 	txMgr, err := d.UserTxManager(ctx)
 	if err != nil {
@@ -53,8 +53,8 @@ func (d *Container) TeamService(ctx context.Context) (teamServiceDef.TeamService
 	return d.teamService, nil
 }
 
-// TeamRepository возвращает адаптер репозитория команд (team + member + invitation reader/writer).
-func (d *Container) TeamRepository(ctx context.Context) (teamRepoDef.TeamRepository, error) {
+// TeamAdapter возвращает адаптер доступа к данным команд (team + member + invitation reader/writer).
+func (d *Container) TeamAdapter(ctx context.Context) (teamRepoDef.TeamAdapter, error) {
 	if d.teamRepo != nil {
 		return d.teamRepo, nil
 	}

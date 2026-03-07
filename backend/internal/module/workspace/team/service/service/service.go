@@ -11,14 +11,14 @@ import (
 var _ def.TeamService = (*teamService)(nil)
 
 type teamService struct {
-	repo      teamRepo.TeamRepository
+	repo      teamRepo.TeamAdapter
 	txManager txmanager.TxManager
 	userRepo  userRepo.UserRepository
 	notifier  teamClient.Notification
 }
 
 // NewTeamService создаёт сервис команд. userRepo — для invite по email; notifier — отправка уведомления (мок или gRPC). Ссылку «принять приглашение» собирает сервис уведомлений из inv.Token.
-func NewTeamService(repo teamRepo.TeamRepository, txManager txmanager.TxManager, userRepo userRepo.UserRepository, notifier teamClient.Notification) def.TeamService {
+func NewTeamService(repo teamRepo.TeamAdapter, txManager txmanager.TxManager, userRepo userRepo.UserRepository, notifier teamClient.Notification) def.TeamService {
 	return &teamService{
 		repo:      repo,
 		txManager: txManager,

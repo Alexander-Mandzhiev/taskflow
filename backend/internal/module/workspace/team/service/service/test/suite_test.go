@@ -22,7 +22,7 @@ type ServiceSuite struct {
 	suite.Suite
 	ctx context.Context // nolint:containedctx
 
-	teamRepo  *teamrepos.TeamRepository
+	teamRepo  *teamrepos.TeamAdapter
 	userRepo  *usermocks.UserRepository
 	txManager txmanager.TxManager
 	notifier  teamgrpc.Notification
@@ -36,7 +36,7 @@ func (s *ServiceSuite) SetupSuite() {
 		panic(err)
 	}
 
-	s.teamRepo = teamrepos.NewTeamRepository(s.T())
+	s.teamRepo = teamrepos.NewTeamAdapter(s.T())
 	s.userRepo = usermocks.NewUserRepository(s.T())
 	s.txManager = &txmanager.Noop{}
 	s.notifier = notificationv1.NewClient()

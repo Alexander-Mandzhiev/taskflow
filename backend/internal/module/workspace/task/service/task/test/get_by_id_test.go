@@ -21,14 +21,14 @@ func (s *ServiceSuite) TestGetByID_Success() {
 	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
-	s.teamSvc.On("GetMember", mock.Anything, teamID, userID).Return(member, nil).Once()
+	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
 
 	got, err := s.svc.GetByID(s.ctx, taskID, userID)
 
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), task, got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamSvc.AssertExpectations(s.T())
+	s.teamRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestGetByID_TaskNotFound() {
@@ -44,7 +44,7 @@ func (s *ServiceSuite) TestGetByID_TaskNotFound() {
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
 	assert.Nil(s.T(), got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamSvc.AssertNotCalled(s.T(), "GetMember")
+	s.teamRepo.AssertNotCalled(s.T(), "GetMember")
 }
 
 func (s *ServiceSuite) TestGetByID_NotMember() {
@@ -54,7 +54,7 @@ func (s *ServiceSuite) TestGetByID_NotMember() {
 	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
-	s.teamSvc.On("GetMember", mock.Anything, teamID, userID).
+	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
 		Return((*teamModel.TeamMember)(nil), teamModel.ErrMemberNotFound).Once()
 
 	got, err := s.svc.GetByID(s.ctx, taskID, userID)
@@ -63,5 +63,5 @@ func (s *ServiceSuite) TestGetByID_NotMember() {
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
 	assert.Nil(s.T(), got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamSvc.AssertExpectations(s.T())
+	s.teamRepo.AssertExpectations(s.T())
 }

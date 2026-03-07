@@ -52,7 +52,7 @@ func (s *ServiceSuite) TestUpdate_TaskNotFound() {
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
 	assert.Nil(s.T(), got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamSvc.AssertNotCalled(s.T(), "GetMember")
+	s.teamRepo.AssertNotCalled(s.T(), "GetMember")
 	s.taskRepo.AssertNotCalled(s.T(), "Update")
 }
 
@@ -64,7 +64,7 @@ func (s *ServiceSuite) TestUpdate_NotMember() {
 	input := &model.TaskInput{Title: "New", Status: model.TaskStatusTodo}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(current, nil).Once()
-	s.teamSvc.On("GetMember", mock.Anything, teamID, userID).
+	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
 		Return((*teamModel.TeamMember)(nil), teamModel.ErrMemberNotFound).Once()
 
 	got, err := s.svc.Update(s.ctx, userID, taskID, input)
@@ -73,7 +73,7 @@ func (s *ServiceSuite) TestUpdate_NotMember() {
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
 	assert.Nil(s.T(), got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamSvc.AssertExpectations(s.T())
+	s.teamRepo.AssertExpectations(s.T())
 	s.taskRepo.AssertNotCalled(s.T(), "Update")
 	s.historyRepo.AssertNotCalled(s.T(), "CreateHistoryEntry")
 }
@@ -88,8 +88,8 @@ func (s *ServiceSuite) TestUpdate_AssigneeNotInTeam() {
 	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(current, nil).Once()
-	s.teamSvc.On("GetMember", mock.Anything, teamID, userID).Return(member, nil).Once()
-	s.teamSvc.On("GetMember", mock.Anything, teamID, assigneeID).
+	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
+	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, assigneeID).
 		Return((*teamModel.TeamMember)(nil), teamModel.ErrMemberNotFound).Once()
 
 	got, err := s.svc.Update(s.ctx, userID, taskID, input)
@@ -98,7 +98,7 @@ func (s *ServiceSuite) TestUpdate_AssigneeNotInTeam() {
 	assert.ErrorIs(s.T(), err, model.ErrAssigneeNotInTeam)
 	assert.Nil(s.T(), got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamSvc.AssertExpectations(s.T())
+	s.teamRepo.AssertExpectations(s.T())
 	s.taskRepo.AssertNotCalled(s.T(), "Update")
 }
 
@@ -118,7 +118,7 @@ func (s *ServiceSuite) TestUpdate_Success() {
 	}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(current, nil).Once()
-	s.teamSvc.On("GetMember", mock.Anything, teamID, userID).Return(member, nil).Once()
+	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
 	s.taskRepo.On("Update", mock.Anything, mock.Anything, taskID, input).Return(nil).Once()
 	s.historyRepo.On("CreateHistoryEntry", mock.Anything, mock.Anything, mock.MatchedBy(func(e *model.TaskHistory) bool {
 		return e.FieldName == "title" && e.OldValue == "Old" && e.NewValue == "New"
@@ -130,6 +130,6 @@ func (s *ServiceSuite) TestUpdate_Success() {
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), updated, got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamSvc.AssertExpectations(s.T())
+	s.teamRepo.AssertExpectations(s.T())
 	s.historyRepo.AssertExpectations(s.T())
 }

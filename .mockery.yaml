@@ -39,10 +39,10 @@ packages:
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service:
     config:
       include-regex: ".*Service"
-  # Team repository — адаптер
+  # Team repository — контракт адаптера (TeamAdapter)
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository:
     config:
-      include-regex: ".*Repository"
+      include-regex: ".*Adapter"
   # Team repository — контракты reader/writer для teams
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team:
     config:

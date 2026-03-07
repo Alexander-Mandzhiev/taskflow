@@ -9,7 +9,7 @@ import (
 	taskRepoMocks "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/mocks"
 	svc "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/service"
 	taskimpl "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/service/task"
-	teamSvcMocks "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service/mocks"
+	teamRepoMocks "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/mocks"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
@@ -22,7 +22,7 @@ type ServiceSuite struct {
 
 	taskRepo    *taskRepoMocks.TaskRepository
 	historyRepo *taskRepoMocks.TaskHistoryRepository
-	teamSvc     *teamSvcMocks.TeamService
+	teamRepo    *teamRepoMocks.TeamAdapter
 	txManager   txmanager.TxManager
 	svc         svc.TaskService
 }
@@ -36,9 +36,9 @@ func (s *ServiceSuite) SetupSuite() {
 
 	s.taskRepo = taskRepoMocks.NewTaskRepository(s.T())
 	s.historyRepo = taskRepoMocks.NewTaskHistoryRepository(s.T())
-	s.teamSvc = teamSvcMocks.NewTeamService(s.T())
+	s.teamRepo = teamRepoMocks.NewTeamAdapter(s.T())
 	s.txManager = &txmanager.Noop{}
-	s.svc = taskimpl.NewTaskService(s.taskRepo, s.historyRepo, s.teamSvc, s.txManager)
+	s.svc = taskimpl.NewTaskService(s.taskRepo, s.historyRepo, s.teamRepo, s.txManager)
 }
 
 func (s *ServiceSuite) SetupTest() {
@@ -46,7 +46,7 @@ func (s *ServiceSuite) SetupTest() {
 
 	s.taskRepo.ExpectedCalls = nil
 	s.historyRepo.ExpectedCalls = nil
-	s.teamSvc.ExpectedCalls = nil
+	s.teamRepo.ExpectedCalls = nil
 }
 
 func TestTaskService(t *testing.T) {

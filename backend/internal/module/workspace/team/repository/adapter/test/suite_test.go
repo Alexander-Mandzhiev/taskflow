@@ -24,7 +24,7 @@ type AdapterSuite struct {
 	memberWriter     *mocks3.MemberWriterRepository
 	invitationReader *mocks2.InvitationReaderRepository
 	invitationWriter *mocks2.InvitationWriterRepository
-	repo             repository.TeamRepository
+	repo             repository.TeamAdapter
 }
 
 func (s *AdapterSuite) SetupTest() {

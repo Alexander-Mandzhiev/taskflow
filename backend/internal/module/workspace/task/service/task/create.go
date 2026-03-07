@@ -22,22 +22,6 @@ func (s *taskService) Create(ctx context.Context, userID, teamID uuid.UUID, inpu
 		return nil, err
 	}
 
-	if _, err := s.teamSvc.GetMember(ctx, teamID, userID); err != nil {
-		if errors.Is(err, teamModel.ErrMemberNotFound) {
-			return nil, model.ErrTaskNotFound
-		}
-		return nil, err
-	}
-
-	if input.AssigneeID != nil {
-		if _, err := s.teamSvc.GetMember(ctx, teamID, *input.AssigneeID); err != nil {
-			if errors.Is(err, teamModel.ErrMemberNotFound) {
-				return nil, model.ErrAssigneeNotInTeam
-			}
-			return nil, err
-		}
-	}
-
 	prepared := *input
 	if prepared.Status == "" {
 		prepared.Status = model.TaskStatusTodo
@@ -45,10 +29,27 @@ func (s *taskService) Create(ctx context.Context, userID, teamID uuid.UUID, inpu
 
 	var created *model.Task
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
+		if _, err := s.teamRepo.GetMember(ctx, tx, teamID, userID); err != nil {
+			if errors.Is(err, teamModel.ErrMemberNotFound) {
+				return model.ErrTaskNotFound
+			}
+			return err
+		}
+		if input.AssigneeID != nil {
+			if _, err := s.teamRepo.GetMember(ctx, tx, teamID, *input.AssigneeID); err != nil {
+				if errors.Is(err, teamModel.ErrMemberNotFound) {
+					return model.ErrAssigneeNotInTeam
+				}
+				return err
+			}
+		}
 		var errTx error
 		created, errTx = s.taskRepo.Create(ctx, tx, teamID, &prepared, userID)
 		return errTx
 	}); err != nil {
+		if errors.Is(err, model.ErrTaskNotFound) || errors.Is(err, model.ErrAssigneeNotInTeam) {
+			return nil, err
+		}
 		logger.Error(ctx, "Create task failed", zap.Error(err))
 		return nil, err
 	}

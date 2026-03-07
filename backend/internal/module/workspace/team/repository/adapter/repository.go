@@ -7,7 +7,7 @@ import (
 	teamRepo "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team"
 )
 
-var _ repository.TeamRepository = (*Adapter)(nil)
+var _ repository.TeamAdapter = (*Adapter)(nil)
 
 // Adapter — адаптер поверх team/member/invitation reader/writer.
 type Adapter struct {
