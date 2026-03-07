@@ -55,3 +55,24 @@ packages:
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/invitation:
     config:
       include-regex: ".*Repository"
+
+  # Workspace — task
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/service:
+    config:
+      include-regex: ".*Service"
+  # Task repository — адаптер (контракты TaskRepository, TaskHistoryRepository, ReportRepository)
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository:
+    config:
+      include-regex: ".*Repository"
+  # Task repository — контракты reader/writer для tasks
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/repository/task:
+    config:
+      include-regex: ".*Repository"
+  # Task repository — контракты reader/writer для task_history
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/repository/history:
+    config:
+      include-regex: ".*Repository"
+  # Task repository — контракт reader для отчётов
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/repository/report:
+    config:
+      include-regex: ".*Repository"

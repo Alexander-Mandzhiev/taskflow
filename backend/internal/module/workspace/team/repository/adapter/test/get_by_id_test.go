@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 
 func (s *AdapterSuite) TestGetByID_Success() {
 	teamID := uuid.MustParse(testTeamID)
-	team := &model2.Team{
+	team := &model.Team{
 		ID:        teamID,
 		Name:      "My Team",
 		CreatedBy: uuid.MustParse(testOwnerUserID),
@@ -26,7 +26,7 @@ func (s *AdapterSuite) TestGetByID_Success() {
 		UpdatedAt: time.Now(),
 	}
 
-	s.teamReader.On("GetByID", mock.Anything, (*sqlx.Tx)(nil), testTeamID).
+	s.teamReader.On("GetByID", mock.Anything, (*sqlx.Tx)(nil), teamID).
 		Return(team, nil).Once()
 
 	got, err := s.repo.GetByID(s.ctx, nil, teamID)
@@ -41,7 +41,7 @@ func (s *AdapterSuite) TestGetByID_Success() {
 func (s *AdapterSuite) TestGetByID_WithTx() {
 	tx := &sqlx.Tx{}
 	teamID := uuid.MustParse(testTeamID)
-	team := &model2.Team{
+	team := &model.Team{
 		ID:        teamID,
 		Name:      "My Team",
 		CreatedBy: uuid.MustParse(testOwnerUserID),
@@ -49,7 +49,7 @@ func (s *AdapterSuite) TestGetByID_WithTx() {
 		UpdatedAt: time.Now(),
 	}
 
-	s.teamReader.On("GetByID", mock.Anything, tx, testTeamID).
+	s.teamReader.On("GetByID", mock.Anything, tx, teamID).
 		Return(team, nil).Once()
 
 	got, err := s.repo.GetByID(s.ctx, tx, teamID)
@@ -62,13 +62,13 @@ func (s *AdapterSuite) TestGetByID_WithTx() {
 
 func (s *AdapterSuite) TestGetByID_TeamNotFound() {
 	teamID := uuid.MustParse(testTeamID)
-	s.teamReader.On("GetByID", mock.Anything, mock.Anything, testTeamID).
-		Return((*model2.Team)(nil), model2.ErrTeamNotFound).Once()
+	s.teamReader.On("GetByID", mock.Anything, mock.Anything, teamID).
+		Return((*model.Team)(nil), model.ErrTeamNotFound).Once()
 
 	got, err := s.repo.GetByID(s.ctx, nil, teamID)
 
 	assert.Error(s.T(), err)
-	assert.ErrorIs(s.T(), err, model2.ErrTeamNotFound)
+	assert.ErrorIs(s.T(), err, model.ErrTeamNotFound)
 	assert.Nil(s.T(), got)
 	s.teamReader.AssertExpectations(s.T())
 }

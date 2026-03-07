@@ -1,4 +1,4 @@
-package service_test
+package team_test
 
 import (
 	"github.com/google/uuid"

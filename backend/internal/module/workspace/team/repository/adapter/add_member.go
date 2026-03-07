@@ -10,6 +10,6 @@ import (
 )
 
 // AddMember добавляет пользователя в команду с указанной ролью.
-func (r *Repository) AddMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID, role string) (*model.TeamMember, error) {
+func (r *Adapter) AddMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID, role string) (*model.TeamMember, error) {
 	return r.memberWriter.AddMember(ctx, tx, teamID, userID, role)
 }

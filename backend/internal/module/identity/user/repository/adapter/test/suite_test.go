@@ -33,7 +33,7 @@ func (s *AdapterSuite) SetupTest() {
 	s.reader = usermocks.NewUserReaderRepository(s.T())
 	s.writer = usermocks.NewUserWriterRepository(s.T())
 	s.cache = cachemocks.NewUserCacheRepository(s.T())
-	s.repo = adapter.NewRepository(s.reader, s.writer, s.cache)
+	s.repo = adapter.NewAdapter(s.reader, s.writer, s.cache)
 }
 
 func TestAdapter(t *testing.T) {

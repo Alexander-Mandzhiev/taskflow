@@ -3,7 +3,7 @@ package writer
 import (
 	"github.com/jmoiron/sqlx"
 
-	taskDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/task"
+	taskDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/repository/task"
 )
 
 var _ taskDef.TaskWriterRepository = (*repository)(nil)

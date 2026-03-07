@@ -1,18 +1,18 @@
-package service_test
+package team_test
 
 import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 func (s *ServiceSuite) TestListByUserID_Success() {
 	userID := uuid.New()
-	want := []*model2.TeamWithRole{
-		{Team: model2.Team{ID: uuid.New(), Name: "Team A"}, Role: model2.RoleOwner},
-		{Team: model2.Team{ID: uuid.New(), Name: "Team B"}, Role: model2.RoleMember},
+	want := []*model.TeamWithRole{
+		{Team: model.Team{ID: uuid.New(), Name: "Team A"}, Role: model.RoleOwner},
+		{Team: model.Team{ID: uuid.New(), Name: "Team B"}, Role: model.RoleMember},
 	}
 
 	s.teamRepo.On("ListByUserID", mock.Anything, mock.Anything, userID).Return(want, nil).Once()
@@ -28,7 +28,7 @@ func (s *ServiceSuite) TestListByUserID_Success() {
 func (s *ServiceSuite) TestListByUserID_Empty() {
 	userID := uuid.New()
 
-	s.teamRepo.On("ListByUserID", mock.Anything, mock.Anything, userID).Return([]*model2.TeamWithRole{}, nil).Once()
+	s.teamRepo.On("ListByUserID", mock.Anything, mock.Anything, userID).Return([]*model.TeamWithRole{}, nil).Once()
 
 	got, err := s.svc.ListByUserID(s.ctx, userID)
 
@@ -41,7 +41,7 @@ func (s *ServiceSuite) TestListByUserID_Empty() {
 func (s *ServiceSuite) TestListByUserID_RepoError() {
 	userID := uuid.New()
 
-	s.teamRepo.On("ListByUserID", mock.Anything, mock.Anything, userID).Return(([]*model2.TeamWithRole)(nil), assert.AnError).Once()
+	s.teamRepo.On("ListByUserID", mock.Anything, mock.Anything, userID).Return(([]*model.TeamWithRole)(nil), assert.AnError).Once()
 
 	got, err := s.svc.ListByUserID(s.ctx, userID)
 

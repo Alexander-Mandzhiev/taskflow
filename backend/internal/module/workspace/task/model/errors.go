@@ -24,4 +24,7 @@ var (
 
 	// ErrInternal — внутренняя/неизвестная ошибка.
 	ErrInternal = errors.New("internal error")
+
+	// ErrPaginationRequired — для List обязательна пагинация с фронта: limit > 0.
+	ErrPaginationRequired = errors.New("pagination required: limit must be positive")
 )

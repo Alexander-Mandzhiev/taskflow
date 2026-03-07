@@ -2,6 +2,7 @@ package writer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
@@ -13,6 +14,9 @@ import (
 
 // Restore снимает пометку удаления (deleted_at = NULL). При отсутствии — model.ErrTaskNotFound.
 func (r *repository) Restore(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) error {
+	if tx == nil {
+		return errors.New("transaction required")
+	}
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Update("tasks").
 		Set("deleted_at", nil).

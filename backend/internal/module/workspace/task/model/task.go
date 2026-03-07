@@ -34,5 +34,6 @@ type Task struct {
 	CreatedBy   uuid.UUID
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	CompletedAt *time.Time // когда задача переведена в статус done; NULL если не done или снята с done
 	DeletedAt   *time.Time
 }

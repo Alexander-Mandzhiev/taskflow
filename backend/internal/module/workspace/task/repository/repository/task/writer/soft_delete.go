@@ -2,6 +2,7 @@ package writer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
@@ -13,6 +14,9 @@ import (
 
 // SoftDelete помечает задачу удалённой (deleted_at = NOW()). При отсутствии — model.ErrTaskNotFound.
 func (r *repository) SoftDelete(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) error {
+	if tx == nil {
+		return errors.New("transaction required")
+	}
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Update("tasks").
 		Set("deleted_at", sq.Expr("NOW()")).

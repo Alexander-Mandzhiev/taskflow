@@ -1,6 +1,6 @@
 # API модуля задач (tasks)
 
-Ручки для управления задачами по ТЗ и контракту `TaskService`. Авторизация: JWT в заголовке (userID из токена).
+Ручки для управления задачами по ТЗ. Задачи и история — контракт `TaskService`; отчёты (раздел 3) — контракт `TaskReportService` (одна реализация реализует оба). Авторизация: JWT в заголовке (userID из токена).
 
 ---
 
@@ -86,12 +86,14 @@
 
 ## 3. Сложные запросы / отчёты (обязательно по ТЗ)
 
+Отчёты используют `TaskReportService`.
+
 ### 3.1 Статистика по командам (п. а)
 
 - **Назначение:** для каждой команды — название, кол-во участников, кол-во задач в статусе done за период (по ТЗ — последние 7 дней).
 - **Метод:** `GET /api/v1/reports/team-task-stats?since=...`
   - Альтернатива: `GET /api/v1/teams/stats/tasks?since=...`
-- **Сервис:** `TaskService.TeamTaskStats(ctx, userID, since)`
+- **Сервис:** `TaskReportService.TeamTaskStats(ctx, userID, since)`
 - **Query:** `since` — начало периода (ISO8601 или timestamp); по умолчанию — 7 дней назад.
 - **Ответ:** `200` + массив `{ team_id, team_name, member_count, done_tasks_count }`.
 
@@ -102,7 +104,7 @@
 - **Назначение:** топ-N пользователей по количеству созданных задач в каждой команде за период (по ТЗ — за месяц).
 - **Метод:** `GET /api/v1/reports/top-creators?since=...&limit=...`
   - Альтернатива: `GET /api/v1/teams/top-creators?since=...&limit=3`
-- **Сервис:** `TaskService.TopCreatorsByTeam(ctx, userID, since, limit)`
+- **Сервис:** `TaskReportService.TopCreatorsByTeam(ctx, userID, since, limit)`
 - **Query:** `since`, `limit` (по ТЗ топ-3 → `limit=3` по умолчанию).
 - **Ответ:** `200` + массив `{ team_id, user_id, rank, created_count }`.
 
@@ -113,7 +115,7 @@
 - **Назначение:** задачи, у которых assignee не является членом команды задачи (валидация целостности).
 - **Метод:** `GET /api/v1/reports/invalid-assignees`
   - Альтернатива: `GET /api/v1/tasks/invalid-assignees`
-- **Сервис:** `TaskService.TasksWithInvalidAssignee(ctx, userID)`
+- **Сервис:** `TaskReportService.TasksWithInvalidAssignee(ctx, userID)`
 - **Ответ:** `200` + массив задач (только по командам, где пользователь участник).
 
 ---

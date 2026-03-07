@@ -10,14 +10,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/converter"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/resources"
 )
 
 // GetByID возвращает команду по id (без удалённых).
 // При tx != nil запрос выполняется в транзакции.
-func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) (*model2.Team, error) {
+func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) (*model.Team, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "name", "created_by", "created_at", "updated_at", "deleted_at").
 		From("teams").
@@ -37,7 +37,7 @@ func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID)
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model2.ErrTeamNotFound
+			return nil, model.ErrTeamNotFound
 		}
 		return nil, toDomainError(err)
 	}

@@ -10,6 +10,6 @@ import (
 )
 
 // ListByUserID возвращает команды, где пользователь участник, с его ролью в каждой.
-func (r *Repository) ListByUserID(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) ([]*model.TeamWithRole, error) {
+func (r *Adapter) ListByUserID(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) ([]*model.TeamWithRole, error) {
 	return r.teamReader.ListByUserID(ctx, tx, userID)
 }

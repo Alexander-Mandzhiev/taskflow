@@ -13,5 +13,6 @@ type TaskRow struct {
 	CreatedBy   string     `db:"created_by"`
 	CreatedAt   time.Time  `db:"created_at"`
 	UpdatedAt   time.Time  `db:"updated_at"`
+	CompletedAt *time.Time `db:"completed_at"`
 	DeletedAt   *time.Time `db:"deleted_at"`
 }

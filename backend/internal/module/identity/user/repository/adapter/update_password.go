@@ -11,7 +11,7 @@ import (
 
 // UpdatePasswordHash обновляет хеш пароля в БД.
 // Инвалидация кеша выполняется через post-commit hook в txmanager.
-func (r *Repository) UpdatePasswordHash(ctx context.Context, tx *sqlx.Tx, id, passwordHash string) error {
+func (r *Adapter) UpdatePasswordHash(ctx context.Context, tx *sqlx.Tx, id, passwordHash string) error {
 	if err := r.writer.UpdatePasswordHash(ctx, tx, id, passwordHash); err != nil {
 		return err
 	}

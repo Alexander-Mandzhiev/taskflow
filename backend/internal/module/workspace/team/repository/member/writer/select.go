@@ -9,13 +9,13 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/converter"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/resources"
 )
 
 // selectByID читает участника по id внутри текущей транзакции (после AddMember).
-func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (*model2.TeamMember, error) {
+func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (*model.TeamMember, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "user_id", "team_id", "role", "created_at").
 		From("team_members").
@@ -29,7 +29,7 @@ func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (*m
 	var row resources.TeamMemberRow
 	if err := tx.GetContext(ctx, &row, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model2.ErrMemberNotFound
+			return nil, model.ErrMemberNotFound
 		}
 		return nil, toDomainError(err)
 	}

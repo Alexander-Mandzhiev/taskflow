@@ -1,4 +1,4 @@
-package service_test
+package team_test
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	notificationv1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/client/grpc/notification/v1"
 	teamrepos "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/mocks"
 	teamsvc "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service/service"
+	teamimpl "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service/service"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
@@ -40,7 +40,7 @@ func (s *ServiceSuite) SetupSuite() {
 	s.userRepo = usermocks.NewUserRepository(s.T())
 	s.txManager = &txmanager.Noop{}
 	s.notifier = notificationv1.NewClient()
-	s.svc = service.NewTeamService(s.teamRepo, s.txManager, s.userRepo, s.notifier)
+	s.svc = teamimpl.NewTeamService(s.teamRepo, s.txManager, s.userRepo, s.notifier)
 }
 
 func (s *ServiceSuite) SetupTest() {

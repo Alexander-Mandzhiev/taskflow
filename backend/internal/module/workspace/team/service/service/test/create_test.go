@@ -1,4 +1,4 @@
-package service_test
+package team_test
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 func (s *ServiceSuite) TestCreate_NilInput() {
@@ -16,28 +16,28 @@ func (s *ServiceSuite) TestCreate_NilInput() {
 	got, err := s.svc.Create(s.ctx, nil, ownerID)
 
 	assert.Error(s.T(), err)
-	assert.ErrorIs(s.T(), err, model2.ErrNilInput)
+	assert.ErrorIs(s.T(), err, model.ErrNilInput)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertNotCalled(s.T(), "Create")
 }
 
 func (s *ServiceSuite) TestCreate_Success() {
-	input := &model2.TeamInput{Name: "New Team"}
+	input := &model.TeamInput{Name: "New Team"}
 	ownerID := uuid.New()
 	teamID := uuid.New()
-	created := &model2.Team{
+	created := &model.Team{
 		ID:        teamID,
 		Name:      input.Name,
 		CreatedBy: ownerID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	member := &model2.TeamMember{
-		ID: uuid.New(), UserID: ownerID, TeamID: teamID, Role: model2.RoleOwner, CreatedAt: time.Now(),
+	member := &model.TeamMember{
+		ID: uuid.New(), UserID: ownerID, TeamID: teamID, Role: model.RoleOwner, CreatedAt: time.Now(),
 	}
 
 	s.teamRepo.On("Create", mock.Anything, mock.Anything, input, ownerID).Return(created, nil).Once()
-	s.teamRepo.On("AddMember", mock.Anything, mock.Anything, teamID, ownerID, model2.RoleOwner).Return(member, nil).Once()
+	s.teamRepo.On("AddMember", mock.Anything, mock.Anything, teamID, ownerID, model.RoleOwner).Return(member, nil).Once()
 
 	got, err := s.svc.Create(s.ctx, input, ownerID)
 
@@ -49,27 +49,27 @@ func (s *ServiceSuite) TestCreate_Success() {
 }
 
 func (s *ServiceSuite) TestCreate_RepoCreateError() {
-	input := &model2.TeamInput{Name: "New Team"}
+	input := &model.TeamInput{Name: "New Team"}
 	ownerID := uuid.New()
 
-	s.teamRepo.On("Create", mock.Anything, mock.Anything, input, ownerID).Return((*model2.Team)(nil), model2.ErrInternal).Once()
+	s.teamRepo.On("Create", mock.Anything, mock.Anything, input, ownerID).Return((*model.Team)(nil), model.ErrInternal).Once()
 
 	got, err := s.svc.Create(s.ctx, input, ownerID)
 
 	assert.Error(s.T(), err)
-	assert.ErrorIs(s.T(), err, model2.ErrInternal)
+	assert.ErrorIs(s.T(), err, model.ErrInternal)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestCreate_AddMemberError() {
-	input := &model2.TeamInput{Name: "New Team"}
+	input := &model.TeamInput{Name: "New Team"}
 	ownerID := uuid.New()
 	teamID := uuid.New()
-	created := &model2.Team{ID: teamID, Name: input.Name, CreatedBy: ownerID, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	created := &model.Team{ID: teamID, Name: input.Name, CreatedBy: ownerID, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 
 	s.teamRepo.On("Create", mock.Anything, mock.Anything, input, ownerID).Return(created, nil).Once()
-	s.teamRepo.On("AddMember", mock.Anything, mock.Anything, teamID, ownerID, model2.RoleOwner).Return((*model2.TeamMember)(nil), assert.AnError).Once()
+	s.teamRepo.On("AddMember", mock.Anything, mock.Anything, teamID, ownerID, model.RoleOwner).Return((*model.TeamMember)(nil), assert.AnError).Once()
 
 	got, err := s.svc.Create(s.ctx, input, ownerID)
 

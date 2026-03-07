@@ -1,4 +1,4 @@
-package service_test
+package user_test
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/mocks"
 	userservice "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service"
-	svc "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service/service"
+	userimpl "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service/service"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
@@ -33,7 +33,7 @@ func (s *ServiceSuite) SetupSuite() {
 
 	s.repo = mocks.NewUserRepository(s.T())
 	s.txManager = &txmanager.Noop{}
-	s.svc = svc.NewUserService(s.repo, s.txManager)
+	s.svc = userimpl.NewUserService(s.repo, s.txManager)
 }
 
 func (s *ServiceSuite) SetupTest() {

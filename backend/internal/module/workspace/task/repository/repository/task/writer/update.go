@@ -2,6 +2,7 @@ package writer
 
 import (
 	"context"
+	"errors"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -12,6 +13,9 @@ import (
 
 // Update обновляет изменяемые поля задачи (title, description, status, assignee_id). При отсутствии — model.ErrTaskNotFound.
 func (r *repository) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input *model.TaskInput) error {
+	if tx == nil {
+		return errors.New("transaction required")
+	}
 	if input == nil {
 		return nil
 	}
@@ -19,6 +23,12 @@ func (r *repository) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, 
 	var assigneeID interface{}
 	if input.AssigneeID != nil {
 		assigneeID = input.AssigneeID.String()
+	}
+	var completedAt interface{}
+	if input.Status == model.TaskStatusDone {
+		completedAt = sq.Expr("NOW()")
+	} else {
+		completedAt = nil
 	}
 
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Question).
@@ -28,6 +38,7 @@ func (r *repository) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, 
 		Set("status", input.Status).
 		Set("assignee_id", assigneeID).
 		Set("updated_at", sq.Expr("NOW()")).
+		Set("completed_at", completedAt).
 		Where(sq.Eq{"id": taskID.String()}).
 		Where(sq.Expr("deleted_at IS NULL"))
 

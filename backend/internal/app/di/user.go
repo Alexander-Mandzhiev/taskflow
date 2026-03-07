@@ -56,7 +56,7 @@ func (d *Container) UserRepository(ctx context.Context) (userRepoDef.UserReposit
 		return nil, fmt.Errorf("user cache: %w", err)
 	}
 
-	d.userRepo = userRepoAdapter.NewRepository(reader, writer, cacheRepo)
+	d.userRepo = userRepoAdapter.NewAdapter(reader, writer, cacheRepo)
 
 	return d.userRepo, nil
 }

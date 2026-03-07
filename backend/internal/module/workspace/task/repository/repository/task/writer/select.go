@@ -15,7 +15,7 @@ import (
 // selectByID читает задачу по ID после Create (в той же транзакции или на том же пуле).
 func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, taskID string) (*model.Task, error) {
 	const query = `
-		SELECT id, title, description, status, assignee_id, team_id, created_by, created_at, updated_at, deleted_at
+		SELECT id, title, description, status, assignee_id, team_id, created_by, created_at, updated_at, completed_at, deleted_at
 		FROM tasks WHERE id = ? AND deleted_at IS NULL LIMIT 1
 	`
 	var row resources.TaskRow

@@ -1,4 +1,4 @@
-package service
+package team
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 
 	usermodel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/model"
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
@@ -18,8 +18,8 @@ import (
 const invitationExpiresIn = 7 * 24 * time.Hour
 
 // InviteByEmail создаёт приглашение (запись в team_invitations). Проверки и данные для уведомления — в одной транзакции; отправка notifier — после коммита.
-func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID uuid.UUID, inviteeEmail, role string) (*model2.TeamInvitation, error) {
-	var inv *model2.TeamInvitation
+func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID uuid.UUID, inviteeEmail, role string) (*model.TeamInvitation, error) {
+	var inv *model.TeamInvitation
 	var teamName, inviterName string
 
 	err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
@@ -36,13 +36,13 @@ func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID u
 			return err
 		}
 
-		inv = &model2.TeamInvitation{
+		inv = &model.TeamInvitation{
 			ID:        uuid.New(),
 			TeamID:    teamID,
 			Email:     inviteeEmail,
 			Role:      role,
 			InvitedBy: inviterUserID,
-			Status:    model2.InvitationStatusPending,
+			Status:    model.InvitationStatusPending,
 			Token:     uuid.New().String(),
 			ExpiresAt: time.Now().UTC().Add(invitationExpiresIn),
 		}
@@ -54,8 +54,8 @@ func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID u
 		return nil
 	})
 	if err != nil {
-		if errors.Is(err, model2.ErrForbidden) || errors.Is(err, model2.ErrAlreadyMember) ||
-			errors.Is(err, model2.ErrAlreadyInvited) || errors.Is(err, model2.ErrInvalidRole) {
+		if errors.Is(err, model.ErrForbidden) || errors.Is(err, model.ErrAlreadyMember) ||
+			errors.Is(err, model.ErrAlreadyInvited) || errors.Is(err, model.ErrInvalidRole) {
 			return nil, err
 		}
 		logger.Error(ctx, "InviteByEmail failed", zap.Error(err))
@@ -73,20 +73,20 @@ func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID u
 func (s *teamService) checkInviterPermissions(ctx context.Context, tx *sqlx.Tx, teamID, inviterUserID uuid.UUID) error {
 	member, err := s.repo.GetMember(ctx, tx, teamID, inviterUserID)
 	if err != nil {
-		if errors.Is(err, model2.ErrMemberNotFound) {
-			return model2.ErrForbidden
+		if errors.Is(err, model.ErrMemberNotFound) {
+			return model.ErrForbidden
 		}
 		return err
 	}
-	if member.Role != model2.RoleOwner {
-		return model2.ErrForbidden
+	if member.Role != model.RoleOwner {
+		return model.ErrForbidden
 	}
 	return nil
 }
 
 func (s *teamService) validateInviteRole(role string) error {
-	if role != model2.RoleMember && role != model2.RoleAdmin {
-		return model2.ErrInvalidRole
+	if role != model.RoleMember && role != model.RoleAdmin {
+		return model.ErrInvalidRole
 	}
 	return nil
 }
@@ -100,22 +100,22 @@ func (s *teamService) checkUserNotMember(ctx context.Context, tx *sqlx.Tx, teamI
 		return nil
 	}
 	existing, err := s.repo.GetMember(ctx, tx, teamID, user.ID)
-	if err != nil && !errors.Is(err, model2.ErrMemberNotFound) {
+	if err != nil && !errors.Is(err, model.ErrMemberNotFound) {
 		return err
 	}
 	if existing != nil {
-		return model2.ErrAlreadyMember
+		return model.ErrAlreadyMember
 	}
 	return nil
 }
 
 func (s *teamService) checkNoActiveInvitation(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, inviteeEmail string) error {
 	pending, err := s.repo.GetPendingInvitationByTeamAndEmail(ctx, tx, teamID, inviteeEmail)
-	if err != nil && !errors.Is(err, model2.ErrInvitationNotFound) {
+	if err != nil && !errors.Is(err, model.ErrInvitationNotFound) {
 		return err
 	}
 	if pending != nil && pending.ExpiresAt.After(time.Now().UTC()) {
-		return model2.ErrAlreadyInvited
+		return model.ErrAlreadyInvited
 	}
 	return nil
 }

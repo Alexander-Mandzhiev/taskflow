@@ -8,13 +8,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/converter"
 )
 
 // Create создаёт запись в teams. createdBy — user_id создателя.
 // UUID генерируется в Go; created_at/updated_at проставляются MySQL.
-func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, input *model2.TeamInput, createdBy uuid.UUID) (*model2.Team, error) {
+func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, input *model.TeamInput, createdBy uuid.UUID) (*model.Team, error) {
 	in := converter.ToRepoTeamInput(input)
 	id := uuid.New().String()
 

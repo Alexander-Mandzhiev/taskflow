@@ -40,7 +40,7 @@ func (s *AdapterSuite) SetupTest() {
 	s.memberWriter = mocks3.NewMemberWriterRepository(s.T())
 	s.invitationReader = mocks2.NewInvitationReaderRepository(s.T())
 	s.invitationWriter = mocks2.NewInvitationWriterRepository(s.T())
-	s.repo = adapter.NewRepository(s.teamReader, s.teamWriter, s.memberReader, s.memberWriter, s.invitationReader, s.invitationWriter)
+	s.repo = adapter.NewAdapter(s.teamReader, s.teamWriter, s.memberReader, s.memberWriter, s.invitationReader, s.invitationWriter)
 }
 
 func TestAdapter(t *testing.T) {

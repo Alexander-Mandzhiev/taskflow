@@ -1,4 +1,4 @@
-package service
+package user
 
 import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"

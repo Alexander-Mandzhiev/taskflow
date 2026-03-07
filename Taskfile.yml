@@ -44,21 +44,24 @@ vars:
   MODULE: "{{.INTERNAL}}/module"
   IDENTITY: "{{.MODULE}}/identity"
   TEAM: "{{.MODULE}}/workspace/team"
+  TASK: "{{.MODULE}}/workspace/task"
   # Слои по доменам/модулям — при добавлении модуля дописать строку и в COVER_* ниже.
   API_ACCOUNT: "{{.INTERNAL}}/api/account/v1"
   API_TEAM: "{{.INTERNAL}}/api/team/v1"
   SVC_ACCOUNT: "{{.IDENTITY}}/account/service/service"
   SVC_USER: "{{.IDENTITY}}/user/service/service"
   SVC_TEAM: "{{.TEAM}}/service/service"
+  SVC_TASK: "{{.TASK}}/service/task,{{.TASK}}/service/report"
   ADP_USER: "{{.IDENTITY}}/user/repository/adapter"
   ADP_TEAM: "{{.TEAM}}/repository/adapter"
+  ADP_TASK: "{{.TASK}}/repository/adapter/task,{{.TASK}}/repository/adapter/history,{{.TASK}}/repository/adapter/report"
 
   COVER_PKG_API: "{{.API_ACCOUNT}},{{.API_TEAM}}"
-  COVER_PKG_SERVICE: "{{.SVC_ACCOUNT}},{{.SVC_USER}},{{.SVC_TEAM}}"
-  COVER_PKG_ADAPTER: "{{.ADP_USER}},{{.ADP_TEAM}}"
+  COVER_PKG_SERVICE: "{{.SVC_ACCOUNT}},{{.SVC_USER}},{{.SVC_TEAM}},{{.SVC_TASK}}"
+  COVER_PKG_ADAPTER: "{{.ADP_USER}},{{.ADP_TEAM}},{{.ADP_TASK}}"
   COVER_PKG: "{{.COVER_PKG_API}},{{.COVER_PKG_SERVICE}},{{.COVER_PKG_ADAPTER}}"
-  # Тест-пакеты: через пробелы (не запятые).
-  COVER_TEST_PKGS: "{{.API_ACCOUNT}}/test {{.API_TEAM}}/test {{.SVC_ACCOUNT}}/test {{.SVC_USER}}/test {{.SVC_TEAM}}/test {{.ADP_USER}}/test {{.ADP_TEAM}}/test"
+  # Тест-пакеты: через пробелы (не запятые). Task: пакеты с кодом (тестов пока нет).
+  COVER_TEST_PKGS: "{{.API_ACCOUNT}}/test {{.API_TEAM}}/test {{.SVC_ACCOUNT}}/test {{.SVC_USER}}/test {{.SVC_TEAM}}/test {{.TASK}}/service/task {{.TASK}}/service/report {{.ADP_USER}}/test {{.ADP_TEAM}}/test {{.TASK}}/repository/adapter/task {{.TASK}}/repository/adapter/history {{.TASK}}/repository/adapter/report"
 
 # =============================================================================
 # УСТАНОВКА ИНСТРУМЕНТОВ

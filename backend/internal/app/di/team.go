@@ -68,6 +68,6 @@ func (d *Container) TeamRepository(ctx context.Context) (teamRepoDef.TeamReposit
 	memberWriter := teamRepoMemberWriter.NewRepository(db)
 	invitationReader := teamRepoInvitationReader.NewRepository(db)
 	invitationWriter := teamRepoInvitationWriter.NewRepository(db)
-	d.teamRepo = teamRepoAdapter.NewRepository(teamReader, teamWriter, memberReader, memberWriter, invitationReader, invitationWriter)
+	d.teamRepo = teamRepoAdapter.NewAdapter(teamReader, teamWriter, memberReader, memberWriter, invitationReader, invitationWriter)
 	return d.teamRepo, nil
 }

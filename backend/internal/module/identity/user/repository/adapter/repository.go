@@ -6,22 +6,22 @@ import (
 	userRepository "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/user"
 )
 
-var _ repository.UserRepository = (*Repository)(nil)
+var _ repository.UserRepository = (*Adapter)(nil)
 
-// Repository — адаптер поверх UserReaderRepository, UserWriterRepository, UserCacheRepository.
-type Repository struct {
+// Adapter — адаптер поверх UserReaderRepository, UserWriterRepository, UserCacheRepository.
+type Adapter struct {
 	reader userRepository.UserReaderRepository
 	writer userRepository.UserWriterRepository
 	cache  userCache.UserCacheRepository
 }
 
-// NewRepository создаёт адаптер, объединяющий reader, writer и cache.
-func NewRepository(
+// NewAdapter создаёт адаптер, объединяющий reader, writer и cache.
+func NewAdapter(
 	reader userRepository.UserReaderRepository,
 	writer userRepository.UserWriterRepository,
 	cache userCache.UserCacheRepository,
-) *Repository {
-	return &Repository{
+) *Adapter {
+	return &Adapter{
 		reader: reader,
 		writer: writer,
 		cache:  cache,

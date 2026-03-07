@@ -11,7 +11,7 @@ import (
 
 // Delete удаляет пользователя в БД (мягкое удаление).
 // Инвалидация кеша выполняется через post-commit hook в txmanager.
-func (r *Repository) Delete(ctx context.Context, tx *sqlx.Tx, id string) error {
+func (r *Adapter) Delete(ctx context.Context, tx *sqlx.Tx, id string) error {
 	if err := r.writer.Delete(ctx, tx, id); err != nil {
 		return err
 	}

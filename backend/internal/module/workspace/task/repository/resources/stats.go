@@ -1,6 +1,6 @@
 package resources
 
-// TeamTaskStatsRow — строка результата запроса: по команде — название, кол-во участников, кол-во задач done за период.
+// TeamTaskStatsRow — строка результата запроса отчёта: по команде — название, кол-во участников, кол-во задач done за период.
 type TeamTaskStatsRow struct {
 	TeamID         string `db:"team_id"`
 	TeamName       string `db:"team_name"`
@@ -8,7 +8,7 @@ type TeamTaskStatsRow struct {
 	DoneTasksCount int    `db:"done_tasks_count"`
 }
 
-// TeamTopCreatorRow — строка результата: топ-N по созданным задачам в команде за период (оконная функция).
+// TeamTopCreatorRow — строка результата отчёта: топ-N по созданным задачам в команде за период (оконная функция).
 type TeamTopCreatorRow struct {
 	TeamID       string `db:"team_id"`
 	UserID       string `db:"user_id"`

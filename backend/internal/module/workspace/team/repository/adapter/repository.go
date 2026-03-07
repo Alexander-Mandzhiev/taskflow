@@ -7,10 +7,10 @@ import (
 	teamRepo "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team"
 )
 
-var _ repository.TeamRepository = (*Repository)(nil)
+var _ repository.TeamRepository = (*Adapter)(nil)
 
-// Repository — адаптер поверх team/member/invitation reader/writer.
-type Repository struct {
+// Adapter — адаптер поверх team/member/invitation reader/writer.
+type Adapter struct {
 	teamReader       teamRepo.TeamReaderRepository
 	teamWriter       teamRepo.TeamWriterRepository
 	memberReader     memberRepo.MemberReaderRepository
@@ -19,16 +19,16 @@ type Repository struct {
 	invitationWriter invitationRepo.InvitationWriterRepository
 }
 
-// NewRepository создаёт адаптер.
-func NewRepository(
+// NewAdapter создаёт адаптер.
+func NewAdapter(
 	teamReader teamRepo.TeamReaderRepository,
 	teamWriter teamRepo.TeamWriterRepository,
 	memberReader memberRepo.MemberReaderRepository,
 	memberWriter memberRepo.MemberWriterRepository,
 	invitationReader invitationRepo.InvitationReaderRepository,
 	invitationWriter invitationRepo.InvitationWriterRepository,
-) *Repository {
-	return &Repository{
+) *Adapter {
+	return &Adapter{
 		teamReader:       teamReader,
 		teamWriter:       teamWriter,
 		memberReader:     memberReader,

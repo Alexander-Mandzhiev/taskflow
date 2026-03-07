@@ -1,4 +1,4 @@
-package service_test
+package team_test
 
 import (
 	"time"
@@ -7,17 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 func (s *ServiceSuite) TestGetMember_Success() {
 	teamID := uuid.New()
 	userID := uuid.New()
-	want := &model2.TeamMember{
+	want := &model.TeamMember{
 		ID:        uuid.New(),
 		UserID:    userID,
 		TeamID:    teamID,
-		Role:      model2.RoleAdmin,
+		Role:      model.RoleAdmin,
 		CreatedAt: time.Now(),
 	}
 
@@ -34,12 +34,12 @@ func (s *ServiceSuite) TestGetMember_NotFound() {
 	teamID := uuid.New()
 	userID := uuid.New()
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return((*model2.TeamMember)(nil), model2.ErrMemberNotFound).Once()
+	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
 
 	got, err := s.svc.GetMember(s.ctx, teamID, userID)
 
 	assert.Error(s.T(), err)
-	assert.ErrorIs(s.T(), err, model2.ErrMemberNotFound)
+	assert.ErrorIs(s.T(), err, model.ErrMemberNotFound)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertExpectations(s.T())
 }

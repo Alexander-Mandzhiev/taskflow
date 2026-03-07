@@ -14,7 +14,7 @@ import (
 // При tx != nil — чтение из БД в транзакции (валидация внутри мутаций).
 // При tx == nil — кеш, при промахе или ошибке Redis — fallback на БД.
 // PasswordHash в кеше не хранится: для аутентификации используйте GetByEmail.
-func (r *Repository) GetByID(ctx context.Context, tx *sqlx.Tx, id string) (*model.User, error) {
+func (r *Adapter) GetByID(ctx context.Context, tx *sqlx.Tx, id string) (*model.User, error) {
 	if tx != nil {
 		return r.reader.GetByID(ctx, tx, id)
 	}

@@ -24,15 +24,12 @@ type TaskInput struct {
 	AssigneeID  *uuid.UUID
 }
 
-// TaskListFilter — фильтр для списка задач (GET /api/v1/tasks).
+// TaskListFilter — фильтр и пагинация для списка задач (GET /api/v1/tasks?team_id=...&status=...&assignee_id=...&limit=...&offset=...).
+// Валидация (limit > 0 и т.д.) — в сервисе или API/DTO.
 type TaskListFilter struct {
 	TeamID     *uuid.UUID
 	Status     *string
 	AssigneeID *uuid.UUID
-}
-
-// TaskPagination — пагинация (LIMIT/OFFSET на уровне БД).
-type TaskPagination struct {
-	Limit  int
-	Offset int
+	Limit      int // обязателен с фронта, проверка limit > 0 в сервисе/API
+	Offset     int
 }

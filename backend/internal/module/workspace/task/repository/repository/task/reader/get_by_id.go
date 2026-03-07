@@ -18,7 +18,7 @@ import (
 // GetByID возвращает задачу по id (без удалённых). При tx != nil запрос в транзакции.
 func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (*model.Task, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
-		Select("id", "title", "description", "status", "assignee_id", "team_id", "created_by", "created_at", "updated_at", "deleted_at").
+		Select("id", "title", "description", "status", "assignee_id", "team_id", "created_by", "created_at", "updated_at", "completed_at", "deleted_at").
 		From("tasks").
 		Where(sq.Eq{"id": taskID.String()}).
 		Where(sq.Expr("deleted_at IS NULL")).

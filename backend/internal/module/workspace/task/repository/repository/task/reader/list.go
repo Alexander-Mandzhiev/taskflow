@@ -12,20 +12,22 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/resources"
 )
 
-// List возвращает список задач с фильтром и пагинацией. total — количество без LIMIT.
-func (r *repository) List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskListFilter, pagination *model.TaskPagination) ([]*model.Task, int, error) {
+// List возвращает список задач по фильтру (критерии + limit/offset внутри filter). total — количество без LIMIT.
+// Валидация filter (limit > 0 и т.д.) — в сервисе/API; репозиторий использует переданные значения.
+func (r *repository) List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskListFilter) ([]*model.Task, int, error) {
+	if filter == nil {
+		return nil, 0, nil
+	}
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Question)
 	where := sq.Expr("deleted_at IS NULL")
-	if filter != nil {
-		if filter.TeamID != nil {
-			where = sq.And{where, sq.Eq{"team_id": filter.TeamID.String()}}
-		}
-		if filter.Status != nil && *filter.Status != "" {
-			where = sq.And{where, sq.Eq{"status": *filter.Status}}
-		}
-		if filter.AssigneeID != nil {
-			where = sq.And{where, sq.Eq{"assignee_id": filter.AssigneeID.String()}}
-		}
+	if filter.TeamID != nil {
+		where = sq.And{where, sq.Eq{"team_id": filter.TeamID.String()}}
+	}
+	if filter.Status != nil && *filter.Status != "" {
+		where = sq.And{where, sq.Eq{"status": *filter.Status}}
+	}
+	if filter.AssigneeID != nil {
+		where = sq.And{where, sq.Eq{"assignee_id": filter.AssigneeID.String()}}
 	}
 
 	// COUNT для total
@@ -47,19 +49,15 @@ func (r *repository) List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskLi
 		return nil, 0, toDomainError(err)
 	}
 
-	// SELECT с пагинацией
-	limit, offset := 20, 0
-	if pagination != nil {
-		if pagination.Limit > 0 {
-			limit = pagination.Limit
-		}
-		if pagination.Offset > 0 {
-			offset = pagination.Offset
-		}
+	limit, offset := filter.Limit, filter.Offset
+	if limit < 0 {
+		limit = 0
 	}
-
+	if offset < 0 {
+		offset = 0
+	}
 	listQuery, listArgs, err := builder.
-		Select("id", "title", "description", "status", "assignee_id", "team_id", "created_by", "created_at", "updated_at", "deleted_at").
+		Select("id", "title", "description", "status", "assignee_id", "team_id", "created_by", "created_at", "updated_at", "completed_at", "deleted_at").
 		From("tasks").
 		Where(where).
 		OrderBy("updated_at DESC").

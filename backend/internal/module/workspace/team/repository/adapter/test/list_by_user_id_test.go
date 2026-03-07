@@ -8,25 +8,25 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 func (s *AdapterSuite) TestListByUserID_Success() {
 	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	teams := []*model2.TeamWithRole{
+	teams := []*model.TeamWithRole{
 		{
-			Team: model2.Team{
+			Team: model.Team{
 				ID:        uuid.MustParse("660e8400-e29b-41d4-a716-446655440001"),
 				Name:      "My Team",
 				CreatedBy: userID,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
-			Role: model2.RoleOwner,
+			Role: model.RoleOwner,
 		},
 	}
 
-	s.teamReader.On("ListByUserID", mock.Anything, (*sqlx.Tx)(nil), userID.String()).
+	s.teamReader.On("ListByUserID", mock.Anything, (*sqlx.Tx)(nil), userID).
 		Return(teams, nil).Once()
 
 	got, err := s.repo.ListByUserID(s.ctx, nil, userID)
@@ -34,15 +34,15 @@ func (s *AdapterSuite) TestListByUserID_Success() {
 	assert.NoError(s.T(), err)
 	assert.Len(s.T(), got, 1)
 	assert.Equal(s.T(), "My Team", got[0].Name)
-	assert.Equal(s.T(), model2.RoleOwner, got[0].Role)
+	assert.Equal(s.T(), model.RoleOwner, got[0].Role)
 	s.teamReader.AssertExpectations(s.T())
 }
 
 func (s *AdapterSuite) TestListByUserID_Empty() {
 	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 
-	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID.String()).
-		Return([]*model2.TeamWithRole{}, nil).Once()
+	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID).
+		Return([]*model.TeamWithRole{}, nil).Once()
 
 	got, err := s.repo.ListByUserID(s.ctx, nil, userID)
 
@@ -54,8 +54,8 @@ func (s *AdapterSuite) TestListByUserID_Empty() {
 func (s *AdapterSuite) TestListByUserID_ReaderError() {
 	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 
-	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID.String()).
-		Return(([]*model2.TeamWithRole)(nil), assert.AnError).Once()
+	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID).
+		Return(([]*model.TeamWithRole)(nil), assert.AnError).Once()
 
 	got, err := s.repo.ListByUserID(s.ctx, nil, userID)
 

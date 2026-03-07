@@ -9,13 +9,13 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/converter"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/resources"
 )
 
 // selectByID читает команду по ID внутри текущей транзакции (после Create).
-func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, teamID string) (*model2.Team, error) {
+func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, teamID string) (*model.Team, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "name", "created_by", "created_at", "updated_at", "deleted_at").
 		From("teams").
@@ -30,7 +30,7 @@ func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, teamID string)
 	var row resources.TeamRow
 	if err := tx.GetContext(ctx, &row, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model2.ErrTeamNotFound
+			return nil, model.ErrTeamNotFound
 		}
 		return nil, toDomainError(err)
 	}

@@ -1,4 +1,4 @@
-package service_test
+package team_test
 
 import (
 	"time"
@@ -7,21 +7,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 func (s *ServiceSuite) TestGetByID_Success() {
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
 	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	team := &model2.Team{
+	team := &model.Team{
 		ID:        teamID,
 		Name:      "My Team",
 		CreatedBy: userID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	members := []*model2.TeamMember{
-		{ID: uuid.New(), UserID: userID, TeamID: teamID, Role: model2.RoleOwner, CreatedAt: time.Now()},
+	members := []*model.TeamMember{
+		{ID: uuid.New(), UserID: userID, TeamID: teamID, Role: model.RoleOwner, CreatedAt: time.Now()},
 	}
 
 	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).Return(team, nil).Once()
@@ -42,12 +42,12 @@ func (s *ServiceSuite) TestGetByID_TeamNotFound() {
 	teamID := uuid.New()
 	userID := uuid.New()
 
-	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).Return((*model2.Team)(nil), model2.ErrTeamNotFound).Once()
+	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).Return((*model.Team)(nil), model.ErrTeamNotFound).Once()
 
 	got, err := s.svc.GetByID(s.ctx, teamID, userID)
 
 	assert.Error(s.T(), err)
-	assert.ErrorIs(s.T(), err, model2.ErrTeamNotFound)
+	assert.ErrorIs(s.T(), err, model.ErrTeamNotFound)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertExpectations(s.T())
 }
@@ -55,17 +55,17 @@ func (s *ServiceSuite) TestGetByID_TeamNotFound() {
 func (s *ServiceSuite) TestGetByID_Forbidden_NotMember() {
 	teamID := uuid.New()
 	userID := uuid.New()
-	team := &model2.Team{ID: teamID, Name: "Team", CreatedBy: uuid.New(), CreatedAt: time.Now(), UpdatedAt: time.Now()}
-	members := []*model2.TeamMember{}
+	team := &model.Team{ID: teamID, Name: "Team", CreatedBy: uuid.New(), CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	members := []*model.TeamMember{}
 
 	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).Return(team, nil).Once()
 	s.teamRepo.On("GetMembersByTeamID", mock.Anything, mock.Anything, teamID).Return(members, nil).Once()
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return((*model2.TeamMember)(nil), model2.ErrMemberNotFound).Once()
+	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
 
 	got, err := s.svc.GetByID(s.ctx, teamID, userID)
 
 	assert.Error(s.T(), err)
-	assert.ErrorIs(s.T(), err, model2.ErrForbidden)
+	assert.ErrorIs(s.T(), err, model.ErrForbidden)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertExpectations(s.T())
 }
@@ -73,10 +73,10 @@ func (s *ServiceSuite) TestGetByID_Forbidden_NotMember() {
 func (s *ServiceSuite) TestGetByID_MembersError() {
 	teamID := uuid.New()
 	userID := uuid.New()
-	team := &model2.Team{ID: teamID, Name: "Team", CreatedBy: userID, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	team := &model.Team{ID: teamID, Name: "Team", CreatedBy: userID, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 
 	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).Return(team, nil).Once()
-	s.teamRepo.On("GetMembersByTeamID", mock.Anything, mock.Anything, teamID).Return(([]*model2.TeamMember)(nil), assert.AnError).Once()
+	s.teamRepo.On("GetMembersByTeamID", mock.Anything, mock.Anything, teamID).Return(([]*model.TeamMember)(nil), assert.AnError).Once()
 
 	got, err := s.svc.GetByID(s.ctx, teamID, userID)
 

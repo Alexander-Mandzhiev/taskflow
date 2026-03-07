@@ -10,6 +10,6 @@ import (
 )
 
 // GetPendingInvitationByTeamAndEmail возвращает приглашение со статусом pending для (team_id, email).
-func (r *Repository) GetPendingInvitationByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, email string) (*model.TeamInvitation, error) {
+func (r *Adapter) GetPendingInvitationByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, email string) (*model.TeamInvitation, error) {
 	return r.invitationReader.GetPendingByTeamAndEmail(ctx, tx, teamID, email)
 }

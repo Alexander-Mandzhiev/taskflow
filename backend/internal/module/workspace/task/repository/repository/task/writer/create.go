@@ -2,6 +2,7 @@ package writer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
@@ -14,6 +15,9 @@ import (
 
 // Create создаёт запись в tasks. teamID и createdBy — в сигнатуре. Мутация только в транзакции (tx != nil).
 func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input *model.TaskInput, createdBy uuid.UUID) (*model.Task, error) {
+	if tx == nil {
+		return nil, errors.New("transaction required")
+	}
 	in, err := converter.ToRepoTaskCreateInput(teamID, input)
 	if err != nil {
 		return nil, err
@@ -24,11 +28,17 @@ func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, 
 	if in.AssigneeID != nil {
 		assigneeID = *in.AssigneeID
 	}
+	var completedAt interface{}
+	if in.Status == model.TaskStatusDone {
+		completedAt = sq.Expr("NOW()")
+	} else {
+		completedAt = nil
+	}
 
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Insert("tasks").
-		Columns("id", "title", "description", "status", "assignee_id", "team_id", "created_by", "created_at", "updated_at").
-		Values(id, in.Title, in.Description, in.Status, assigneeID, in.TeamID, createdBy.String(), sq.Expr("NOW()"), sq.Expr("NOW()")).
+		Columns("id", "title", "description", "status", "assignee_id", "team_id", "created_by", "created_at", "updated_at", "completed_at").
+		Values(id, in.Title, in.Description, in.Status, assigneeID, in.TeamID, createdBy.String(), sq.Expr("NOW()"), sq.Expr("NOW()"), completedAt).
 		ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("build create query: %w", err)
