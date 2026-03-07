@@ -15,6 +15,9 @@ type TaskReaderRepository interface {
 	// GetByID возвращает задачу по id (без удалённых). При отсутствии — (nil, model.ErrTaskNotFound).
 	GetByID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (*model.Task, error)
 
+	// GetByIDIncludeDeleted возвращает задачу по id в том числе удалённую. При отсутствии — (nil, model.ErrTaskNotFound).
+	GetByIDIncludeDeleted(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (*model.Task, error)
+
 	// List возвращает список задач с фильтром и пагинацией. total — общее количество записей без учёта LIMIT.
 	List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskListFilter, pagination *model.TaskPagination) ([]*model.Task, int, error)
 }
