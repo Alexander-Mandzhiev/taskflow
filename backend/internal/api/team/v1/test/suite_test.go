@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	team_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/service/mocks"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service/mocks"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 

@@ -35,23 +35,23 @@ packages:
     config:
       include-regex: ".*Repository"
 
-  # Team
-  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/service:
+  # Workspace — team
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service:
     config:
       include-regex: ".*Service"
   # Team repository — адаптер
-  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository:
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository:
     config:
       include-regex: ".*Repository"
   # Team repository — контракты reader/writer для teams
-  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/team:
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team:
     config:
       include-regex: ".*Repository"
   # Team repository — контракты reader/writer для team_members
-  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/member:
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member:
     config:
       include-regex: ".*Repository"
   # Team repository — контракты reader/writer для team_invitations
-  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/invitation:
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/invitation:
     config:
       include-regex: ".*Repository"

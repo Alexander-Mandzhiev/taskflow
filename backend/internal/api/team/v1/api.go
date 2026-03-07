@@ -1,7 +1,7 @@
 package team_v1
 
 import (
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/service"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service"
 )
 
 // API — HTTP-слой команд: создание, список, получение по id, приглашение.

@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/google/uuid"
+
+	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 // TeamService — слой сервиса команд и участников.

@@ -1,9 +1,10 @@
 package service_test
 
 import (
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 func (s *ServiceSuite) TestAcceptInvitation_NotImplemented() {

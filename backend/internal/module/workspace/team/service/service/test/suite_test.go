@@ -4,14 +4,14 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
+	usermocks "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/mocks"
 	teamgrpc "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/client/grpc"
 	notificationv1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/client/grpc/notification/v1"
 	teamrepos "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/mocks"
 	teamsvc "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service/service"
-	"github.com/stretchr/testify/suite"
-
-	usermocks "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/mocks"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )

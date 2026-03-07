@@ -1,8 +1,9 @@
 package writer
 
 import (
-	memberDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member"
 	"github.com/jmoiron/sqlx"
+
+	memberDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member"
 )
 
 var _ memberDef.MemberWriterRepository = (*repository)(nil)

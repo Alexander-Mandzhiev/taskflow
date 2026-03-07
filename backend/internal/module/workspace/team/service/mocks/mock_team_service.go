@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	model "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/google/uuid"
@@ -25,23 +25,23 @@ func (_m *TeamService) EXPECT() *TeamService_Expecter {
 }
 
 // AcceptInvitation provides a mock function with given fields: ctx, token, userID
-func (_m *TeamService) AcceptInvitation(ctx context.Context, token string, userID uuid.UUID) (*model2.TeamMember, error) {
+func (_m *TeamService) AcceptInvitation(ctx context.Context, token string, userID uuid.UUID) (*model.TeamMember, error) {
 	ret := _m.Called(ctx, token, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AcceptInvitation")
 	}
 
-	var r0 *model2.TeamMember
+	var r0 *model.TeamMember
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, uuid.UUID) (*model2.TeamMember, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, uuid.UUID) (*model.TeamMember, error)); ok {
 		return rf(ctx, token, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, uuid.UUID) *model2.TeamMember); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, uuid.UUID) *model.TeamMember); ok {
 		r0 = rf(ctx, token, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model2.TeamMember)
+			r0 = ret.Get(0).(*model.TeamMember)
 		}
 	}
 
@@ -74,38 +74,38 @@ func (_c *TeamService_AcceptInvitation_Call) Run(run func(ctx context.Context, t
 	return _c
 }
 
-func (_c *TeamService_AcceptInvitation_Call) Return(_a0 *model2.TeamMember, _a1 error) *TeamService_AcceptInvitation_Call {
+func (_c *TeamService_AcceptInvitation_Call) Return(_a0 *model.TeamMember, _a1 error) *TeamService_AcceptInvitation_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamService_AcceptInvitation_Call) RunAndReturn(run func(context.Context, string, uuid.UUID) (*model2.TeamMember, error)) *TeamService_AcceptInvitation_Call {
+func (_c *TeamService_AcceptInvitation_Call) RunAndReturn(run func(context.Context, string, uuid.UUID) (*model.TeamMember, error)) *TeamService_AcceptInvitation_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Create provides a mock function with given fields: ctx, input, ownerUserID
-func (_m *TeamService) Create(ctx context.Context, input *model2.TeamInput, ownerUserID uuid.UUID) (*model2.Team, error) {
+func (_m *TeamService) Create(ctx context.Context, input *model.TeamInput, ownerUserID uuid.UUID) (*model.Team, error) {
 	ret := _m.Called(ctx, input, ownerUserID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model2.Team
+	var r0 *model.Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *model2.TeamInput, uuid.UUID) (*model2.Team, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *model.TeamInput, uuid.UUID) (*model.Team, error)); ok {
 		return rf(ctx, input, ownerUserID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *model2.TeamInput, uuid.UUID) *model2.Team); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *model.TeamInput, uuid.UUID) *model.Team); ok {
 		r0 = rf(ctx, input, ownerUserID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model2.Team)
+			r0 = ret.Get(0).(*model.Team)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *model2.TeamInput, uuid.UUID) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *model.TeamInput, uuid.UUID) error); ok {
 		r1 = rf(ctx, input, ownerUserID)
 	} else {
 		r1 = ret.Error(1)
@@ -127,41 +127,41 @@ func (_e *TeamService_Expecter) Create(ctx interface{}, input interface{}, owner
 	return &TeamService_Create_Call{Call: _e.mock.On("Create", ctx, input, ownerUserID)}
 }
 
-func (_c *TeamService_Create_Call) Run(run func(ctx context.Context, input *model2.TeamInput, ownerUserID uuid.UUID)) *TeamService_Create_Call {
+func (_c *TeamService_Create_Call) Run(run func(ctx context.Context, input *model.TeamInput, ownerUserID uuid.UUID)) *TeamService_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*model2.TeamInput), args[2].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(*model.TeamInput), args[2].(uuid.UUID))
 	})
 	return _c
 }
 
-func (_c *TeamService_Create_Call) Return(_a0 *model2.Team, _a1 error) *TeamService_Create_Call {
+func (_c *TeamService_Create_Call) Return(_a0 *model.Team, _a1 error) *TeamService_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamService_Create_Call) RunAndReturn(run func(context.Context, *model2.TeamInput, uuid.UUID) (*model2.Team, error)) *TeamService_Create_Call {
+func (_c *TeamService_Create_Call) RunAndReturn(run func(context.Context, *model.TeamInput, uuid.UUID) (*model.Team, error)) *TeamService_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByID provides a mock function with given fields: ctx, teamID, userID
-func (_m *TeamService) GetByID(ctx context.Context, teamID uuid.UUID, userID uuid.UUID) (*model2.TeamWithMembers, error) {
+func (_m *TeamService) GetByID(ctx context.Context, teamID uuid.UUID, userID uuid.UUID) (*model.TeamWithMembers, error) {
 	ret := _m.Called(ctx, teamID, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 *model2.TeamWithMembers
+	var r0 *model.TeamWithMembers
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*model2.TeamWithMembers, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*model.TeamWithMembers, error)); ok {
 		return rf(ctx, teamID, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *model2.TeamWithMembers); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *model.TeamWithMembers); ok {
 		r0 = rf(ctx, teamID, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model2.TeamWithMembers)
+			r0 = ret.Get(0).(*model.TeamWithMembers)
 		}
 	}
 
@@ -194,34 +194,34 @@ func (_c *TeamService_GetByID_Call) Run(run func(ctx context.Context, teamID uui
 	return _c
 }
 
-func (_c *TeamService_GetByID_Call) Return(_a0 *model2.TeamWithMembers, _a1 error) *TeamService_GetByID_Call {
+func (_c *TeamService_GetByID_Call) Return(_a0 *model.TeamWithMembers, _a1 error) *TeamService_GetByID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamService_GetByID_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) (*model2.TeamWithMembers, error)) *TeamService_GetByID_Call {
+func (_c *TeamService_GetByID_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) (*model.TeamWithMembers, error)) *TeamService_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetMember provides a mock function with given fields: ctx, teamID, userID
-func (_m *TeamService) GetMember(ctx context.Context, teamID uuid.UUID, userID uuid.UUID) (*model2.TeamMember, error) {
+func (_m *TeamService) GetMember(ctx context.Context, teamID uuid.UUID, userID uuid.UUID) (*model.TeamMember, error) {
 	ret := _m.Called(ctx, teamID, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetMember")
 	}
 
-	var r0 *model2.TeamMember
+	var r0 *model.TeamMember
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*model2.TeamMember, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*model.TeamMember, error)); ok {
 		return rf(ctx, teamID, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *model2.TeamMember); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *model.TeamMember); ok {
 		r0 = rf(ctx, teamID, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model2.TeamMember)
+			r0 = ret.Get(0).(*model.TeamMember)
 		}
 	}
 
@@ -254,34 +254,34 @@ func (_c *TeamService_GetMember_Call) Run(run func(ctx context.Context, teamID u
 	return _c
 }
 
-func (_c *TeamService_GetMember_Call) Return(_a0 *model2.TeamMember, _a1 error) *TeamService_GetMember_Call {
+func (_c *TeamService_GetMember_Call) Return(_a0 *model.TeamMember, _a1 error) *TeamService_GetMember_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamService_GetMember_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) (*model2.TeamMember, error)) *TeamService_GetMember_Call {
+func (_c *TeamService_GetMember_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) (*model.TeamMember, error)) *TeamService_GetMember_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // InviteByEmail provides a mock function with given fields: ctx, teamID, inviterUserID, inviteeEmail, role
-func (_m *TeamService) InviteByEmail(ctx context.Context, teamID uuid.UUID, inviterUserID uuid.UUID, inviteeEmail string, role string) (*model2.TeamInvitation, error) {
+func (_m *TeamService) InviteByEmail(ctx context.Context, teamID uuid.UUID, inviterUserID uuid.UUID, inviteeEmail string, role string) (*model.TeamInvitation, error) {
 	ret := _m.Called(ctx, teamID, inviterUserID, inviteeEmail, role)
 
 	if len(ret) == 0 {
 		panic("no return value specified for InviteByEmail")
 	}
 
-	var r0 *model2.TeamInvitation
+	var r0 *model.TeamInvitation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string, string) (*model2.TeamInvitation, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string, string) (*model.TeamInvitation, error)); ok {
 		return rf(ctx, teamID, inviterUserID, inviteeEmail, role)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string, string) *model2.TeamInvitation); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string, string) *model.TeamInvitation); ok {
 		r0 = rf(ctx, teamID, inviterUserID, inviteeEmail, role)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model2.TeamInvitation)
+			r0 = ret.Get(0).(*model.TeamInvitation)
 		}
 	}
 
@@ -316,34 +316,34 @@ func (_c *TeamService_InviteByEmail_Call) Run(run func(ctx context.Context, team
 	return _c
 }
 
-func (_c *TeamService_InviteByEmail_Call) Return(_a0 *model2.TeamInvitation, _a1 error) *TeamService_InviteByEmail_Call {
+func (_c *TeamService_InviteByEmail_Call) Return(_a0 *model.TeamInvitation, _a1 error) *TeamService_InviteByEmail_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamService_InviteByEmail_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, string, string) (*model2.TeamInvitation, error)) *TeamService_InviteByEmail_Call {
+func (_c *TeamService_InviteByEmail_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, string, string) (*model.TeamInvitation, error)) *TeamService_InviteByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListByUserID provides a mock function with given fields: ctx, userID
-func (_m *TeamService) ListByUserID(ctx context.Context, userID uuid.UUID) ([]*model2.TeamWithRole, error) {
+func (_m *TeamService) ListByUserID(ctx context.Context, userID uuid.UUID) ([]*model.TeamWithRole, error) {
 	ret := _m.Called(ctx, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListByUserID")
 	}
 
-	var r0 []*model2.TeamWithRole
+	var r0 []*model.TeamWithRole
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*model2.TeamWithRole, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*model.TeamWithRole, error)); ok {
 		return rf(ctx, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*model2.TeamWithRole); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*model.TeamWithRole); ok {
 		r0 = rf(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model2.TeamWithRole)
+			r0 = ret.Get(0).([]*model.TeamWithRole)
 		}
 	}
 
@@ -375,12 +375,12 @@ func (_c *TeamService_ListByUserID_Call) Run(run func(ctx context.Context, userI
 	return _c
 }
 
-func (_c *TeamService_ListByUserID_Call) Return(_a0 []*model2.TeamWithRole, _a1 error) *TeamService_ListByUserID_Call {
+func (_c *TeamService_ListByUserID_Call) Return(_a0 []*model.TeamWithRole, _a1 error) *TeamService_ListByUserID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamService_ListByUserID_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*model2.TeamWithRole, error)) *TeamService_ListByUserID_Call {
+func (_c *TeamService_ListByUserID_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*model.TeamWithRole, error)) *TeamService_ListByUserID_Call {
 	_c.Call.Return(run)
 	return _c
 }

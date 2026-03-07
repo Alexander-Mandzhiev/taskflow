@@ -6,20 +6,22 @@ import (
 	"errors"
 	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
+
 	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/converter"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/resources"
-	sq "github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
 )
 
 // GetByID возвращает команду по id (без удалённых).
 // При tx != nil запрос выполняется в транзакции.
-func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID string) (*model2.Team, error) {
+func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) (*model2.Team, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "name", "created_by", "created_at", "updated_at", "deleted_at").
 		From("teams").
-		Where(sq.Eq{"id": teamID}).
+		Where(sq.Eq{"id": teamID.String()}).
 		Where(sq.Expr("deleted_at IS NULL")).
 		Limit(1).
 		ToSql()

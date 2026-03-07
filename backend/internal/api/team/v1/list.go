@@ -3,7 +3,7 @@ package team_v1
 import (
 	"net/http"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/converter"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/converter"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )

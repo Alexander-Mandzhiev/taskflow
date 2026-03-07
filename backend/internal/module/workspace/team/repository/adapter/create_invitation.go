@@ -3,8 +3,9 @@ package adapter
 import (
 	"context"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/jmoiron/sqlx"
+
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 // CreateInvitation создаёт запись приглашения в team_invitations.

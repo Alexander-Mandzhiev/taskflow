@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/model"
+	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
@@ -25,7 +25,7 @@ func (s *APISuite) TestInvite_Success() {
 	})
 
 	expiresAt := time.Now().UTC().Add(7 * 24 * time.Hour)
-	invitation := &model.TeamInvitation{
+	invitation := &model2.TeamInvitation{
 		ID:        uuid.New(),
 		TeamID:    uuid.MustParse(testTeamID),
 		Email:     invitedEmail,
@@ -69,7 +69,7 @@ func (s *APISuite) TestInvite_Success() {
 func (s *APISuite) TestInvite_Forbidden_NotOwnerOrAdmin() {
 	body, _ := json.Marshal(map[string]string{"email": invitedEmail, "role": "member"})
 
-	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, model.ErrForbidden).Once()
+	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, model2.ErrForbidden).Once()
 
 	r := chi.NewRouter()
 	r.Post("/teams/{id}/invite", s.api.Invite)
@@ -87,7 +87,7 @@ func (s *APISuite) TestInvite_Forbidden_NotOwnerOrAdmin() {
 func (s *APISuite) TestInvite_MemberNotFound() {
 	body, _ := json.Marshal(map[string]string{"email": invitedEmail, "role": "member"})
 
-	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, model.ErrMemberNotFound).Once()
+	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, model2.ErrMemberNotFound).Once()
 
 	r := chi.NewRouter()
 	r.Post("/teams/{id}/invite", s.api.Invite)
@@ -105,7 +105,7 @@ func (s *APISuite) TestInvite_MemberNotFound() {
 func (s *APISuite) TestInvite_AlreadyMember() {
 	body, _ := json.Marshal(map[string]string{"email": invitedEmail, "role": "member"})
 
-	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, model.ErrAlreadyMember).Once()
+	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, model2.ErrAlreadyMember).Once()
 
 	r := chi.NewRouter()
 	r.Post("/teams/{id}/invite", s.api.Invite)

@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/model"
+	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
@@ -21,7 +21,7 @@ func (s *APISuite) TestCreate_Success() {
 	body, _ := json.Marshal(map[string]string{"name": "My Team"})
 
 	ownerID := uuid.MustParse(testOwnerUserID)
-	createdTeam := &model.Team{
+	createdTeam := &model2.Team{
 		ID:        uuid.MustParse("660e8400-e29b-41d4-a716-446655440001"),
 		Name:      "My Team",
 		CreatedBy: ownerID,
@@ -29,7 +29,7 @@ func (s *APISuite) TestCreate_Success() {
 		UpdatedAt: time.Now(),
 	}
 
-	s.teamService.On("Create", mock.Anything, mock.MatchedBy(func(in *model.TeamInput) bool {
+	s.teamService.On("Create", mock.Anything, mock.MatchedBy(func(in *model2.TeamInput) bool {
 		return in != nil && in.Name == "My Team"
 	}), ownerID).Return(createdTeam, nil).Once()
 
@@ -91,7 +91,7 @@ func (s *APISuite) TestCreate_ValidationError_EmptyName() {
 func (s *APISuite) TestCreate_InternalError() {
 	body, _ := json.Marshal(map[string]string{"name": "My Team"})
 
-	s.teamService.On("Create", mock.Anything, mock.MatchedBy(func(in *model.TeamInput) bool {
+	s.teamService.On("Create", mock.Anything, mock.MatchedBy(func(in *model2.TeamInput) bool {
 		return in != nil && in.Name == "My Team"
 	}), uuid.MustParse(testOwnerUserID)).Return(nil, assert.AnError).Once()
 

@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/model"
+	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
@@ -20,15 +20,15 @@ const testTeamID = "550e8400-e29b-41d4-a716-446655440001"
 func (s *APISuite) TestGetByID_Success() {
 	teamID := uuid.MustParse(testTeamID)
 	userID := uuid.MustParse(testOwnerUserID)
-	teamWithMembers := &model.TeamWithMembers{
-		Team: model.Team{
+	teamWithMembers := &model2.TeamWithMembers{
+		Team: model2.Team{
 			ID:        teamID,
 			Name:      "My Team",
 			CreatedBy: userID,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},
-		Members: []*model.TeamMember{},
+		Members: []*model2.TeamMember{},
 	}
 
 	s.teamService.On("GetByID", mock.Anything, teamID, userID).Return(teamWithMembers, nil).Once()
@@ -69,7 +69,7 @@ func (s *APISuite) TestGetByID_NoAuth() {
 func (s *APISuite) TestGetByID_Forbidden() {
 	teamID := uuid.MustParse(testTeamID)
 	userID := uuid.MustParse(testOwnerUserID)
-	s.teamService.On("GetByID", mock.Anything, teamID, userID).Return(nil, model.ErrForbidden).Once()
+	s.teamService.On("GetByID", mock.Anything, teamID, userID).Return(nil, model2.ErrForbidden).Once()
 
 	r := chi.NewRouter()
 	r.Get("/teams/{id}", s.api.GetByID)
@@ -86,7 +86,7 @@ func (s *APISuite) TestGetByID_Forbidden() {
 func (s *APISuite) TestGetByID_NotFound() {
 	teamID := uuid.MustParse(testTeamID)
 	userID := uuid.MustParse(testOwnerUserID)
-	s.teamService.On("GetByID", mock.Anything, teamID, userID).Return(nil, model.ErrTeamNotFound).Once()
+	s.teamService.On("GetByID", mock.Anything, teamID, userID).Return(nil, model2.ErrTeamNotFound).Once()
 
 	r := chi.NewRouter()
 	r.Get("/teams/{id}", s.api.GetByID)

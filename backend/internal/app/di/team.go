@@ -5,17 +5,17 @@ import (
 	"fmt"
 
 	team_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1"
-	teamNotificationV1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/client/grpc/notification/v1"
-	teamRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository"
-	teamRepoAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/adapter"
-	teamRepoInvitationReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/invitation/reader"
-	teamRepoInvitationWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/invitation/writer"
-	teamRepoMemberReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/member/reader"
-	teamRepoMemberWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/member/writer"
-	teamRepoTeamReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/team/reader"
-	teamRepoTeamWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/team/writer"
-	teamServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/service"
-	teamServiceImpl "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/service/service"
+	teamNotificationV1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/client/grpc/notification/v1"
+	teamRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository"
+	teamRepoAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/adapter"
+	teamRepoInvitationReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/invitation/reader"
+	teamRepoInvitationWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/invitation/writer"
+	teamRepoMemberReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member/reader"
+	teamRepoMemberWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member/writer"
+	teamRepoTeamReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team/reader"
+	teamRepoTeamWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team/writer"
+	teamServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service"
+	teamServiceImpl "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service/service"
 )
 
 // TeamV1API возвращает HTTP API team v1 (create, list, get, invite).

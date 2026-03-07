@@ -7,8 +7,8 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1/dto"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/converter"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/converter"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/util"

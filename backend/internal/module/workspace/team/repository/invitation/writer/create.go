@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
+
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 // Create создаёт запись приглашения. Поля inv (id, token, status, expires_at и т.д.) заданы вызывающим.

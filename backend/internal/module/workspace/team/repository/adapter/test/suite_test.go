@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/adapter"
 	mocks2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/invitation/mocks"
 	mocks3 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member/mocks"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team/mocks"
-	"github.com/stretchr/testify/suite"
-
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 

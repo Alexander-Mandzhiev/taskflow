@@ -4,21 +4,23 @@ import (
 	"context"
 	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
+
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/converter"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/resources"
-	sq "github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
 )
 
 // ListByUserID возвращает команды, где пользователь участник, с его ролью в каждой.
 // Один запрос: teams JOIN team_members ON team_id WHERE team_members.user_id = userID.
-func (r *repository) ListByUserID(ctx context.Context, tx *sqlx.Tx, userID string) ([]*model.TeamWithRole, error) {
+func (r *repository) ListByUserID(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) ([]*model.TeamWithRole, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("t.id", "t.name", "t.created_by", "t.created_at", "t.updated_at", "t.deleted_at", "tm.role").
 		From("teams t").
 		InnerJoin("team_members tm ON tm.team_id = t.id").
-		Where(sq.Eq{"tm.user_id": userID}).
+		Where(sq.Eq{"tm.user_id": userID.String()}).
 		Where(sq.Expr("t.deleted_at IS NULL")).
 		OrderBy("t.name").
 		ToSql()

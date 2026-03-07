@@ -4,19 +4,21 @@ import (
 	"context"
 	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
+
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/converter"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/resources"
-	sq "github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
 )
 
 // GetByTeamID возвращает всех участников команды по team_id.
-func (r *repository) GetByTeamID(ctx context.Context, tx *sqlx.Tx, teamID string) ([]*model.TeamMember, error) {
+func (r *repository) GetByTeamID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) ([]*model.TeamMember, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "user_id", "team_id", "role", "created_at").
 		From("team_members").
-		Where(sq.Eq{"team_id": teamID}).
+		Where(sq.Eq{"team_id": teamID.String()}).
 		OrderBy("created_at").
 		ToSql()
 	if err != nil {

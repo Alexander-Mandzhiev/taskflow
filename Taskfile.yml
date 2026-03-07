@@ -43,7 +43,7 @@ vars:
   INTERNAL: "./internal"
   MODULE: "{{.INTERNAL}}/module"
   IDENTITY: "{{.MODULE}}/identity"
-  TEAM: "{{.MODULE}}/team"
+  TEAM: "{{.MODULE}}/workspace/team"
   # Слои по доменам/модулям — при добавлении модуля дописать строку и в COVER_* ниже.
   API_ACCOUNT: "{{.INTERNAL}}/api/account/v1"
   API_TEAM: "{{.INTERNAL}}/api/team/v1"

@@ -3,9 +3,10 @@ package repository
 import (
 	"context"
 
-	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+
+	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
 // TeamRepository — единая точка доступа к данным команд и участников (контракт для адаптера).

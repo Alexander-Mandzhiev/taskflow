@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1/dto"
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/converter"
+	converter2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/converter"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/validation"
@@ -30,12 +30,12 @@ func (api *API) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	input := converter.CreateTeamRequestToDomain(req)
+	input := converter2.CreateTeamRequestToDomain(req)
 	team, err := api.teamService.Create(r.Context(), input, userID)
 	if err != nil {
 		mapError(w, r, err)
 		return
 	}
 
-	pkghttp.WriteJSON(r.Context(), w, http.StatusCreated, converter.TeamToResponse(team))
+	pkghttp.WriteJSON(r.Context(), w, http.StatusCreated, converter2.TeamToResponse(team))
 }

@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
+	model "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	mock "github.com/stretchr/testify/mock"
 
 	sqlx "github.com/jmoiron/sqlx"

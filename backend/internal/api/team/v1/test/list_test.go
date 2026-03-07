@@ -10,22 +10,22 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/model"
+	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
 func (s *APISuite) TestList_Success() {
 	teamID := uuid.MustParse(testTeamID)
-	teams := []*model.TeamWithRole{
+	teams := []*model2.TeamWithRole{
 		{
-			Team: model.Team{
+			Team: model2.Team{
 				ID:        teamID,
 				Name:      "My Team",
 				CreatedBy: uuid.MustParse(testOwnerUserID),
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
-			Role: model.RoleOwner,
+			Role: model2.RoleOwner,
 		},
 	}
 
@@ -46,12 +46,12 @@ func (s *APISuite) TestList_Success() {
 	assert.NoError(s.T(), json.NewDecoder(rec.Body).Decode(&resp))
 	assert.Len(s.T(), resp, 1)
 	assert.Equal(s.T(), "My Team", resp[0].Name)
-	assert.Equal(s.T(), model.RoleOwner, resp[0].Role)
+	assert.Equal(s.T(), model2.RoleOwner, resp[0].Role)
 	s.teamService.AssertExpectations(s.T())
 }
 
 func (s *APISuite) TestList_Empty() {
-	s.teamService.On("ListByUserID", mock.Anything, uuid.MustParse(testOwnerUserID)).Return([]*model.TeamWithRole{}, nil).Once()
+	s.teamService.On("ListByUserID", mock.Anything, uuid.MustParse(testOwnerUserID)).Return([]*model2.TeamWithRole{}, nil).Once()
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/teams", nil)
 	req = req.WithContext(metadata.SetUserID(req.Context(), testOwnerUserID))

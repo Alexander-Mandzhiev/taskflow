@@ -6,19 +6,21 @@ import (
 	"errors"
 	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
+
 	model2 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/converter"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/resources"
-	sq "github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
 )
 
 // GetMember возвращает участника по паре (team_id, user_id). При отсутствии — model.ErrMemberNotFound.
-func (r *repository) GetMember(ctx context.Context, tx *sqlx.Tx, teamID, userID string) (*model2.TeamMember, error) {
+func (r *repository) GetMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID) (*model2.TeamMember, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "user_id", "team_id", "role", "created_at").
 		From("team_members").
-		Where(sq.Eq{"team_id": teamID, "user_id": userID}).
+		Where(sq.Eq{"team_id": teamID.String(), "user_id": userID.String()}).
 		Limit(1).
 		ToSql()
 	if err != nil {

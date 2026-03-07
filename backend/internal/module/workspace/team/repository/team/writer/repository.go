@@ -1,8 +1,9 @@
 package writer
 
 import (
-	teamDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team"
 	"github.com/jmoiron/sqlx"
+
+	teamDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team"
 )
 
 var _ teamDef.TeamWriterRepository = (*repository)(nil)

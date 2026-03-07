@@ -8,7 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 	pkghttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
