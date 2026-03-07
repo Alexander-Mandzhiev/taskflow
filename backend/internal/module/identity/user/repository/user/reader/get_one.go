@@ -38,7 +38,7 @@ func (r *repository) getOne(ctx context.Context, tx *sqlx.Tx, where sq.Eq, errLa
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, model.ErrUserNotFound
 		}
-		return nil, fmt.Errorf("%s: %w", errLabel, err)
+		return nil, toDomainError(err)
 	}
 
 	user, err := converter.ToDomainUser(row)

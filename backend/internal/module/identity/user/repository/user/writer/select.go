@@ -33,7 +33,7 @@ func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (*m
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, model.ErrUserNotFound
 		}
-		return nil, fmt.Errorf("select after write: %w", err)
+		return nil, toDomainError(err)
 	}
 
 	user, err := converter.ToDomainUser(row)

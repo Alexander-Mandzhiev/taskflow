@@ -4,6 +4,8 @@ package util
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/google/uuid"
 )
 
 // ParseInt парсит строку в int.
@@ -43,4 +45,17 @@ func ParseBool(s string) (bool, error) {
 		return false, fmt.Errorf("failed to parse bool: %w", err)
 	}
 	return result, nil
+}
+
+// ParseUUID парсит строку в uuid.UUID (для id в URL и т.д.).
+// Возвращает ошибку, если строка пустая или не является валидным UUID.
+func ParseUUID(s string) (uuid.UUID, error) {
+	if s == "" {
+		return uuid.Nil, fmt.Errorf("empty string")
+	}
+	parsed, err := uuid.Parse(s)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to parse uuid: %w", err)
+	}
+	return parsed, nil
 }

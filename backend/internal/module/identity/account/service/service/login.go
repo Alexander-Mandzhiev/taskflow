@@ -21,6 +21,7 @@ func (s *accountService) Login(ctx context.Context, input accountmodel.LoginInpu
 		if errors.Is(err, usermodel.ErrUserNotFound) {
 			return "", "", accountmodel.ErrInvalidCredentials
 		}
+		logger.Error(ctx, "Login: get user by email failed", zap.Error(err))
 		return "", "", err
 	}
 	// user не nil по контракту UserRepository

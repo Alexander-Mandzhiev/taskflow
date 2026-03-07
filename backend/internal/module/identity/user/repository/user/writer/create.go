@@ -30,10 +30,7 @@ func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, input *model.UserI
 
 	_, err = tx.ExecContext(ctx, query, args...)
 	if err != nil {
-		if isDuplicateKeyError(err) {
-			return nil, model.ErrEmailDuplicate
-		}
-		return nil, fmt.Errorf("create exec: %w", err)
+		return nil, toDomainError(err)
 	}
 
 	return r.selectByID(ctx, tx, id)

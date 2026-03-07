@@ -26,7 +26,7 @@ func (r *repository) UpdatePasswordHash(ctx context.Context, tx *sqlx.Tx, id, pa
 
 	res, err := tx.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("update password exec: %w", err)
+		return toDomainError(err)
 	}
 	rows, err := res.RowsAffected()
 	if err != nil {

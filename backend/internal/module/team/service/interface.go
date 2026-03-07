@@ -1,0 +1,21 @@
+package service
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/model"
+)
+
+// TeamService — слой сервиса команд и участников.
+// Транзакции открываются внутри сервиса (txmanager.WithTx); вызывающий не передаёт tx.
+// ID передаются типобезопасно как uuid.UUID. Create: при nil input возвращает model.ErrNilInput.
+type TeamService interface {
+	Create(ctx context.Context, input *model.TeamInput, ownerUserID uuid.UUID) (*model.Team, error)
+	GetByID(ctx context.Context, teamID uuid.UUID) (*model.TeamWithMembers, error)
+	ListByUserID(ctx context.Context, userID uuid.UUID) ([]*model.TeamWithRole, error)
+	GetMember(ctx context.Context, teamID, userID uuid.UUID) (*model.TeamMember, error)
+	// InviteByEmail приглашает по email: проверяет права по inviterUserID (owner/admin), резолвит inviteeEmail → user_id, добавляет в команду.
+	InviteByEmail(ctx context.Context, teamID, inviterUserID uuid.UUID, inviteeEmail, role string) (*model.TeamMember, error)
+}

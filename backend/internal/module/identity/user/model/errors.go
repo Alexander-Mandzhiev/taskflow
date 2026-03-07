@@ -15,4 +15,13 @@ var (
 
 	// ErrInvalidCredentials — неверный email или пароль (логин).
 	ErrInvalidCredentials = errors.New("invalid credentials")
+
+	// ErrInvalidInput — невалидные данные (например NOT NULL нарушение на уровне БД).
+	ErrInvalidInput = errors.New("invalid input")
+
+	// ErrTemporaryFailure — временная ошибка (deadlock, lock wait); можно повторить запрос.
+	ErrTemporaryFailure = errors.New("temporary failure")
+
+	// ErrInternal — внутренняя/неизвестная ошибка (в т.ч. прочая ошибка БД).
+	ErrInternal = errors.New("internal error")
 )

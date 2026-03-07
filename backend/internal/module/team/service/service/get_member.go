@@ -1,0 +1,20 @@
+package service
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+	"go.uber.org/zap"
+
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
+)
+
+func (s *teamService) GetMember(ctx context.Context, teamID, userID uuid.UUID) (*model.TeamMember, error) {
+	member, err := s.repo.GetMember(ctx, nil, teamID.String(), userID.String())
+	if err != nil {
+		logger.Error(ctx, "GetMember failed", zap.Error(err))
+		return nil, err
+	}
+	return member, nil
+}

@@ -34,3 +34,20 @@ packages:
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository:
     config:
       include-regex: ".*Repository"
+
+  # Team
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/service:
+    config:
+      include-regex: ".*Service"
+  # Team repository — адаптер
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository:
+    config:
+      include-regex: ".*Repository"
+  # Team repository — контракты reader/writer для teams
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/team:
+    config:
+      include-regex: ".*Repository"
+  # Team repository — контракты reader/writer для team_members
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/member:
+    config:
+      include-regex: ".*Repository"

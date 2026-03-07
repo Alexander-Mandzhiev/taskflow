@@ -25,7 +25,7 @@ func (r *repository) Delete(ctx context.Context, tx *sqlx.Tx, id string) error {
 	}
 	res, err := tx.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("delete exec: %w", err)
+		return toDomainError(err)
 	}
 	rows, err := res.RowsAffected()
 	if err != nil {

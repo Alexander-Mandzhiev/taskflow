@@ -31,10 +31,7 @@ func (r *repository) Update(ctx context.Context, tx *sqlx.Tx, id string, input *
 
 	res, err := tx.ExecContext(ctx, query, args...)
 	if err != nil {
-		if isDuplicateKeyError(err) {
-			return nil, model.ErrEmailDuplicate
-		}
-		return nil, fmt.Errorf("update exec: %w", err)
+		return nil, toDomainError(err)
 	}
 	rows, err := res.RowsAffected()
 	if err != nil {

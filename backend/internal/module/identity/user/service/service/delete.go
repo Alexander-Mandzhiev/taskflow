@@ -14,8 +14,12 @@ func (s *userService) Delete(ctx context.Context, id string) error {
 		return s.repo.Delete(ctx, tx, id)
 	})
 	if err != nil {
+
 		logger.Error(ctx, "Delete user failed", zap.Error(err))
+
 		return err
+
 	}
+
 	return nil
 }

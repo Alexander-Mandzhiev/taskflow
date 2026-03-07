@@ -5,12 +5,15 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	account_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1"
+	team_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1"
 	accountRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository"
 	accountServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service"
 	userRepoAdapterDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
 	userCacheRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache"
 	userReaderRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/user"
 	userServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service"
+	teamRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository"
+	teamServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/service"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/cache"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/closer"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
@@ -46,6 +49,11 @@ type Container struct {
 	accountService     accountServiceDef.AccountService
 	accountAPI         *account_v1.API
 	accountMiddlewares *accountMiddlewares
+
+	// Team module
+	teamRepo    teamRepoDef.TeamRepository
+	teamService teamServiceDef.TeamService
+	teamAPI     *team_v1.API
 }
 
 // NewContainer создаёт контейнер с конфигурацией из pkg/config (результат config.Load).
