@@ -45,23 +45,16 @@ func ToDomainTask(r resources.TaskRow) (model.Task, error) {
 }
 
 // ToRepoTaskCreateInput преобразует доменный TaskInput в ресурс репозитория для INSERT. teamID передаётся в сигнатуре.
-// При недопустимом переданном статусе возвращает model.ErrInvalidStatus.
+// Валидация и значения по умолчанию — в сервисе; сюда приходят уже подготовленные данные.
 func ToRepoTaskCreateInput(teamID uuid.UUID, input *model.TaskInput) (resources.TaskCreateInput, error) {
 	if input == nil {
 		return resources.TaskCreateInput{}, nil
-	}
-	status := input.Status
-	if status != "" && !model.IsValidTaskStatus(status) {
-		return resources.TaskCreateInput{}, model.ErrInvalidStatus
-	}
-	if status == "" {
-		status = model.TaskStatusTodo
 	}
 	out := resources.TaskCreateInput{
 		TeamID:      teamID.String(),
 		Title:       input.Title,
 		Description: input.Description,
-		Status:      status,
+		Status:      input.Status,
 	}
 	if input.AssigneeID != nil {
 		s := input.AssigneeID.String()

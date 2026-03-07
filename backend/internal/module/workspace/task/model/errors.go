@@ -27,4 +27,7 @@ var (
 
 	// ErrPaginationRequired — для List обязательна пагинация с фронта: limit > 0.
 	ErrPaginationRequired = errors.New("pagination required: limit must be positive")
+
+	// ErrInvalidLimit — limit должен быть положительным (например, в отчётах).
+	ErrInvalidLimit = errors.New("limit must be positive")
 )

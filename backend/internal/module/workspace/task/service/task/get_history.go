@@ -22,7 +22,7 @@ func (s *taskService) GetHistory(ctx context.Context, taskID, userID uuid.UUID) 
 	}
 	if _, err := s.teamSvc.GetMember(ctx, task.TeamID, userID); err != nil {
 		if errors.Is(err, teamModel.ErrMemberNotFound) {
-			return nil, model.ErrForbidden
+			return nil, model.ErrTaskNotFound
 		}
 		return nil, err
 	}

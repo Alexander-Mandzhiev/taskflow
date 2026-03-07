@@ -22,7 +22,7 @@ func (s *taskService) List(ctx context.Context, userID uuid.UUID, filter *model.
 	}
 	if _, err := s.teamSvc.GetMember(ctx, *filter.TeamID, userID); err != nil {
 		if errors.Is(err, teamModel.ErrMemberNotFound) {
-			return nil, 0, model.ErrForbidden
+			return nil, 0, model.ErrTaskNotFound
 		}
 		return nil, 0, err
 	}

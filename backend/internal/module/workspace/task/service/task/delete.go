@@ -23,7 +23,7 @@ func (s *taskService) Delete(ctx context.Context, userID, taskID uuid.UUID) erro
 	}
 	if _, err := s.teamSvc.GetMember(ctx, task.TeamID, userID); err != nil {
 		if errors.Is(err, teamModel.ErrMemberNotFound) {
-			return model.ErrForbidden
+			return model.ErrTaskNotFound
 		}
 		return err
 	}

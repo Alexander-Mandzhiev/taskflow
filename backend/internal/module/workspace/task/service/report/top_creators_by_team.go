@@ -13,7 +13,7 @@ import (
 
 func (s *taskReportService) TopCreatorsByTeam(ctx context.Context, userID uuid.UUID, since time.Time, limit int) ([]*model.TeamTopCreator, error) {
 	if limit <= 0 {
-		limit = 3
+		return nil, model.ErrInvalidLimit
 	}
 	userTeams, err := s.teamSvc.ListByUserID(ctx, userID)
 	if err != nil {

@@ -19,7 +19,7 @@ type TaskService interface {
 	// Create создаёт задачу. userID — участник команды; teamID в сигнатуре. При nil input — model.ErrNilInput. AssigneeID — должен быть в команде.
 	Create(ctx context.Context, userID, teamID uuid.UUID, input *model.TaskInput) (*model.Task, error)
 
-	// GetByID возвращает задачу только если userID — участник команды; иначе model.ErrForbidden или model.ErrTaskNotFound.
+	// GetByID возвращает задачу только если userID — участник команды; иначе model.ErrTaskNotFound (не раскрываем наличие задачи).
 	GetByID(ctx context.Context, taskID, userID uuid.UUID) (*model.Task, error)
 
 	// List — список задач по фильтру (критерии + limit/offset в filter). Валидация filter (limit > 0) в сервисе/API. filter.TeamID обязателен, userID — в команде.

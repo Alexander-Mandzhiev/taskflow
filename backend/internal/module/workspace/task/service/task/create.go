@@ -18,10 +18,13 @@ func (s *taskService) Create(ctx context.Context, userID, teamID uuid.UUID, inpu
 		logger.Warn(ctx, "Create task: nil input")
 		return nil, model.ErrNilInput
 	}
+	if err := model.ValidateTaskInput(input); err != nil {
+		return nil, err
+	}
 
 	if _, err := s.teamSvc.GetMember(ctx, teamID, userID); err != nil {
 		if errors.Is(err, teamModel.ErrMemberNotFound) {
-			return nil, model.ErrForbidden
+			return nil, model.ErrTaskNotFound
 		}
 		return nil, err
 	}
@@ -35,10 +38,15 @@ func (s *taskService) Create(ctx context.Context, userID, teamID uuid.UUID, inpu
 		}
 	}
 
+	prepared := *input
+	if prepared.Status == "" {
+		prepared.Status = model.TaskStatusTodo
+	}
+
 	var created *model.Task
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		var errTx error
-		created, errTx = s.taskRepo.Create(ctx, tx, teamID, input, userID)
+		created, errTx = s.taskRepo.Create(ctx, tx, teamID, &prepared, userID)
 		return errTx
 	}); err != nil {
 		logger.Error(ctx, "Create task failed", zap.Error(err))

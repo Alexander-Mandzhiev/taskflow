@@ -3,7 +3,7 @@ package model
 import "github.com/google/uuid"
 
 // ValidateTaskInput проверяет допустимость полей input. Если задан статус — он должен быть todo, in_progress или done.
-// Для использования в сервисе при Update (при Create валидация статуса выполняется в конвертере). Возвращает ErrInvalidStatus при недопустимом статусе.
+// Вызывается в сервисе при Create и Update. Возвращает ErrInvalidStatus при недопустимом статусе.
 func ValidateTaskInput(input *TaskInput) error {
 	if input == nil {
 		return nil

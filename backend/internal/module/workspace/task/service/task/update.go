@@ -31,7 +31,7 @@ func (s *taskService) Update(ctx context.Context, userID, taskID uuid.UUID, inpu
 	}
 	if _, err := s.teamSvc.GetMember(ctx, current.TeamID, userID); err != nil {
 		if errors.Is(err, teamModel.ErrMemberNotFound) {
-			return nil, model.ErrForbidden
+			return nil, model.ErrTaskNotFound
 		}
 		return nil, err
 	}
@@ -53,8 +53,9 @@ func (s *taskService) Update(ctx context.Context, userID, taskID uuid.UUID, inpu
 		if errTx := writeHistory(ctx, tx, s.historyRepo, taskID, userID, now, current, input); errTx != nil {
 			return errTx
 		}
-		updated, _ = s.taskRepo.GetByID(ctx, tx, taskID)
-		return nil
+		var errTx error
+		updated, errTx = s.taskRepo.GetByID(ctx, tx, taskID)
+		return errTx
 	}); err != nil {
 		logger.Error(ctx, "Update task failed", zap.Error(err))
 		return nil, err

@@ -23,7 +23,7 @@ func (s *taskService) Restore(ctx context.Context, userID, taskID uuid.UUID) (*m
 	}
 	if _, err := s.teamSvc.GetMember(ctx, task.TeamID, userID); err != nil {
 		if errors.Is(err, teamModel.ErrMemberNotFound) {
-			return nil, model.ErrForbidden
+			return nil, model.ErrTaskNotFound
 		}
 		return nil, err
 	}
@@ -33,8 +33,9 @@ func (s *taskService) Restore(ctx context.Context, userID, taskID uuid.UUID) (*m
 		if errTx := s.taskRepo.Restore(ctx, tx, taskID); errTx != nil {
 			return errTx
 		}
-		restored, _ = s.taskRepo.GetByID(ctx, tx, taskID)
-		return nil
+		var errTx error
+		restored, errTx = s.taskRepo.GetByID(ctx, tx, taskID)
+		return errTx
 	}); err != nil {
 		logger.Error(ctx, "Restore task failed", zap.Error(err))
 		return nil, err
