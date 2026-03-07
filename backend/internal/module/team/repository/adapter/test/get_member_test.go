@@ -12,17 +12,17 @@ import (
 )
 
 func (s *AdapterSuite) TestGetMember_Success() {
-	teamID := "550e8400-e29b-41d4-a716-446655440001"
-	userID := "550e8400-e29b-41d4-a716-446655440000"
+	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 	member := &model.TeamMember{
 		ID:        uuid.New(),
-		UserID:    uuid.MustParse(userID),
-		TeamID:    uuid.MustParse(teamID),
+		UserID:    userID,
+		TeamID:    teamID,
 		Role:      model.RoleOwner,
 		CreatedAt: time.Now(),
 	}
 
-	s.memberReader.On("GetMember", mock.Anything, (*sqlx.Tx)(nil), teamID, userID).
+	s.memberReader.On("GetMember", mock.Anything, (*sqlx.Tx)(nil), teamID.String(), userID.String()).
 		Return(member, nil).Once()
 
 	got, err := s.repo.GetMember(s.ctx, nil, teamID, userID)
@@ -35,17 +35,17 @@ func (s *AdapterSuite) TestGetMember_Success() {
 
 func (s *AdapterSuite) TestGetMember_WithTx() {
 	tx := &sqlx.Tx{}
-	teamID := "550e8400-e29b-41d4-a716-446655440001"
-	userID := "550e8400-e29b-41d4-a716-446655440000"
+	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 	member := &model.TeamMember{
 		ID:        uuid.New(),
-		UserID:    uuid.MustParse(userID),
-		TeamID:    uuid.MustParse(teamID),
+		UserID:    userID,
+		TeamID:    teamID,
 		Role:      model.RoleAdmin,
 		CreatedAt: time.Now(),
 	}
 
-	s.memberReader.On("GetMember", mock.Anything, tx, teamID, userID).
+	s.memberReader.On("GetMember", mock.Anything, tx, teamID.String(), userID.String()).
 		Return(member, nil).Once()
 
 	got, err := s.repo.GetMember(s.ctx, tx, teamID, userID)
@@ -56,10 +56,10 @@ func (s *AdapterSuite) TestGetMember_WithTx() {
 }
 
 func (s *AdapterSuite) TestGetMember_NotFound() {
-	teamID := "550e8400-e29b-41d4-a716-446655440001"
-	userID := "550e8400-e29b-41d4-a716-446655440000"
+	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 
-	s.memberReader.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
+	s.memberReader.On("GetMember", mock.Anything, mock.Anything, teamID.String(), userID.String()).
 		Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
 
 	got, err := s.repo.GetMember(s.ctx, nil, teamID, userID)

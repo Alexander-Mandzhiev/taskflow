@@ -11,12 +11,12 @@ var _ repository.TeamRepository = (*Repository)(nil)
 
 // Repository — адаптер поверх team/member/invitation reader/writer.
 type Repository struct {
-	teamReader        teamRepo.TeamReaderRepository
-	teamWriter        teamRepo.TeamWriterRepository
-	memberReader      memberRepo.MemberReaderRepository
-	memberWriter      memberRepo.MemberWriterRepository
-	invitationReader  invitationRepo.InvitationReaderRepository
-	invitationWriter  invitationRepo.InvitationWriterRepository
+	teamReader       teamRepo.TeamReaderRepository
+	teamWriter       teamRepo.TeamWriterRepository
+	memberReader     memberRepo.MemberReaderRepository
+	memberWriter     memberRepo.MemberWriterRepository
+	invitationReader invitationRepo.InvitationReaderRepository
+	invitationWriter invitationRepo.InvitationWriterRepository
 }
 
 // NewRepository создаёт адаптер.

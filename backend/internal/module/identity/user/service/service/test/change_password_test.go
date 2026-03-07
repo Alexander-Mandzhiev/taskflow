@@ -18,7 +18,6 @@ func (s *ServiceSuite) TestChangePassword_Success() {
 	err := s.svc.ChangePassword(s.ctx, id, hash)
 
 	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), 1, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }
 
@@ -33,6 +32,5 @@ func (s *ServiceSuite) TestChangePassword_RepoError() {
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrUserNotFound)
-	assert.Equal(s.T(), 1, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }

@@ -2,8 +2,8 @@ package dto
 
 // InviteResponse — ответ на создание приглашения (запись в team_invitations). Отправка письма — отдельный сервис.
 type InviteResponse struct {
-	Success    bool              `json:"success"`
-	Message    string            `json:"message"`
+	Success    bool               `json:"success"`
+	Message    string             `json:"message"`
 	Invitation InvitationResponse `json:"invitation,omitempty"`
 }
 

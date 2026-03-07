@@ -12,28 +12,31 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/metadata"
 )
 
 const testTeamID = "550e8400-e29b-41d4-a716-446655440001"
 
 func (s *APISuite) TestGetByID_Success() {
 	teamID := uuid.MustParse(testTeamID)
+	userID := uuid.MustParse(testOwnerUserID)
 	teamWithMembers := &model.TeamWithMembers{
 		Team: model.Team{
 			ID:        teamID,
 			Name:      "My Team",
-			CreatedBy: uuid.MustParse(testOwnerUserID),
+			CreatedBy: userID,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		},
 		Members: []*model.TeamMember{},
 	}
 
-	s.teamService.On("GetByID", mock.Anything, testTeamID).Return(teamWithMembers, nil).Once()
+	s.teamService.On("GetByID", mock.Anything, teamID, userID).Return(teamWithMembers, nil).Once()
 
 	r := chi.NewRouter()
 	r.Get("/teams/{id}", s.api.GetByID)
 	req := httptest.NewRequest(http.MethodGet, "/teams/"+testTeamID, nil)
+	req = req.WithContext(metadata.SetUserID(req.Context(), testOwnerUserID))
 	rec := httptest.NewRecorder()
 
 	r.ServeHTTP(rec, req)
@@ -52,12 +55,43 @@ func (s *APISuite) TestGetByID_Success() {
 	s.teamService.AssertExpectations(s.T())
 }
 
-func (s *APISuite) TestGetByID_NotFound() {
-	s.teamService.On("GetByID", mock.Anything, testTeamID).Return(nil, model.ErrTeamNotFound).Once()
+func (s *APISuite) TestGetByID_NoAuth() {
+	r := chi.NewRouter()
+	r.Get("/teams/{id}", s.api.GetByID)
+	req := httptest.NewRequest(http.MethodGet, "/teams/"+testTeamID, nil)
+	rec := httptest.NewRecorder()
+
+	r.ServeHTTP(rec, req)
+
+	assert.Equal(s.T(), http.StatusUnauthorized, rec.Code)
+}
+
+func (s *APISuite) TestGetByID_Forbidden() {
+	teamID := uuid.MustParse(testTeamID)
+	userID := uuid.MustParse(testOwnerUserID)
+	s.teamService.On("GetByID", mock.Anything, teamID, userID).Return(nil, model.ErrForbidden).Once()
 
 	r := chi.NewRouter()
 	r.Get("/teams/{id}", s.api.GetByID)
 	req := httptest.NewRequest(http.MethodGet, "/teams/"+testTeamID, nil)
+	req = req.WithContext(metadata.SetUserID(req.Context(), testOwnerUserID))
+	rec := httptest.NewRecorder()
+
+	r.ServeHTTP(rec, req)
+
+	assert.Equal(s.T(), http.StatusForbidden, rec.Code)
+	s.teamService.AssertExpectations(s.T())
+}
+
+func (s *APISuite) TestGetByID_NotFound() {
+	teamID := uuid.MustParse(testTeamID)
+	userID := uuid.MustParse(testOwnerUserID)
+	s.teamService.On("GetByID", mock.Anything, teamID, userID).Return(nil, model.ErrTeamNotFound).Once()
+
+	r := chi.NewRouter()
+	r.Get("/teams/{id}", s.api.GetByID)
+	req := httptest.NewRequest(http.MethodGet, "/teams/"+testTeamID, nil)
+	req = req.WithContext(metadata.SetUserID(req.Context(), testOwnerUserID))
 	rec := httptest.NewRecorder()
 
 	r.ServeHTTP(rec, req)
@@ -67,11 +101,14 @@ func (s *APISuite) TestGetByID_NotFound() {
 }
 
 func (s *APISuite) TestGetByID_InternalError() {
-	s.teamService.On("GetByID", mock.Anything, testTeamID).Return(nil, assert.AnError).Once()
+	teamID := uuid.MustParse(testTeamID)
+	userID := uuid.MustParse(testOwnerUserID)
+	s.teamService.On("GetByID", mock.Anything, teamID, userID).Return(nil, assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Get("/teams/{id}", s.api.GetByID)
 	req := httptest.NewRequest(http.MethodGet, "/teams/"+testTeamID, nil)
+	req = req.WithContext(metadata.SetUserID(req.Context(), testOwnerUserID))
 	rec := httptest.NewRecorder()
 
 	r.ServeHTTP(rec, req)

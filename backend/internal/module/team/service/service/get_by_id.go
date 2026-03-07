@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -11,16 +12,32 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *teamService) GetByID(ctx context.Context, teamID uuid.UUID) (*model.TeamWithMembers, error) {
-	var team *model.TeamWithMembers
+func (s *teamService) GetByID(ctx context.Context, teamID, userID uuid.UUID) (*model.TeamWithMembers, error) {
+	var result *model.TeamWithMembers
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
-		var errTx error
-		team, errTx = s.repo.GetByID(ctx, tx, teamID.String())
-		return errTx
+		team, errTx := s.repo.GetByID(ctx, tx, teamID)
+		if errTx != nil {
+			return errTx
+		}
+		members, errTx := s.repo.GetMembersByTeamID(ctx, tx, teamID)
+		if errTx != nil {
+			return errTx
+		}
+		_, errTx = s.repo.GetMember(ctx, tx, teamID, userID)
+		if errTx != nil {
+			if errors.Is(errTx, model.ErrMemberNotFound) {
+				return model.ErrForbidden
+			}
+			return errTx
+		}
+		result = &model.TeamWithMembers{Team: *team, Members: members}
+		return nil
 	}); err != nil {
-		logger.Error(ctx, "GetByID failed", zap.Error(err))
+		if !errors.Is(err, model.ErrForbidden) {
+			logger.Error(ctx, "GetByID failed", zap.Error(err))
+		}
 		return nil, err
 	}
 
-	return team, nil
+	return result, nil
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	team_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1"
+	teamNotificationV1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/client/grpc/notification/v1"
 	teamRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository"
 	teamRepoAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/adapter"
 	teamRepoInvitationReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository/invitation/reader"
@@ -47,7 +48,8 @@ func (d *Container) TeamService(ctx context.Context) (teamServiceDef.TeamService
 	if err != nil {
 		return nil, fmt.Errorf("user repository: %w", err)
 	}
-	d.teamService = teamServiceImpl.NewTeamService(repo, txMgr, userRepo)
+	notifier := teamNotificationV1.NewClient()
+	d.teamService = teamServiceImpl.NewTeamService(repo, txMgr, userRepo, notifier)
 	return d.teamService, nil
 }
 

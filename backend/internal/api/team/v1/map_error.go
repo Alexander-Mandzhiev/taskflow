@@ -81,6 +81,8 @@ func mapDomainError(err error) (int, string) {
 		return http.StatusBadRequest, "Некорректный идентификатор команды"
 	case errors.Is(err, model.ErrInvitationNotFound):
 		return http.StatusNotFound, "Приглашение не найдено"
+	case errors.Is(err, model.ErrInvalidRole):
+		return http.StatusBadRequest, "Недопустимая роль приглашения (допустимы: member, admin)"
 	case errors.Is(err, model.ErrTemporaryFailure):
 		return http.StatusServiceUnavailable, "Временная ошибка, попробуйте позже"
 	default:

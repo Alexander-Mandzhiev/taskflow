@@ -12,13 +12,13 @@ import (
 )
 
 func (s *AdapterSuite) TestListByUserID_Success() {
-	userID := "550e8400-e29b-41d4-a716-446655440000"
+	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 	teams := []*model.TeamWithRole{
 		{
 			Team: model.Team{
 				ID:        uuid.MustParse("660e8400-e29b-41d4-a716-446655440001"),
 				Name:      "My Team",
-				CreatedBy: uuid.MustParse(userID),
+				CreatedBy: userID,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
@@ -26,7 +26,7 @@ func (s *AdapterSuite) TestListByUserID_Success() {
 		},
 	}
 
-	s.teamReader.On("ListByUserID", mock.Anything, (*sqlx.Tx)(nil), userID).
+	s.teamReader.On("ListByUserID", mock.Anything, (*sqlx.Tx)(nil), userID.String()).
 		Return(teams, nil).Once()
 
 	got, err := s.repo.ListByUserID(s.ctx, nil, userID)
@@ -39,9 +39,9 @@ func (s *AdapterSuite) TestListByUserID_Success() {
 }
 
 func (s *AdapterSuite) TestListByUserID_Empty() {
-	userID := "550e8400-e29b-41d4-a716-446655440000"
+	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 
-	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID).
+	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID.String()).
 		Return([]*model.TeamWithRole{}, nil).Once()
 
 	got, err := s.repo.ListByUserID(s.ctx, nil, userID)
@@ -52,9 +52,9 @@ func (s *AdapterSuite) TestListByUserID_Empty() {
 }
 
 func (s *AdapterSuite) TestListByUserID_ReaderError() {
-	userID := "550e8400-e29b-41d4-a716-446655440000"
+	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 
-	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID).
+	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID.String()).
 		Return(([]*model.TeamWithRole)(nil), assert.AnError).Once()
 
 	got, err := s.repo.ListByUserID(s.ctx, nil, userID)

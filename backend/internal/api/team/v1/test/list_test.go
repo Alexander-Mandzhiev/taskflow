@@ -29,7 +29,7 @@ func (s *APISuite) TestList_Success() {
 		},
 	}
 
-	s.teamService.On("ListByUserID", mock.Anything, testOwnerUserID).Return(teams, nil).Once()
+	s.teamService.On("ListByUserID", mock.Anything, uuid.MustParse(testOwnerUserID)).Return(teams, nil).Once()
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/teams", nil)
 	req = req.WithContext(metadata.SetUserID(req.Context(), testOwnerUserID))
@@ -51,7 +51,7 @@ func (s *APISuite) TestList_Success() {
 }
 
 func (s *APISuite) TestList_Empty() {
-	s.teamService.On("ListByUserID", mock.Anything, testOwnerUserID).Return([]*model.TeamWithRole{}, nil).Once()
+	s.teamService.On("ListByUserID", mock.Anything, uuid.MustParse(testOwnerUserID)).Return([]*model.TeamWithRole{}, nil).Once()
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/teams", nil)
 	req = req.WithContext(metadata.SetUserID(req.Context(), testOwnerUserID))
@@ -76,7 +76,7 @@ func (s *APISuite) TestList_NoAuth() {
 }
 
 func (s *APISuite) TestList_InternalError() {
-	s.teamService.On("ListByUserID", mock.Anything, testOwnerUserID).Return(nil, assert.AnError).Once()
+	s.teamService.On("ListByUserID", mock.Anything, uuid.MustParse(testOwnerUserID)).Return(nil, assert.AnError).Once()
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/teams", nil)
 	req = req.WithContext(metadata.SetUserID(req.Context(), testOwnerUserID))

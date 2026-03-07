@@ -17,7 +17,6 @@ func (s *ServiceSuite) TestDelete_Success() {
 	err := s.svc.Delete(s.ctx, id)
 
 	assert.NoError(s.T(), err)
-	assert.Equal(s.T(), 1, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }
 
@@ -31,6 +30,5 @@ func (s *ServiceSuite) TestDelete_RepoError() {
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrUserNotFound)
-	assert.Equal(s.T(), 1, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }

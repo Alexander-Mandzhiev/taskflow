@@ -12,18 +12,18 @@ import (
 )
 
 func (s *AdapterSuite) TestAddMember_Success() {
-	teamID := "550e8400-e29b-41d4-a716-446655440001"
-	userID := "770e8400-e29b-41d4-a716-446655440002"
+	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+	userID := uuid.MustParse("770e8400-e29b-41d4-a716-446655440002")
 	role := model.RoleMember
 	member := &model.TeamMember{
 		ID:        uuid.New(),
-		UserID:    uuid.MustParse(userID),
-		TeamID:    uuid.MustParse(teamID),
+		UserID:    userID,
+		TeamID:    teamID,
 		Role:      role,
 		CreatedAt: time.Now(),
 	}
 
-	s.memberWriter.On("AddMember", mock.Anything, (*sqlx.Tx)(nil), teamID, userID, role).
+	s.memberWriter.On("AddMember", mock.Anything, (*sqlx.Tx)(nil), teamID.String(), userID.String(), role).
 		Return(member, nil).Once()
 
 	got, err := s.repo.AddMember(s.ctx, nil, teamID, userID, role)
@@ -36,18 +36,18 @@ func (s *AdapterSuite) TestAddMember_Success() {
 
 func (s *AdapterSuite) TestAddMember_WithTx() {
 	tx := &sqlx.Tx{}
-	teamID := "550e8400-e29b-41d4-a716-446655440001"
-	userID := "770e8400-e29b-41d4-a716-446655440002"
+	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+	userID := uuid.MustParse("770e8400-e29b-41d4-a716-446655440002")
 	role := model.RoleAdmin
 	member := &model.TeamMember{
 		ID:        uuid.New(),
-		UserID:    uuid.MustParse(userID),
-		TeamID:    uuid.MustParse(teamID),
+		UserID:    userID,
+		TeamID:    teamID,
 		Role:      role,
 		CreatedAt: time.Now(),
 	}
 
-	s.memberWriter.On("AddMember", mock.Anything, tx, teamID, userID, role).
+	s.memberWriter.On("AddMember", mock.Anything, tx, teamID.String(), userID.String(), role).
 		Return(member, nil).Once()
 
 	got, err := s.repo.AddMember(s.ctx, tx, teamID, userID, role)
@@ -58,11 +58,11 @@ func (s *AdapterSuite) TestAddMember_WithTx() {
 }
 
 func (s *AdapterSuite) TestAddMember_WriterError() {
-	teamID := "550e8400-e29b-41d4-a716-446655440001"
-	userID := "770e8400-e29b-41d4-a716-446655440002"
+	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+	userID := uuid.MustParse("770e8400-e29b-41d4-a716-446655440002")
 	role := model.RoleMember
 
-	s.memberWriter.On("AddMember", mock.Anything, mock.Anything, teamID, userID, role).
+	s.memberWriter.On("AddMember", mock.Anything, mock.Anything, teamID.String(), userID.String(), role).
 		Return((*model.TeamMember)(nil), model.ErrAlreadyMember).Once()
 
 	got, err := s.repo.AddMember(s.ctx, nil, teamID, userID, role)

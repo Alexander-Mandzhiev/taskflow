@@ -11,14 +11,14 @@ import (
 
 func (s *AdapterSuite) TestCreate_Success() {
 	input := &model.TeamInput{Name: "My Team"}
-	ownerUserID := "550e8400-e29b-41d4-a716-446655440000"
+	ownerUserID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 	team := &model.Team{
 		ID:        uuid.MustParse("660e8400-e29b-41d4-a716-446655440001"),
 		Name:      input.Name,
-		CreatedBy: uuid.MustParse(ownerUserID),
+		CreatedBy: ownerUserID,
 	}
 
-	s.teamWriter.On("Create", mock.Anything, (*sqlx.Tx)(nil), input, ownerUserID).
+	s.teamWriter.On("Create", mock.Anything, (*sqlx.Tx)(nil), input, ownerUserID.String()).
 		Return(team, nil).Once()
 
 	got, err := s.repo.Create(s.ctx, nil, input, ownerUserID)
@@ -31,14 +31,14 @@ func (s *AdapterSuite) TestCreate_Success() {
 func (s *AdapterSuite) TestCreate_WithTx() {
 	tx := &sqlx.Tx{}
 	input := &model.TeamInput{Name: "My Team"}
-	ownerUserID := "550e8400-e29b-41d4-a716-446655440000"
+	ownerUserID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 	team := &model.Team{
 		ID:        uuid.MustParse("660e8400-e29b-41d4-a716-446655440001"),
 		Name:      input.Name,
-		CreatedBy: uuid.MustParse(ownerUserID),
+		CreatedBy: ownerUserID,
 	}
 
-	s.teamWriter.On("Create", mock.Anything, tx, input, ownerUserID).
+	s.teamWriter.On("Create", mock.Anything, tx, input, ownerUserID.String()).
 		Return(team, nil).Once()
 
 	got, err := s.repo.Create(s.ctx, tx, input, ownerUserID)
@@ -50,9 +50,9 @@ func (s *AdapterSuite) TestCreate_WithTx() {
 
 func (s *AdapterSuite) TestCreate_WriterError() {
 	input := &model.TeamInput{Name: "My Team"}
-	ownerUserID := "550e8400-e29b-41d4-a716-446655440000"
+	ownerUserID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 
-	s.teamWriter.On("Create", mock.Anything, mock.Anything, input, ownerUserID).
+	s.teamWriter.On("Create", mock.Anything, mock.Anything, input, ownerUserID.String()).
 		Return((*model.Team)(nil), assert.AnError).Once()
 
 	got, err := s.repo.Create(s.ctx, nil, input, ownerUserID)

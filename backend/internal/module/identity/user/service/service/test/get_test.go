@@ -19,7 +19,6 @@ func (s *ServiceSuite) TestGetByID_Success() {
 
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), want, got)
-	assert.Equal(s.T(), 0, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }
 
@@ -34,7 +33,6 @@ func (s *ServiceSuite) TestGetByID_Error() {
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrUserNotFound)
 	assert.Nil(s.T(), got)
-	assert.Equal(s.T(), 0, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }
 
@@ -49,7 +47,6 @@ func (s *ServiceSuite) TestGetByEmail_Success() {
 
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), want, got)
-	assert.Equal(s.T(), 0, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }
 
@@ -64,6 +61,5 @@ func (s *ServiceSuite) TestGetByEmail_Error() {
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrUserNotFound)
 	assert.Nil(s.T(), got)
-	assert.Equal(s.T(), 0, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }

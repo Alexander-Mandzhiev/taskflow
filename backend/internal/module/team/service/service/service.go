@@ -2,6 +2,7 @@ package service
 
 import (
 	userRepo "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository"
+	teamClient "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/client/grpc"
 	teamRepo "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/repository"
 	def "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/team/service"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
@@ -13,13 +14,15 @@ type teamService struct {
 	repo      teamRepo.TeamRepository
 	txManager txmanager.TxManager
 	userRepo  userRepo.UserRepository
+	notifier  teamClient.Notification
 }
 
-// NewTeamService создаёт сервис команд. userRepo — адаптер пользователей (для invite по email).
-func NewTeamService(repo teamRepo.TeamRepository, txManager txmanager.TxManager, userRepo userRepo.UserRepository) def.TeamService {
+// NewTeamService создаёт сервис команд. userRepo — для invite по email; notifier — отправка уведомления (мок или gRPC). Ссылку «принять приглашение» собирает сервис уведомлений из inv.Token.
+func NewTeamService(repo teamRepo.TeamRepository, txManager txmanager.TxManager, userRepo userRepo.UserRepository, notifier teamClient.Notification) def.TeamService {
 	return &teamService{
 		repo:      repo,
 		txManager: txManager,
 		userRepo:  userRepo,
+		notifier:  notifier,
 	}
 }

@@ -39,26 +39,26 @@ vars:
   COVERAGE_SERVICE_FILE: service.out
   COVERAGE_ADAPTER_FILE: adapter.out
 
-  # Базовые пути: internal/module/<домен>/<модуль>/<слой>. Добавление домена = новая переменная (TEAMS, …).
+  # Базовые пути: internal/module/<домен>/<модуль>/<слой>. Добавление домена = новая переменная (TEAM, …).
   INTERNAL: "./internal"
   MODULE: "{{.INTERNAL}}/module"
   IDENTITY: "{{.MODULE}}/identity"
-  TEAMS: "{{.MODULE}}/teams"
+  TEAM: "{{.MODULE}}/team"
   # Слои по доменам/модулям — при добавлении модуля дописать строку и в COVER_* ниже.
   API_ACCOUNT: "{{.INTERNAL}}/api/account/v1"
+  API_TEAM: "{{.INTERNAL}}/api/team/v1"
   SVC_ACCOUNT: "{{.IDENTITY}}/account/service/service"
   SVC_USER: "{{.IDENTITY}}/user/service/service"
+  SVC_TEAM: "{{.TEAM}}/service/service"
   ADP_USER: "{{.IDENTITY}}/user/repository/adapter"
-  # Пример для teams (раскомментировать и добавить в COVER_PKG_* / COVER_TEST_PKGS при появлении):
-  # SVC_TEAM: "{{.TEAMS}}/team/service/service"
-  # ADP_TEAM: "{{.TEAMS}}/team/repository/adapter"
+  ADP_TEAM: "{{.TEAM}}/repository/adapter"
 
-  COVER_PKG_API: "{{.API_ACCOUNT}}"
-  COVER_PKG_SERVICE: "{{.SVC_ACCOUNT}},{{.SVC_USER}}"
-  COVER_PKG_ADAPTER: "{{.ADP_USER}}"
+  COVER_PKG_API: "{{.API_ACCOUNT}},{{.API_TEAM}}"
+  COVER_PKG_SERVICE: "{{.SVC_ACCOUNT}},{{.SVC_USER}},{{.SVC_TEAM}}"
+  COVER_PKG_ADAPTER: "{{.ADP_USER}},{{.ADP_TEAM}}"
   COVER_PKG: "{{.COVER_PKG_API}},{{.COVER_PKG_SERVICE}},{{.COVER_PKG_ADAPTER}}"
   # Тест-пакеты: через пробелы (не запятые).
-  COVER_TEST_PKGS: "{{.API_ACCOUNT}}/test {{.SVC_ACCOUNT}}/test {{.SVC_USER}}/test {{.ADP_USER}}/test"
+  COVER_TEST_PKGS: "{{.API_ACCOUNT}}/test {{.API_TEAM}}/test {{.SVC_ACCOUNT}}/test {{.SVC_USER}}/test {{.SVC_TEAM}}/test {{.ADP_USER}}/test {{.ADP_TEAM}}/test"
 
 # =============================================================================
 # УСТАНОВКА ИНСТРУМЕНТОВ
@@ -136,7 +136,7 @@ tasks:
     deps: [install-mockery]
     dir: backend
     cmds:
-      - '{{.MOCKERY}}'
+      - '{{.MOCKERY}} --config {{.ROOT_DIR}}/.mockery.yaml'
 
   gen:
     desc: "Генерация всех моков"

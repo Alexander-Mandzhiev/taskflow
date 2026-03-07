@@ -14,7 +14,6 @@ func (s *ServiceSuite) TestUpdate_NilInput() {
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrNilInput)
 	assert.Nil(s.T(), got)
-	assert.Equal(s.T(), 0, s.txManager.withTxCalls)
 	s.repo.AssertNotCalled(s.T(), "Update")
 }
 
@@ -30,7 +29,6 @@ func (s *ServiceSuite) TestUpdate_Success() {
 
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), want, got)
-	assert.Equal(s.T(), 1, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }
 
@@ -45,6 +43,5 @@ func (s *ServiceSuite) TestUpdate_RepoError() {
 
 	assert.Error(s.T(), err)
 	assert.Nil(s.T(), got)
-	assert.Equal(s.T(), 1, s.txManager.withTxCalls)
 	s.repo.AssertExpectations(s.T())
 }

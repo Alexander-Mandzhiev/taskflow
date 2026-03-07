@@ -2,10 +2,8 @@ package service_test
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/mocks"
@@ -15,45 +13,18 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-type txManagerStub struct {
-	tx          *sqlx.Tx
-	withTxCalls int
-	forceErr    error
-}
-
-func (t *txManagerStub) WithTx(ctx context.Context, fn func(context.Context, *sqlx.Tx) error, _ ...*sql.TxOptions) error {
-	t.withTxCalls++
-	if t.forceErr != nil {
-		return t.forceErr
-	}
-	if t.tx == nil {
-		t.tx = &sqlx.Tx{}
-	}
-	return fn(ctx, t.tx)
-}
-
-func (t *txManagerStub) WithSerializableTx(ctx context.Context, fn func(context.Context, *sqlx.Tx) error) error {
-	if t.forceErr != nil {
-		return t.forceErr
-	}
-	if t.tx == nil {
-		t.tx = &sqlx.Tx{}
-	}
-	return fn(ctx, t.tx)
-}
-
-var _ txmanager.TxManager = (*txManagerStub)(nil)
-
+// ServiceSuite — общий suite для тестов слоя сервиса пользователей.
+// Моки и сервис создаются один раз в SetupSuite; в SetupTest сбрасываются ожидания моков.
 type ServiceSuite struct {
 	suite.Suite
 	ctx context.Context // nolint:containedctx
 
 	repo      *mocks.UserRepository
-	txManager *txManagerStub
+	txManager txmanager.TxManager
 	svc       userservice.UserService
 }
 
-func (s *ServiceSuite) SetupTest() {
+func (s *ServiceSuite) SetupSuite() {
 	s.ctx = context.Background()
 
 	if err := logger.InitDefault(); err != nil {
@@ -61,8 +32,14 @@ func (s *ServiceSuite) SetupTest() {
 	}
 
 	s.repo = mocks.NewUserRepository(s.T())
-	s.txManager = &txManagerStub{}
+	s.txManager = &txmanager.Noop{}
 	s.svc = svc.NewUserService(s.repo, s.txManager)
+}
+
+func (s *ServiceSuite) SetupTest() {
+	s.ctx = context.Background()
+
+	s.repo.ExpectedCalls = nil
 }
 
 func TestUserService(t *testing.T) {

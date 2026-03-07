@@ -109,12 +109,28 @@ jobs:
             echo "Подробный отчёт — в артефакте \`coverage-report\` (скачать и открыть \`coverage.html\`)."
           } >> $GITHUB_STEP_SUMMARY
 
-      # 2. Генерируем HTML-отчет для подробного просмотра (coverage/ в корне репо)
+      # 2. Проверка порога покрытия ≥ 85% (ТЗ)
+      - name: Check coverage threshold (≥85%)
+        run: |
+          TOTAL="${{ steps.coverage.outputs.total }}"
+          if [ -z "$TOTAL" ] || [ "$TOTAL" = "N/A" ]; then
+            echo "::error::Coverage could not be determined (total=$TOTAL)"
+            exit 1
+          fi
+          PCT="${TOTAL%\%}"
+          if awk "BEGIN {exit !($PCT >= 85)}"; then
+            echo "✅ Coverage $TOTAL meets required threshold 85%"
+          else
+            echo "::error::Coverage $TOTAL is below required 85% (critical methods, see Taskfile COVER_PKG)"
+            exit 1
+          fi
+
+      # 3. Генерируем HTML-отчет для подробного просмотра (coverage/ в корне репо)
       - name: Generate coverage HTML
         working-directory: backend
         run: go tool cover -html=../${{ env.COVERAGE_DIR }}/${{ env.COVERAGE_FILE }} -o ../${{ env.COVERAGE_DIR }}/coverage.html
 
-      # 3. Загружаем отчет как артефакт
+      # 4. Загружаем отчет как артефакт
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:

@@ -18,13 +18,13 @@ type AdapterSuite struct {
 	suite.Suite
 	ctx context.Context // nolint:containedctx
 
-	teamReader        *teammocks.TeamReaderRepository
-	teamWriter        *teammocks.TeamWriterRepository
-	memberReader      *membermocks.MemberReaderRepository
-	memberWriter      *membermocks.MemberWriterRepository
-	invitationReader  *invitationmocks.InvitationReaderRepository
-	invitationWriter  *invitationmocks.InvitationWriterRepository
-	repo              repository.TeamRepository
+	teamReader       *teammocks.TeamReaderRepository
+	teamWriter       *teammocks.TeamWriterRepository
+	memberReader     *membermocks.MemberReaderRepository
+	memberWriter     *membermocks.MemberWriterRepository
+	invitationReader *invitationmocks.InvitationReaderRepository
+	invitationWriter *invitationmocks.InvitationWriterRepository
+	repo             repository.TeamRepository
 }
 
 func (s *AdapterSuite) SetupTest() {

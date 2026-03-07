@@ -31,7 +31,7 @@ func (s *APISuite) TestCreate_Success() {
 
 	s.teamService.On("Create", mock.Anything, mock.MatchedBy(func(in *model.TeamInput) bool {
 		return in != nil && in.Name == "My Team"
-	}), testOwnerUserID).Return(createdTeam, nil).Once()
+	}), ownerID).Return(createdTeam, nil).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/teams", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -93,7 +93,7 @@ func (s *APISuite) TestCreate_InternalError() {
 
 	s.teamService.On("Create", mock.Anything, mock.MatchedBy(func(in *model.TeamInput) bool {
 		return in != nil && in.Name == "My Team"
-	}), testOwnerUserID).Return(nil, assert.AnError).Once()
+	}), uuid.MustParse(testOwnerUserID)).Return(nil, assert.AnError).Once()
 
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/teams", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")

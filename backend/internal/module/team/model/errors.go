@@ -36,4 +36,10 @@ var (
 
 	// ErrInvitationNotFound — приглашение не найдено (по token или id).
 	ErrInvitationNotFound = errors.New("invitation not found")
+
+	// ErrInvalidRole — при приглашении указана недопустимая роль (допустимы member, admin).
+	ErrInvalidRole = errors.New("invalid role")
+
+	// ErrNotImplemented — операция ещё не реализована (заглушка).
+	ErrNotImplemented = errors.New("not implemented")
 )

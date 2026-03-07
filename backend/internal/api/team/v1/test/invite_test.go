@@ -17,7 +17,6 @@ import (
 )
 
 const invitedEmail = "invited@example.com"
-const invitedUserID = "770e8400-e29b-41d4-a716-446655440002"
 
 func (s *APISuite) TestInvite_Success() {
 	body, _ := json.Marshal(map[string]string{
@@ -25,15 +24,16 @@ func (s *APISuite) TestInvite_Success() {
 		"role":  "member",
 	})
 
-	invitedMember := &model.TeamMember{
+	expiresAt := time.Now().UTC().Add(7 * 24 * time.Hour)
+	invitation := &model.TeamInvitation{
 		ID:        uuid.New(),
-		UserID:    uuid.MustParse(invitedUserID),
 		TeamID:    uuid.MustParse(testTeamID),
-		Role:      model.RoleMember,
-		CreatedAt: time.Now(),
+		Email:     invitedEmail,
+		Role:      "member",
+		ExpiresAt: expiresAt,
 	}
 
-	s.teamService.On("InviteByEmail", mock.Anything, testTeamID, testOwnerUserID, invitedEmail, "member").Return(invitedMember, nil).Once()
+	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(invitation, nil).Once()
 
 	r := chi.NewRouter()
 	r.Post("/teams/{id}/invite", s.api.Invite)
@@ -46,25 +46,30 @@ func (s *APISuite) TestInvite_Success() {
 
 	assert.Equal(s.T(), http.StatusCreated, rec.Code)
 	var resp struct {
-		Success bool   `json:"success"`
-		Message string `json:"message"`
-		Member  struct {
-			UserID string `json:"user_id"`
-			Role   string `json:"role"`
-		} `json:"member"`
+		Success    bool   `json:"success"`
+		Message    string `json:"message"`
+		Invitation struct {
+			ID        string `json:"id"`
+			TeamID    string `json:"team_id"`
+			Email     string `json:"email"`
+			Role      string `json:"role"`
+			ExpiresAt string `json:"expires_at"`
+		} `json:"invitation"`
 	}
 	assert.NoError(s.T(), json.NewDecoder(rec.Body).Decode(&resp))
 	assert.True(s.T(), resp.Success)
-	assert.Equal(s.T(), "Пользователь приглашён в команду", resp.Message)
-	assert.Equal(s.T(), invitedUserID, resp.Member.UserID)
-	assert.Equal(s.T(), "member", resp.Member.Role)
+	assert.Equal(s.T(), "Приглашение создано", resp.Message)
+	assert.Equal(s.T(), invitation.ID.String(), resp.Invitation.ID)
+	assert.Equal(s.T(), testTeamID, resp.Invitation.TeamID)
+	assert.Equal(s.T(), invitedEmail, resp.Invitation.Email)
+	assert.Equal(s.T(), "member", resp.Invitation.Role)
 	s.teamService.AssertExpectations(s.T())
 }
 
 func (s *APISuite) TestInvite_Forbidden_NotOwnerOrAdmin() {
 	body, _ := json.Marshal(map[string]string{"email": invitedEmail, "role": "member"})
 
-	s.teamService.On("InviteByEmail", mock.Anything, testTeamID, testOwnerUserID, invitedEmail, "member").Return(nil, model.ErrForbidden).Once()
+	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, model.ErrForbidden).Once()
 
 	r := chi.NewRouter()
 	r.Post("/teams/{id}/invite", s.api.Invite)
@@ -82,7 +87,7 @@ func (s *APISuite) TestInvite_Forbidden_NotOwnerOrAdmin() {
 func (s *APISuite) TestInvite_MemberNotFound() {
 	body, _ := json.Marshal(map[string]string{"email": invitedEmail, "role": "member"})
 
-	s.teamService.On("InviteByEmail", mock.Anything, testTeamID, testOwnerUserID, invitedEmail, "member").Return(nil, model.ErrMemberNotFound).Once()
+	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, model.ErrMemberNotFound).Once()
 
 	r := chi.NewRouter()
 	r.Post("/teams/{id}/invite", s.api.Invite)
@@ -100,7 +105,7 @@ func (s *APISuite) TestInvite_MemberNotFound() {
 func (s *APISuite) TestInvite_AlreadyMember() {
 	body, _ := json.Marshal(map[string]string{"email": invitedEmail, "role": "member"})
 
-	s.teamService.On("InviteByEmail", mock.Anything, testTeamID, testOwnerUserID, invitedEmail, "member").Return(nil, model.ErrAlreadyMember).Once()
+	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, model.ErrAlreadyMember).Once()
 
 	r := chi.NewRouter()
 	r.Post("/teams/{id}/invite", s.api.Invite)
@@ -175,7 +180,7 @@ func (s *APISuite) TestInvite_ValidationError_MissingEmail() {
 func (s *APISuite) TestInvite_InternalError() {
 	body, _ := json.Marshal(map[string]string{"email": invitedEmail, "role": "member"})
 
-	s.teamService.On("InviteByEmail", mock.Anything, testTeamID, testOwnerUserID, invitedEmail, "member").Return(nil, assert.AnError).Once()
+	s.teamService.On("InviteByEmail", mock.Anything, uuid.MustParse(testTeamID), uuid.MustParse(testOwnerUserID), invitedEmail, "member").Return(nil, assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Post("/teams/{id}/invite", s.api.Invite)
