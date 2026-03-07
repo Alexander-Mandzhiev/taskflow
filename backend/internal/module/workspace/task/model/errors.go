@@ -28,9 +28,21 @@ var (
 	// ErrPaginationRequired — для List обязательна пагинация с фронта: limit > 0.
 	ErrPaginationRequired = errors.New("pagination required: limit must be positive")
 
+	// ErrTeamIDRequired — для списка задач обязателен query-параметр team_id.
+	ErrTeamIDRequired = errors.New("team_id is required")
+
+	// ErrInvalidAssigneeID — передан невалидный assignee_id в query (ожидается UUID).
+	ErrInvalidAssigneeID = errors.New("invalid assignee_id parameter")
+
 	// ErrInvalidLimit — limit должен быть положительным (например, в отчётах).
 	ErrInvalidLimit = errors.New("limit must be positive")
 
 	// ErrTxRequired — мутация вызвана без транзакции (tx == nil). Writer-репозитории требуют tx.
 	ErrTxRequired = errors.New("transaction required")
+
+	// ErrCommentNotImplemented — сервис комментариев пока не реализован (заглушка).
+	ErrCommentNotImplemented = errors.New("comment service not implemented")
+
+	// ErrCommentNotFound — комментарий не найден по id.
+	ErrCommentNotFound = errors.New("comment not found")
 )

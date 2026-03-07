@@ -5,6 +5,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	account_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/account/v1"
+	task_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/task/v1"
 	team_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1"
 	accountRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/repository"
 	accountServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/account/service"
@@ -12,6 +13,8 @@ import (
 	userCacheRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/cache"
 	userReaderRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/user"
 	userServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service"
+	taskRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository"
+	taskServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/service"
 	teamRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository"
 	teamServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/cache"
@@ -54,6 +57,16 @@ type Container struct {
 	teamRepo    teamRepoDef.TeamAdapter
 	teamService teamServiceDef.TeamService
 	teamAPI     *team_v1.API
+
+	// Task module
+	taskRepo           taskRepoDef.TaskRepository
+	taskHistoryRepo    taskRepoDef.TaskHistoryRepository
+	taskCommentRepo    taskRepoDef.TaskCommentRepository
+	taskReportRepo     taskRepoDef.ReportRepository
+	taskService        taskServiceDef.TaskService
+	taskReportService  taskServiceDef.TaskReportService
+	taskCommentService taskServiceDef.TaskCommentService
+	taskAPI            *task_v1.API
 }
 
 // NewContainer создаёт контейнер с конфигурацией из pkg/config (результат config.Load).

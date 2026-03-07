@@ -28,6 +28,12 @@ type TaskHistoryRepository interface {
 	ListHistoryByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]*model.TaskHistory, error)
 }
 
+// TaskCommentRepository — доступ к комментариям задач (таблица task_comments). Контракт для адаптера.
+type TaskCommentRepository interface {
+	ListCommentsByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]*model.TaskComment, error)
+	CreateComment(ctx context.Context, tx *sqlx.Tx, taskID, userID uuid.UUID, content string) (*model.TaskComment, error)
+}
+
 // ReportRepository — отчёты по задачам и командам (сложные запросы с JOIN/агрегацией). Контракт для адаптера.
 type ReportRepository interface {
 	TeamTaskStats(ctx context.Context, tx *sqlx.Tx, since time.Time) ([]*model.TeamTaskStats, error)

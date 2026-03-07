@@ -50,3 +50,11 @@ type TaskReportService interface {
 	// TasksWithInvalidAssignee — задачи с assignee не из команды (только по командам userID).
 	TasksWithInvalidAssignee(ctx context.Context, userID uuid.UUID) ([]*model.Task, error)
 }
+
+// TaskCommentService — комментарии к задачам. Доступ только для участников команды задачи.
+type TaskCommentService interface {
+	// ListByTaskID возвращает комментарии к задаче (userID должен быть в команде задачи).
+	ListByTaskID(ctx context.Context, taskID, userID uuid.UUID) ([]*model.TaskComment, error)
+	// Create создаёт комментарий к задаче (userID должен быть в команде задачи).
+	Create(ctx context.Context, taskID, userID uuid.UUID, content string) (*model.TaskComment, error)
+}

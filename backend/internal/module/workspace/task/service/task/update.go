@@ -46,33 +46,8 @@ func (s *taskService) Update(ctx context.Context, userID, taskID uuid.UUID, inpu
 			return errTx
 		}
 		now := time.Now()
-		if current.Title != input.Title {
-			if errTx := s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{TaskID: taskID, ChangedBy: userID, FieldName: "title", OldValue: current.Title, NewValue: input.Title, ChangedAt: now}); errTx != nil {
-				return errTx
-			}
-		}
-		if current.Description != input.Description {
-			if errTx := s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{TaskID: taskID, ChangedBy: userID, FieldName: "description", OldValue: current.Description, NewValue: input.Description, ChangedAt: now}); errTx != nil {
-				return errTx
-			}
-		}
-		if current.Status != input.Status {
-			if errTx := s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{TaskID: taskID, ChangedBy: userID, FieldName: "status", OldValue: current.Status, NewValue: input.Status, ChangedAt: now}); errTx != nil {
-				return errTx
-			}
-		}
-		oldAssignee := ""
-		if current.AssigneeID != nil {
-			oldAssignee = current.AssigneeID.String()
-		}
-		newAssignee := ""
-		if input.AssigneeID != nil {
-			newAssignee = input.AssigneeID.String()
-		}
-		if oldAssignee != newAssignee {
-			if errTx := s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{TaskID: taskID, ChangedBy: userID, FieldName: "assignee_id", OldValue: oldAssignee, NewValue: newAssignee, ChangedAt: now}); errTx != nil {
-				return errTx
-			}
+		if errTx := s.recordUpdateHistory(ctx, tx, taskID, userID, current, input, now); errTx != nil {
+			return errTx
 		}
 		updated, errTx = s.taskRepo.GetByID(ctx, tx, taskID)
 		return errTx
@@ -84,4 +59,35 @@ func (s *taskService) Update(ctx context.Context, userID, taskID uuid.UUID, inpu
 		return nil, err
 	}
 	return updated, nil
+}
+
+// recordUpdateHistory пишет в task_history записи только для изменившихся полей.
+func (s *taskService) recordUpdateHistory(ctx context.Context, tx *sqlx.Tx, taskID, userID uuid.UUID, current *model.Task, input *model.TaskInput, now time.Time) error {
+	if err := s.recordHistoryIfChanged(ctx, tx, taskID, userID, "title", current.Title, input.Title, now); err != nil {
+		return err
+	}
+	if err := s.recordHistoryIfChanged(ctx, tx, taskID, userID, "description", current.Description, input.Description, now); err != nil {
+		return err
+	}
+	if err := s.recordHistoryIfChanged(ctx, tx, taskID, userID, "status", current.Status, input.Status, now); err != nil {
+		return err
+	}
+	oldAssignee := ""
+	if current.AssigneeID != nil {
+		oldAssignee = current.AssigneeID.String()
+	}
+	newAssignee := ""
+	if input.AssigneeID != nil {
+		newAssignee = input.AssigneeID.String()
+	}
+	return s.recordHistoryIfChanged(ctx, tx, taskID, userID, "assignee_id", oldAssignee, newAssignee, now)
+}
+
+func (s *taskService) recordHistoryIfChanged(ctx context.Context, tx *sqlx.Tx, taskID, userID uuid.UUID, fieldName, oldVal, newVal string, now time.Time) error {
+	if oldVal == newVal {
+		return nil
+	}
+	return s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{
+		TaskID: taskID, ChangedBy: userID, FieldName: fieldName, OldValue: oldVal, NewValue: newVal, ChangedAt: now,
+	})
 }
