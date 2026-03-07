@@ -2,7 +2,6 @@ package writer
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
@@ -16,7 +15,7 @@ import (
 // Create создаёт запись в tasks. teamID и createdBy — в сигнатуре. Мутация только в транзакции (tx != nil).
 func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input *model.TaskInput, createdBy uuid.UUID) (*model.Task, error) {
 	if tx == nil {
-		return nil, errors.New("transaction required")
+		return nil, model.ErrTxRequired
 	}
 	in, err := converter.ToRepoTaskCreateInput(teamID, input)
 	if err != nil {

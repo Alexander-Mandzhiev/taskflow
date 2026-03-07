@@ -2,7 +2,6 @@ package writer
 
 import (
 	"context"
-	"errors"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -14,7 +13,7 @@ import (
 // Update обновляет изменяемые поля задачи (title, description, status, assignee_id). При отсутствии — model.ErrTaskNotFound.
 func (r *repository) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input *model.TaskInput) error {
 	if tx == nil {
-		return errors.New("transaction required")
+		return model.ErrTxRequired
 	}
 	if input == nil {
 		return nil

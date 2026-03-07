@@ -1,6 +1,8 @@
 package converter
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/model"
@@ -33,9 +35,14 @@ func ToDomainTaskHistory(r resources.TaskHistoryRow) (model.TaskHistory, error) 
 }
 
 // ToRepoTaskHistory преобразует доменную запись TaskHistory в ресурс для INSERT в task_history.
+// Если entry.ChangedAt — нулевое, подставляется time.Now(), чтобы в БД не попало 0000-00-00.
 func ToRepoTaskHistory(entry *model.TaskHistory) resources.TaskHistoryRow {
 	if entry == nil {
 		return resources.TaskHistoryRow{}
+	}
+	changedAt := entry.ChangedAt
+	if changedAt.IsZero() {
+		changedAt = time.Now()
 	}
 	return resources.TaskHistoryRow{
 		ID:        entry.ID.String(),
@@ -44,6 +51,6 @@ func ToRepoTaskHistory(entry *model.TaskHistory) resources.TaskHistoryRow {
 		FieldName: entry.FieldName,
 		OldValue:  entry.OldValue,
 		NewValue:  entry.NewValue,
-		ChangedAt: entry.ChangedAt,
+		ChangedAt: changedAt,
 	}
 }

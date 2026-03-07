@@ -30,4 +30,7 @@ var (
 
 	// ErrInvalidLimit — limit должен быть положительным (например, в отчётах).
 	ErrInvalidLimit = errors.New("limit must be positive")
+
+	// ErrTxRequired — мутация вызвана без транзакции (tx == nil). Writer-репозитории требуют tx.
+	ErrTxRequired = errors.New("transaction required")
 )

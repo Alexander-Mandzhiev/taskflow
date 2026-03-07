@@ -2,7 +2,6 @@ package writer
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
@@ -15,13 +14,14 @@ import (
 // Restore снимает пометку удаления (deleted_at = NULL). При отсутствии — model.ErrTaskNotFound.
 func (r *repository) Restore(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) error {
 	if tx == nil {
-		return errors.New("transaction required")
+		return model.ErrTxRequired
 	}
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Update("tasks").
 		Set("deleted_at", nil).
 		Set("updated_at", sq.Expr("NOW()")).
 		Where(sq.Eq{"id": taskID.String()}).
+		Where(sq.Expr("deleted_at IS NOT NULL")).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("build restore query: %w", err)
