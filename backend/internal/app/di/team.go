@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	team_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1"
+	teamClientGrpc "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/client/grpc"
+	teamClientCB "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/client/grpc/circuitbreaker"
 	teamNotificationV1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/client/grpc/notification/v1"
 	teamRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository"
 	teamRepoAdapterInvitation "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/adapter/invitation"
@@ -58,9 +60,22 @@ func (d *Container) TeamService(ctx context.Context) (teamServiceDef.TeamService
 	if err != nil {
 		return nil, fmt.Errorf("user repository: %w", err)
 	}
-	notifier := teamNotificationV1.NewClient()
+	notifier, err := d.teamNotifierOrInit(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("team notifier: %w", err)
+	}
 	d.teamService = teamServiceImpl.NewTeamService(teamRepo, memberRepo, invitationRepo, txMgr, userRepo, notifier)
 	return d.teamService, nil
+}
+
+// teamNotifierOrInit возвращает кешированный notifier для команды (с circuit breaker); при первом вызове создаёт и кеширует.
+func (d *Container) teamNotifierOrInit(ctx context.Context) (teamClientGrpc.Notification, error) {
+	if d.teamNotifier != nil {
+		return d.teamNotifier, nil
+	}
+	notificationClient := teamNotificationV1.NewClient()
+	d.teamNotifier = teamClientCB.NewNotificationWithCircuitBreaker(notificationClient, teamClientCB.DefaultNotificationCBSettings())
+	return d.teamNotifier, nil
 }
 
 // initTeamRepos создаёт team/member/invitation адаптеры при первом обращении к любому из репозиториев.

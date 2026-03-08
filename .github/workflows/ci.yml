@@ -58,6 +58,9 @@ jobs:
     env:
       # отчёты в coverage/ в корне репо (Taskfile: ROOT_DIR/coverage)
       COVERAGE_DIR: coverage
+      COVERAGE_FILE: total.out
+      # Порог по ТЗ: минимум 85% по критическим методам (API, service, adapter)
+      COVERAGE_THRESHOLD: "85"
     steps:
       - uses: actions/checkout@v4.2.2
 
@@ -109,19 +112,20 @@ jobs:
             echo "Подробный отчёт — в артефакте \`coverage-report\` (скачать и открыть \`coverage.html\`)."
           } >> $GITHUB_STEP_SUMMARY
 
-      # 2. Проверка порога покрытия ≥ 85% (ТЗ)
-      - name: Check coverage threshold (≥85%)
+      # 2. Проверка порога покрытия ≥ COVERAGE_THRESHOLD% (ТЗ: 85%)
+      - name: Check coverage threshold (≥${{ env.COVERAGE_THRESHOLD }}%)
         run: |
           TOTAL="${{ steps.coverage.outputs.total }}"
+          THRESHOLD="${{ env.COVERAGE_THRESHOLD }}"
           if [ -z "$TOTAL" ] || [ "$TOTAL" = "N/A" ]; then
             echo "::error::Coverage could not be determined (total=$TOTAL)"
             exit 1
           fi
           PCT="${TOTAL%\%}"
-          if awk "BEGIN {exit !($PCT >= 85)}"; then
-            echo "✅ Coverage $TOTAL meets required threshold 85%"
+          if awk "BEGIN {exit !($PCT >= $THRESHOLD)}"; then
+            echo "✅ Coverage $TOTAL meets required threshold ${THRESHOLD}%"
           else
-            echo "::error::Coverage $TOTAL is below required 85% (critical methods, see Taskfile COVER_PKG)"
+            echo "::error::Coverage $TOTAL is below required ${THRESHOLD}% (critical methods, see Taskfile COVER_PKG)"
             exit 1
           fi
 

@@ -15,6 +15,7 @@ import (
 	userServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/service"
 	taskRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository"
 	taskServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/service"
+	teamClientGrpc "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/client/grpc"
 	teamRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository"
 	teamServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/cache"
@@ -57,6 +58,7 @@ type Container struct {
 	teamRepo       teamRepoDef.TeamRepository
 	memberRepo     teamRepoDef.MemberRepository
 	invitationRepo teamRepoDef.InvitationRepository
+	teamNotifier   teamClientGrpc.Notification
 	teamService    teamServiceDef.TeamService
 	teamAPI        *team_v1.API
 
