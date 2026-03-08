@@ -209,13 +209,13 @@ tasks:
     env:
       API_BASE_URL: '{{.API_BASE_URL | default "http://localhost:4000"}}'
     cmds:
-      - go run ./cmd/apiclient
+      - go run ./e2e/cmd
 
   api:smoke:build:
     desc: "Собрать бинарник apiclient в ./bin"
     dir: backend
     cmds:
-      - go build -o {{.BIN_DIR}}/apiclient{{.EXE}} ./cmd/apiclient
+      - go build -o {{.BIN_DIR}}/apiclient{{.EXE}} ./e2e/cmd
 
   # ===========================================================================
   # DOCKER COMPOSE — атомарные задачи + сценарии local/dev/prod

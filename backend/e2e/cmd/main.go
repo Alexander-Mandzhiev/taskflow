@@ -1,5 +1,5 @@
 // Программа для smoke/e2e-проверки API: регистрация, логин, создание команды и задачи.
-// Запуск: API_BASE_URL=http://localhost:4000 go run ./cmd/apiclient
+// Запуск: API_BASE_URL=http://localhost:4000 go run ./e2e/cmd
 // Бэкенд должен быть поднят (локально или в тест-контейнере).
 //
 //nolint:gocritic // exitAfterDefer: один контекст на весь прогон, при log.Fatalf процесс завершается, defer cancel не критичен
@@ -13,7 +13,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/e2e/apiclient"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/e2e/apiclient"
 )
 
 const defaultBaseURL = "http://localhost:4000"
