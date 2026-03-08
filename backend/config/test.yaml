@@ -1,4 +1,5 @@
 # Конфигурация для тестов pkg/config. Путь: CONFIG_PATH=config/test.yaml при запуске тестов из backend/.
+# MySQL/Redis — согласованы с deploy/env/test/.env: при запуске с хоста подключаемся к localhost:3307 и localhost:6379.
 
 app:
   name: testapp
@@ -26,7 +27,7 @@ cors:
 
 mysql:
   connection:
-    host: testhost
+    host: localhost
     port: 3307
     user: testuser
     password: testpass
@@ -38,8 +39,8 @@ mysql:
     conn_max_idle_time: 3m
 
 redis:
-  addr: testredis:6380
-  password: ""
+  addr: localhost:6379
+  password: test_redis_secret
   pool:
     max_active: 10
     max_idle: 5
