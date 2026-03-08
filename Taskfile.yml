@@ -156,6 +156,15 @@ tasks:
     cmds:
       - go test ./... -count=1 -v
 
+  test:integration:
+    desc: |
+      Интеграционные тесты с testcontainers (MySQL, Redis, backend в контейнерах). Требует Docker.
+      Если в Docker Desktop при просмотре логов контейнера — «configured logging driver does not support reading»:
+      Settings → Docker Engine → добавьте "log-driver": "json-file" в JSON → Apply & Restart.
+    dir: backend
+    cmds:
+      - go test -tags=integration -v -count=1 -timeout 10m ./e2e/integration/
+
   test-coverage:
     desc: "Тесты с покрытием по API, service, adapter; отчёт в coverage/"
     dir: backend

@@ -26,6 +26,22 @@ type InviteRequest struct {
 	Role  string `json:"role"` // admin | member
 }
 
+// InvitationResponse — данные приглашения в ответе Invite.
+type InvitationResponse struct {
+	ID        string `json:"id"`
+	TeamID    string `json:"team_id"`
+	Email     string `json:"email"`
+	Role      string `json:"role"`
+	ExpiresAt string `json:"expires_at"`
+}
+
+// InviteResponse — ответ POST /teams/{id}/invite.
+type InviteResponse struct {
+	Success    bool               `json:"success"`
+	Message    string             `json:"message"`
+	Invitation InvitationResponse `json:"invitation,omitempty"`
+}
+
 // CreateTaskRequest — запрос создания задачи.
 type CreateTaskRequest struct {
 	TeamID      string  `json:"team_id"`
@@ -63,6 +79,15 @@ type TeamWithRole struct {
 	Role string `json:"role"`
 }
 
+// TeamWithMembersResponse — ответ GET /api/v1/teams/{id} (команда с участниками).
+type TeamWithMembersResponse struct {
+	Team    Team `json:"team"`
+	Members []struct {
+		UserID string `json:"user_id"`
+		Role   string `json:"role"`
+	} `json:"members,omitempty"`
+}
+
 // Task — задача в ответе API.
 type Task struct {
 	ID          string  `json:"id"`
@@ -85,6 +110,12 @@ type TaskListResponse struct {
 	Offset int    `json:"offset"`
 }
 
+// TaskHistoryResponse — история изменений задачи (GET /tasks/{id}/history).
+type TaskHistoryResponse struct {
+	TaskID  string         `json:"task_id"`
+	Entries []HistoryEntry `json:"entries"`
+}
+
 // HistoryEntry — запись истории задачи.
 type HistoryEntry struct {
 	ID        string `json:"id"`
@@ -104,6 +135,11 @@ type Comment struct {
 	Content   string `json:"content"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
+}
+
+// CommentListResponse — список комментариев к задаче (GET /tasks/{id}/comments).
+type CommentListResponse struct {
+	Items []Comment `json:"items"`
 }
 
 // TeamTaskStats — статистика по команде (отчёт).

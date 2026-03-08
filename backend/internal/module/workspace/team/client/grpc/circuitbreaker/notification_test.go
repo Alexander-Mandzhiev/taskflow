@@ -20,10 +20,10 @@ var _ grpc.Notification = (*countingMockNotification)(nil)
 
 // countingMockNotification считает вызовы NotifyInvitation и возвращает заданную ошибку (или nil после N вызовов).
 type countingMockNotification struct {
-	mu              sync.Mutex
-	callCount       int
-	err             error
-	returnNilAfter  int // после стольких вызовов возвращать nil (0 = всегда err)
+	mu             sync.Mutex
+	callCount      int
+	err            error
+	returnNilAfter int // после стольких вызовов возвращать nil (0 = всегда err)
 }
 
 func (m *countingMockNotification) NotifyInvitation(ctx context.Context, inv *model.TeamInvitation, teamName, inviterName string) error {
@@ -91,7 +91,8 @@ func TestNotificationWithCircuitBreaker_halfopen_allows_probe_after_timeout(t *t
 	_ = w.NotifyInvitation(ctx, inv, "Team", "User")
 	assert.Equal(t, 3, inner.getCallCount())
 
-	// Ждём перехода в HalfOpen
+	// Ждём перехода в HalfOpen (в тесте допустимо — ожидание смены состояния circuit breaker).
+	//nolint:forbidigo // test-only: waiting for circuit breaker half-open state
 	time.Sleep(50 * time.Millisecond)
 
 	// Пробный запрос: inner вызывается, возвращаем nil -> цепь закрывается

@@ -18,9 +18,9 @@ func (r *repository) TopCreatorsByTeam(ctx context.Context, tx *sqlx.Tx, since t
 		limit = 3
 	}
 	const query = `
-		SELECT team_id, user_id, rank, created_count FROM (
+		SELECT team_id, user_id, ` + "`rank`" + `, created_count FROM (
 			SELECT team_id, user_id, created_count,
-			       ROW_NUMBER() OVER (PARTITION BY team_id ORDER BY created_count DESC) AS rank
+			       ROW_NUMBER() OVER (PARTITION BY team_id ORDER BY created_count DESC) AS ` + "`rank`" + `
 			FROM (
 				SELECT team_id, created_by AS user_id, COUNT(*) AS created_count
 				FROM tasks
@@ -28,8 +28,8 @@ func (r *repository) TopCreatorsByTeam(ctx context.Context, tx *sqlx.Tx, since t
 				GROUP BY team_id, created_by
 			) AS counted
 		) AS ranked
-		WHERE rank <= ?
-		ORDER BY team_id, rank
+		WHERE ` + "`rank`" + ` <= ?
+		ORDER BY team_id, ` + "`rank`" + `
 	`
 	var rows []resources.TeamTopCreatorRow
 	if tx != nil {

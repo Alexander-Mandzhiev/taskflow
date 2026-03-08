@@ -69,7 +69,7 @@ func (d *Container) TeamService(ctx context.Context) (teamServiceDef.TeamService
 }
 
 // teamNotifierOrInit возвращает кешированный notifier для команды (с circuit breaker); при первом вызове создаёт и кеширует.
-func (d *Container) teamNotifierOrInit(ctx context.Context) (teamClientGrpc.Notification, error) {
+func (d *Container) teamNotifierOrInit(_ context.Context) (teamClientGrpc.Notification, error) {
 	if d.teamNotifier != nil {
 		return d.teamNotifier, nil
 	}

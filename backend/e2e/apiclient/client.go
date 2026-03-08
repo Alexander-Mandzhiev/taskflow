@@ -1,3 +1,8 @@
+// Package apiclient — HTTP-клиент для e2e/smoke-проверок API.
+//
+// Закрытие тела ответа: методы, возвращающие *http.Response (Register, Login, CreateTeam, CreateTask, GetTeam, GetTask и т.д.),
+// требуют от вызывающего кода закрыть resp.Body. Методы, возвращающие распарсенные данные (ListTeams, ListTasks и т.п.),
+// закрывают тело ответа внутри себя.
 package apiclient
 
 import (
@@ -25,16 +30,44 @@ type Client struct {
 
 // New создаёт клиент. baseURL — без слэша в конце (например http://localhost:4000).
 func New(baseURL string) (*Client, error) {
+	return NewWithRequestDelay(baseURL, 0)
+}
+
+// delayTransport выполняет паузу перед каждым запросом (для снижения нагрузки на rate limit в тестах).
+type delayTransport struct {
+	roundTripper http.RoundTripper
+	delay        time.Duration
+}
+
+func (t *delayTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if t.delay > 0 {
+		select {
+		case <-req.Context().Done():
+			return nil, req.Context().Err()
+		case <-time.After(t.delay):
+		}
+	}
+	return t.roundTripper.RoundTrip(req)
+}
+
+// NewWithRequestDelay создаёт клиент с паузой перед каждым запросом.
+// delay > 0 используют в e2e-тестах, чтобы не упираться в rate limit (регистрация, логин и т.д.).
+func NewWithRequestDelay(baseURL string, delay time.Duration) (*Client, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return nil, fmt.Errorf("cookiejar: %w", err)
 	}
 	base := strings.TrimSuffix(baseURL, "/")
+	transport := http.DefaultTransport
+	if delay > 0 {
+		transport = &delayTransport{roundTripper: http.DefaultTransport, delay: delay}
+	}
 	return &Client{
 		baseURL: base,
 		client: &http.Client{
-			Timeout: defaultTimeout,
-			Jar:     jar,
+			Timeout:   defaultTimeout,
+			Jar:       jar,
+			Transport: transport,
 		},
 	}, nil
 }

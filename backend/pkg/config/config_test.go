@@ -56,12 +56,14 @@ func TestLoad_FromTestYAML(t *testing.T) {
 	if dsn == "" {
 		t.Error("MySQL().DSN() is empty")
 	}
-	if !strings.Contains(dsn, "testhost") || !strings.Contains(dsn, "3307") || !strings.Contains(dsn, "testdb") {
-		t.Errorf("MySQL().DSN() = %q, expected host/port/db from test.yaml", dsn)
+	// test.yaml: mysql.connection host localhost, port 3307, database testdb
+	if !strings.Contains(dsn, "3307") || !strings.Contains(dsn, "testdb") {
+		t.Errorf("MySQL().DSN() = %q, expected port 3307 and db testdb from test.yaml", dsn)
 	}
 
-	if addr := provider.Redis().Addr(); addr != "testredis:6380" {
-		t.Errorf("Redis().Addr() = %q, want testredis:6380", addr)
+	// test.yaml: redis.addr localhost:6379
+	if addr := provider.Redis().Addr(); addr != "localhost:6379" {
+		t.Errorf("Redis().Addr() = %q, want localhost:6379", addr)
 	}
 
 	if level := provider.Logger().Level(); level != "debug" {

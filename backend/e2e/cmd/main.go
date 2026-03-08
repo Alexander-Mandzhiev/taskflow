@@ -104,5 +104,18 @@ func main() {
 	}
 	log.Printf("ListTasks OK: total=%d", list.Total)
 
+	// Проверка: созданная задача действительно есть в списке (по ID).
+	var found bool
+	for _, t := range list.Items {
+		if t.ID == task.ID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		log.Fatalf("ListTasks: created task id=%s not found in list", task.ID)
+	}
+	log.Printf("ListTasks: created task id=%s found in list", task.ID)
+
 	log.Println("Smoke OK: register → login → team → task → list succeeded.")
 }

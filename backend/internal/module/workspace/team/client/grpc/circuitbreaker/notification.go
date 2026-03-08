@@ -12,7 +12,7 @@ import (
 
 // Настройки по умолчанию для circuit breaker сервиса уведомлений (email при invite).
 const (
-	DefaultNotificationCBName        = "notification"
+	DefaultNotificationCBName       = "notification"
 	DefaultNotificationCBTimeout    = 60 * time.Second // время в состоянии Open перед переходом в HalfOpen
 	DefaultNotificationCBMaxFailure = 5                // после стольких подряд ошибок — переход в Open
 )
