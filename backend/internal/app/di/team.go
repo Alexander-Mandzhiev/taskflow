@@ -60,22 +60,19 @@ func (d *Container) TeamService(ctx context.Context) (teamServiceDef.TeamService
 	if err != nil {
 		return nil, fmt.Errorf("user repository: %w", err)
 	}
-	notifier, err := d.teamNotifierOrInit(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("team notifier: %w", err)
-	}
+	notifier := d.teamNotifierOrInit(ctx)
 	d.teamService = teamServiceImpl.NewTeamService(teamRepo, memberRepo, invitationRepo, txMgr, userRepo, notifier)
 	return d.teamService, nil
 }
 
 // teamNotifierOrInit возвращает кешированный notifier для команды (с circuit breaker); при первом вызове создаёт и кеширует.
-func (d *Container) teamNotifierOrInit(_ context.Context) (teamClientGrpc.Notification, error) {
+func (d *Container) teamNotifierOrInit(_ context.Context) teamClientGrpc.Notification {
 	if d.teamNotifier != nil {
-		return d.teamNotifier, nil
+		return d.teamNotifier
 	}
 	notificationClient := teamNotificationV1.NewClient()
 	d.teamNotifier = teamClientCB.NewNotificationWithCircuitBreaker(notificationClient, teamClientCB.DefaultNotificationCBSettings())
-	return d.teamNotifier, nil
+	return d.teamNotifier
 }
 
 // initTeamRepos создаёт team/member/invitation адаптеры при первом обращении к любому из репозиториев.
