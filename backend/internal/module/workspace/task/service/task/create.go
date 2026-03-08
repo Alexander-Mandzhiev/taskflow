@@ -29,14 +29,14 @@ func (s *taskService) Create(ctx context.Context, userID, teamID uuid.UUID, inpu
 
 	var created *model.Task
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
-		if _, err := s.teamRepo.GetMember(ctx, tx, teamID, userID); err != nil {
+		if _, err := s.memberRepo.GetMember(ctx, tx, teamID, userID); err != nil {
 			if errors.Is(err, teamModel.ErrMemberNotFound) {
 				return model.ErrTaskNotFound
 			}
 			return err
 		}
 		if input.AssigneeID != nil {
-			if _, err := s.teamRepo.GetMember(ctx, tx, teamID, *input.AssigneeID); err != nil {
+			if _, err := s.memberRepo.GetMember(ctx, tx, teamID, *input.AssigneeID); err != nil {
 				if errors.Is(err, teamModel.ErrMemberNotFound) {
 					return model.ErrAssigneeNotInTeam
 				}

@@ -1,4 +1,4 @@
-package adapter
+package member
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
-// AddMember добавляет пользователя в команду с указанной ролью.
+// AddMember добавляет пользователя в команду с указанной ролью. При дубликате — ошибка (model.ErrAlreadyMember или от БД).
 func (r *Adapter) AddMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID, role string) (*model.TeamMember, error) {
 	return r.memberWriter.AddMember(ctx, tx, teamID, userID, role)
 }

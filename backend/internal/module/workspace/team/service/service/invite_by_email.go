@@ -46,7 +46,7 @@ func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID u
 			Token:     uuid.New().String(),
 			ExpiresAt: time.Now().UTC().Add(invitationExpiresIn),
 		}
-		if err := s.repo.CreateInvitation(ctx, tx, inv); err != nil {
+		if err := s.invitationRepo.CreateInvitation(ctx, tx, inv); err != nil {
 			return err
 		}
 
@@ -71,7 +71,7 @@ func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID u
 }
 
 func (s *teamService) checkInviterPermissions(ctx context.Context, tx *sqlx.Tx, teamID, inviterUserID uuid.UUID) error {
-	member, err := s.repo.GetMember(ctx, tx, teamID, inviterUserID)
+	member, err := s.memberRepo.GetMember(ctx, tx, teamID, inviterUserID)
 	if err != nil {
 		if errors.Is(err, model.ErrMemberNotFound) {
 			return model.ErrForbidden
@@ -99,7 +99,7 @@ func (s *teamService) checkUserNotMember(ctx context.Context, tx *sqlx.Tx, teamI
 		}
 		return nil
 	}
-	existing, err := s.repo.GetMember(ctx, tx, teamID, user.ID)
+	existing, err := s.memberRepo.GetMember(ctx, tx, teamID, user.ID)
 	if err != nil && !errors.Is(err, model.ErrMemberNotFound) {
 		return err
 	}
@@ -110,7 +110,7 @@ func (s *teamService) checkUserNotMember(ctx context.Context, tx *sqlx.Tx, teamI
 }
 
 func (s *teamService) checkNoActiveInvitation(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, inviteeEmail string) error {
-	pending, err := s.repo.GetPendingInvitationByTeamAndEmail(ctx, tx, teamID, inviteeEmail)
+	pending, err := s.invitationRepo.GetPendingInvitationByTeamAndEmail(ctx, tx, teamID, inviteeEmail)
 	if err != nil && !errors.Is(err, model.ErrInvitationNotFound) {
 		return err
 	}
@@ -121,7 +121,7 @@ func (s *teamService) checkNoActiveInvitation(ctx context.Context, tx *sqlx.Tx, 
 }
 
 func (s *teamService) prepareNotificationData(ctx context.Context, tx *sqlx.Tx, teamID, inviterUserID uuid.UUID, teamName, inviterName *string) {
-	if team, err := s.repo.GetByID(ctx, tx, teamID); err == nil {
+	if team, err := s.teamRepo.GetByID(ctx, tx, teamID); err == nil {
 		*teamName = team.Name
 	} else {
 		logger.Warn(ctx, "InviteByEmail: get team for notification failed", zap.Error(err))

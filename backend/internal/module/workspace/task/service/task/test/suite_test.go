@@ -22,7 +22,7 @@ type ServiceSuite struct {
 
 	taskRepo    *taskRepoMocks.TaskRepository
 	historyRepo *taskRepoMocks.TaskHistoryRepository
-	teamRepo    *teamRepoMocks.TeamAdapter
+	memberRepo  *teamRepoMocks.MemberRepository
 	txManager   txmanager.TxManager
 	svc         svc.TaskService
 }
@@ -36,9 +36,9 @@ func (s *ServiceSuite) SetupSuite() {
 
 	s.taskRepo = taskRepoMocks.NewTaskRepository(s.T())
 	s.historyRepo = taskRepoMocks.NewTaskHistoryRepository(s.T())
-	s.teamRepo = teamRepoMocks.NewTeamAdapter(s.T())
+	s.memberRepo = teamRepoMocks.NewMemberRepository(s.T())
 	s.txManager = &txmanager.Noop{}
-	s.svc = taskimpl.NewTaskService(s.taskRepo, s.historyRepo, s.teamRepo, s.txManager)
+	s.svc = taskimpl.NewTaskService(s.taskRepo, s.historyRepo, s.memberRepo, s.txManager)
 }
 
 func (s *ServiceSuite) SetupTest() {
@@ -46,7 +46,7 @@ func (s *ServiceSuite) SetupTest() {
 
 	s.taskRepo.ExpectedCalls = nil
 	s.historyRepo.ExpectedCalls = nil
-	s.teamRepo.ExpectedCalls = nil
+	s.memberRepo.ExpectedCalls = nil
 }
 
 func TestTaskService(t *testing.T) {

@@ -1,4 +1,4 @@
-package adapter_test
+package team_test
 
 import (
 	"time"
@@ -11,17 +11,12 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
-const (
-	testTeamID      = "550e8400-e29b-41d4-a716-446655440001"
-	testOwnerUserID = "550e8400-e29b-41d4-a716-446655440000"
-)
-
 func (s *AdapterSuite) TestGetByID_Success() {
-	teamID := uuid.MustParse(testTeamID)
+	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
 	team := &model.Team{
 		ID:        teamID,
 		Name:      "My Team",
-		CreatedBy: uuid.MustParse(testOwnerUserID),
+		CreatedBy: uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -32,22 +27,14 @@ func (s *AdapterSuite) TestGetByID_Success() {
 	got, err := s.repo.GetByID(s.ctx, nil, teamID)
 
 	assert.NoError(s.T(), err)
-	assert.NotNil(s.T(), got)
-	assert.Equal(s.T(), testTeamID, got.ID.String())
-	assert.Equal(s.T(), "My Team", got.Name)
+	assert.Equal(s.T(), team, got)
 	s.teamReader.AssertExpectations(s.T())
 }
 
 func (s *AdapterSuite) TestGetByID_WithTx() {
 	tx := &sqlx.Tx{}
-	teamID := uuid.MustParse(testTeamID)
-	team := &model.Team{
-		ID:        teamID,
-		Name:      "My Team",
-		CreatedBy: uuid.MustParse(testOwnerUserID),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
+	teamID := uuid.New()
+	team := &model.Team{ID: teamID, Name: "Team"}
 
 	s.teamReader.On("GetByID", mock.Anything, tx, teamID).
 		Return(team, nil).Once()
@@ -55,13 +42,12 @@ func (s *AdapterSuite) TestGetByID_WithTx() {
 	got, err := s.repo.GetByID(s.ctx, tx, teamID)
 
 	assert.NoError(s.T(), err)
-	assert.NotNil(s.T(), got)
-	assert.Equal(s.T(), testTeamID, got.ID.String())
+	assert.Equal(s.T(), team, got)
 	s.teamReader.AssertExpectations(s.T())
 }
 
 func (s *AdapterSuite) TestGetByID_TeamNotFound() {
-	teamID := uuid.MustParse(testTeamID)
+	teamID := uuid.New()
 	s.teamReader.On("GetByID", mock.Anything, mock.Anything, teamID).
 		Return((*model.Team)(nil), model.ErrTeamNotFound).Once()
 

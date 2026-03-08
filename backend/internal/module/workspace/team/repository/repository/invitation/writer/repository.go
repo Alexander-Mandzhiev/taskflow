@@ -3,7 +3,7 @@ package writer
 import (
 	"github.com/jmoiron/sqlx"
 
-	invitationDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/invitation"
+	invitationDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/invitation"
 )
 
 var _ invitationDef.InvitationWriterRepository = (*repository)(nil)

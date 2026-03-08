@@ -30,5 +30,9 @@ func BuildClient(log Logger, tracerName string, options ...Option) (RedisClient,
 	if log == nil {
 		log = &logger.NoopLogger{}
 	}
-	return NewClient(rdb, log, cfg.dialTimeout, tracerName), nil
+	scanBatchSize := cfg.scanBatchSize
+	if scanBatchSize <= 0 {
+		scanBatchSize = 100
+	}
+	return newClient(&redisAdapter{rdb}, log, cfg.dialTimeout, tracerName, scanBatchSize), nil
 }

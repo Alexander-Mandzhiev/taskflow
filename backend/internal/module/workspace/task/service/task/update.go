@@ -28,14 +28,14 @@ func (s *taskService) Update(ctx context.Context, userID, taskID uuid.UUID, inpu
 		if errTx != nil {
 			return errTx
 		}
-		if _, errTx := s.teamRepo.GetMember(ctx, tx, current.TeamID, userID); errTx != nil {
+		if _, errTx := s.memberRepo.GetMember(ctx, tx, current.TeamID, userID); errTx != nil {
 			if errors.Is(errTx, teamModel.ErrMemberNotFound) {
 				return model.ErrTaskNotFound
 			}
 			return errTx
 		}
 		if input.AssigneeID != nil {
-			if _, errTx := s.teamRepo.GetMember(ctx, tx, current.TeamID, *input.AssigneeID); errTx != nil {
+			if _, errTx := s.memberRepo.GetMember(ctx, tx, current.TeamID, *input.AssigneeID); errTx != nil {
 				if errors.Is(errTx, teamModel.ErrMemberNotFound) {
 					return model.ErrAssigneeNotInTeam
 				}

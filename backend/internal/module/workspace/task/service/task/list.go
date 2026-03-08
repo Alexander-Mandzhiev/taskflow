@@ -25,7 +25,7 @@ func (s *taskService) List(ctx context.Context, userID uuid.UUID, filter *model.
 	var items []*model.Task
 	var total int
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
-		if _, err := s.teamRepo.GetMember(ctx, tx, *filter.TeamID, userID); err != nil {
+		if _, err := s.memberRepo.GetMember(ctx, tx, *filter.TeamID, userID); err != nil {
 			if errors.Is(err, teamModel.ErrMemberNotFound) {
 				return model.ErrTaskNotFound
 			}

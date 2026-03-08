@@ -11,7 +11,7 @@ import (
 )
 
 func (s *teamService) ListByUserID(ctx context.Context, userID uuid.UUID) ([]*model.TeamWithRole, error) {
-	teams, err := s.repo.ListByUserID(ctx, nil, userID)
+	teams, err := s.teamRepo.ListByUserID(ctx, nil, userID)
 	if err != nil {
 		logger.Error(ctx, "ListByUserID failed", zap.Error(err))
 		return nil, err

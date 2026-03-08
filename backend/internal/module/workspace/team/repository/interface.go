@@ -9,30 +9,23 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
-// TeamAdapter — контракт адаптера доступа к данным команд и участников (team + member + invitation).
-// tx: при tx != nil все операции в транзакции; при tx == nil — вне транзакции. ID передаются как uuid.UUID.
-type TeamAdapter interface {
-	// Create создаёт только запись в teams (created_by = ownerUserID). Добавление owner в team_members — зона ответственности сервиса (AddMember).
+// TeamRepository — доступ к данным команд (таблица teams). Контракт для адаптера.
+// tx: при tx != nil — в транзакции; при tx == nil — вне.
+type TeamRepository interface {
 	Create(ctx context.Context, tx *sqlx.Tx, input *model.TeamInput, ownerUserID uuid.UUID) (*model.Team, error)
-
-	// GetByID возвращает только команду. При отсутствии — (nil, model.ErrTeamNotFound).
 	GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) (*model.Team, error)
-
-	// GetMembersByTeamID возвращает участников команды по team_id. В одной tx с GetByID — консистентный снимок.
-	GetMembersByTeamID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) ([]*model.TeamMember, error)
-
-	// ListByUserID — список команд, где пользователь участник, с его ролью в каждой (GET /api/v1/teams). Без списка членов.
 	ListByUserID(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) ([]*model.TeamWithRole, error)
+}
 
-	// GetMember — участник по (team_id, user_id). Для проверки прав (owner/admin) и «уже в команде». При отсутствии — (nil, model.ErrMemberNotFound).
+// MemberRepository — доступ к данным участников команд (таблица team_members). Контракт для адаптера.
+type MemberRepository interface {
+	GetMembersByTeamID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) ([]*model.TeamMember, error)
 	GetMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID) (*model.TeamMember, error)
-
-	// AddMember добавляет пользователя в команду с указанной ролью (для invite). При дубликате — ошибка (model.ErrAlreadyMember или от БД).
 	AddMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID, role string) (*model.TeamMember, error)
+}
 
-	// CreateInvitation создаёт запись приглашения в team_invitations (status=pending, token и expires_at заданы вызывающим).
+// InvitationRepository — доступ к приглашениям в команды (таблица team_invitations). Контракт для адаптера.
+type InvitationRepository interface {
 	CreateInvitation(ctx context.Context, tx *sqlx.Tx, inv *model.TeamInvitation) error
-
-	// GetPendingInvitationByTeamAndEmail возвращает приглашение со статусом pending для (team_id, email) или model.ErrInvitationNotFound.
 	GetPendingInvitationByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, email string) (*model.TeamInvitation, error)
 }

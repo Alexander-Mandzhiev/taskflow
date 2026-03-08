@@ -10,25 +10,25 @@ import (
 var _ svc.TaskService = (*taskService)(nil)
 
 // taskService — сервис задач и истории изменений.
-// teamRepo — проверка членства (GetMember) в той же транзакции, что и запись (Create/Update).
+// memberRepo — проверка членства (GetMember) в той же транзакции, что и запись (Create/Update).
 type taskService struct {
 	taskRepo    taskRepo.TaskRepository
 	historyRepo taskRepo.TaskHistoryRepository
-	teamRepo    teamRepoDef.TeamAdapter
+	memberRepo  teamRepoDef.MemberRepository
 	txManager   txmanager.TxManager
 }
 
-// NewTaskService создаёт сервис задач. teamRepo — адаптер команд для GetMember(ctx, tx, ...); передаём tx, чтобы проверка и запись были в одной транзакции.
+// NewTaskService создаёт сервис задач. memberRepo — репозиторий участников для GetMember(ctx, tx, ...).
 func NewTaskService(
 	taskRepo taskRepo.TaskRepository,
 	historyRepo taskRepo.TaskHistoryRepository,
-	teamRepo teamRepoDef.TeamAdapter,
+	memberRepo teamRepoDef.MemberRepository,
 	txManager txmanager.TxManager,
 ) svc.TaskService {
 	return &taskService{
 		taskRepo:    taskRepo,
 		historyRepo: historyRepo,
-		teamRepo:    teamRepo,
+		memberRepo:  memberRepo,
 		txManager:   txManager,
 	}
 }

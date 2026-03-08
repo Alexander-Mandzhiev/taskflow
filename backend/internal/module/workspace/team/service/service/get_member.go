@@ -11,7 +11,7 @@ import (
 )
 
 func (s *teamService) GetMember(ctx context.Context, teamID, userID uuid.UUID) (*model.TeamMember, error) {
-	member, err := s.repo.GetMember(ctx, nil, teamID, userID)
+	member, err := s.memberRepo.GetMember(ctx, nil, teamID, userID)
 	if err != nil {
 		logger.Error(ctx, "GetMember failed", zap.Error(err))
 		return nil, err

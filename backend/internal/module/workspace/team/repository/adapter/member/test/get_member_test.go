@@ -1,8 +1,6 @@
-package adapter_test
+package member_test
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -12,15 +10,9 @@ import (
 )
 
 func (s *AdapterSuite) TestGetMember_Success() {
-	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
-	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	member := &model.TeamMember{
-		ID:        uuid.New(),
-		UserID:    userID,
-		TeamID:    teamID,
-		Role:      model.RoleOwner,
-		CreatedAt: time.Now(),
-	}
+	teamID := uuid.New()
+	userID := uuid.New()
+	member := &model.TeamMember{TeamID: teamID, UserID: userID, Role: model.RoleAdmin}
 
 	s.memberReader.On("GetMember", mock.Anything, (*sqlx.Tx)(nil), teamID, userID).
 		Return(member, nil).Once()
@@ -29,21 +21,14 @@ func (s *AdapterSuite) TestGetMember_Success() {
 
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), member, got)
-	assert.Equal(s.T(), model.RoleOwner, got.Role)
 	s.memberReader.AssertExpectations(s.T())
 }
 
 func (s *AdapterSuite) TestGetMember_WithTx() {
 	tx := &sqlx.Tx{}
-	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
-	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	member := &model.TeamMember{
-		ID:        uuid.New(),
-		UserID:    userID,
-		TeamID:    teamID,
-		Role:      model.RoleAdmin,
-		CreatedAt: time.Now(),
-	}
+	teamID := uuid.New()
+	userID := uuid.New()
+	member := &model.TeamMember{TeamID: teamID, UserID: userID, Role: model.RoleMember}
 
 	s.memberReader.On("GetMember", mock.Anything, tx, teamID, userID).
 		Return(member, nil).Once()
@@ -56,9 +41,8 @@ func (s *AdapterSuite) TestGetMember_WithTx() {
 }
 
 func (s *AdapterSuite) TestGetMember_NotFound() {
-	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
-	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-
+	teamID := uuid.New()
+	userID := uuid.New()
 	s.memberReader.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
 		Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
 

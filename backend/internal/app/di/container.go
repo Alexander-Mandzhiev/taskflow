@@ -54,9 +54,11 @@ type Container struct {
 	accountMiddlewares *accountMiddlewares
 
 	// Team module
-	teamRepo    teamRepoDef.TeamAdapter
-	teamService teamServiceDef.TeamService
-	teamAPI     *team_v1.API
+	teamRepo       teamRepoDef.TeamRepository
+	memberRepo     teamRepoDef.MemberRepository
+	invitationRepo teamRepoDef.InvitationRepository
+	teamService    teamServiceDef.TeamService
+	teamAPI        *team_v1.API
 
 	// Task module
 	taskRepo           taskRepoDef.TaskRepository

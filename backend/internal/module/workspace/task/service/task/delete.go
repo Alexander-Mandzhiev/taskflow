@@ -19,7 +19,7 @@ func (s *taskService) Delete(ctx context.Context, userID, taskID uuid.UUID) erro
 		if errTx != nil {
 			return errTx
 		}
-		if _, errTx := s.teamRepo.GetMember(ctx, tx, task.TeamID, userID); errTx != nil {
+		if _, errTx := s.memberRepo.GetMember(ctx, tx, task.TeamID, userID); errTx != nil {
 			if errors.Is(errTx, teamModel.ErrMemberNotFound) {
 				return model.ErrTaskNotFound
 			}

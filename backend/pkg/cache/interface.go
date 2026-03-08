@@ -19,6 +19,10 @@ type RedisClient interface {
 
 	Del(ctx context.Context, key string) error
 
+	// DelByPrefix удаляет все ключи, начинающиеся с prefix. Использует SCAN (не блокирует Redis).
+	// prefix — строка без звёздочки, например "tasks:list:550e8400-e29b-41d4-a716-446655440000:".
+	DelByPrefix(ctx context.Context, prefix string) error
+
 	Ping(ctx context.Context) error
 
 	// Hash operations

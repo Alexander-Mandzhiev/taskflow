@@ -8,6 +8,15 @@ import (
 )
 
 // SoftDelete помечает задачу удалённой. При отсутствии — model.ErrTaskNotFound.
+// После успешного удаления регистрирует post-commit хук инвалидации кеша списка по команде.
 func (r *Adapter) SoftDelete(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) error {
-	return r.taskWriter.SoftDelete(ctx, tx, taskID)
+	task, err := r.taskReader.GetByID(ctx, tx, taskID)
+	if err != nil {
+		return err
+	}
+	if err := r.taskWriter.SoftDelete(ctx, tx, taskID); err != nil {
+		return err
+	}
+	r.registerInvalidateHook(ctx, task.TeamID)
+	return nil
 }

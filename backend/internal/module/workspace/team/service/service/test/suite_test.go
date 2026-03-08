@@ -22,11 +22,13 @@ type ServiceSuite struct {
 	suite.Suite
 	ctx context.Context // nolint:containedctx
 
-	teamRepo  *teamrepos.TeamAdapter
-	userRepo  *usermocks.UserRepository
-	txManager txmanager.TxManager
-	notifier  teamgrpc.Notification
-	svc       teamsvc.TeamService
+	teamRepo       *teamrepos.TeamRepository
+	memberRepo     *teamrepos.MemberRepository
+	invitationRepo *teamrepos.InvitationRepository
+	userRepo       *usermocks.UserRepository
+	txManager      txmanager.TxManager
+	notifier       teamgrpc.Notification
+	svc            teamsvc.TeamService
 }
 
 func (s *ServiceSuite) SetupSuite() {
@@ -36,17 +38,21 @@ func (s *ServiceSuite) SetupSuite() {
 		panic(err)
 	}
 
-	s.teamRepo = teamrepos.NewTeamAdapter(s.T())
+	s.teamRepo = teamrepos.NewTeamRepository(s.T())
+	s.memberRepo = teamrepos.NewMemberRepository(s.T())
+	s.invitationRepo = teamrepos.NewInvitationRepository(s.T())
 	s.userRepo = usermocks.NewUserRepository(s.T())
 	s.txManager = &txmanager.Noop{}
 	s.notifier = notificationv1.NewClient()
-	s.svc = teamimpl.NewTeamService(s.teamRepo, s.txManager, s.userRepo, s.notifier)
+	s.svc = teamimpl.NewTeamService(s.teamRepo, s.memberRepo, s.invitationRepo, s.txManager, s.userRepo, s.notifier)
 }
 
 func (s *ServiceSuite) SetupTest() {
 	s.ctx = context.Background()
 
 	s.teamRepo.ExpectedCalls = nil
+	s.memberRepo.ExpectedCalls = nil
+	s.invitationRepo.ExpectedCalls = nil
 	s.userRepo.ExpectedCalls = nil
 }
 

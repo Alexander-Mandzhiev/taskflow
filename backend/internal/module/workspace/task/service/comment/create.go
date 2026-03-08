@@ -14,14 +14,14 @@ import (
 )
 
 // Create создаёт комментарий к задаче. userID должен быть участником команды задачи.
-func (s *Service) Create(ctx context.Context, taskID, userID uuid.UUID, content string) (*model.TaskComment, error) {
+func (s *commentService) Create(ctx context.Context, taskID, userID uuid.UUID, content string) (*model.TaskComment, error) {
 	var comment *model.TaskComment
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		task, errTx := s.taskRepo.GetByID(ctx, tx, taskID)
 		if errTx != nil {
 			return errTx
 		}
-		if _, errTx := s.teamRepo.GetMember(ctx, tx, task.TeamID, userID); errTx != nil {
+		if _, errTx := s.memberRepo.GetMember(ctx, tx, task.TeamID, userID); errTx != nil {
 			if errors.Is(errTx, teamModel.ErrMemberNotFound) {
 				return model.ErrTaskNotFound
 			}

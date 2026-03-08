@@ -22,7 +22,7 @@ type ServiceSuite struct {
 
 	taskRepo    *taskRepoMocks.TaskRepository
 	commentRepo *taskRepoMocks.TaskCommentRepository
-	teamRepo    *teamRepoMocks.TeamAdapter
+	memberRepo  *teamRepoMocks.MemberRepository
 	txManager   txmanager.TxManager
 	svc         svc.TaskCommentService
 }
@@ -36,9 +36,9 @@ func (s *ServiceSuite) SetupSuite() {
 
 	s.taskRepo = taskRepoMocks.NewTaskRepository(s.T())
 	s.commentRepo = taskRepoMocks.NewTaskCommentRepository(s.T())
-	s.teamRepo = teamRepoMocks.NewTeamAdapter(s.T())
+	s.memberRepo = teamRepoMocks.NewMemberRepository(s.T())
 	s.txManager = &txmanager.Noop{}
-	s.svc = commentImpl.NewService(s.taskRepo, s.commentRepo, s.teamRepo, s.txManager)
+	s.svc = commentImpl.NewCommentService(s.taskRepo, s.commentRepo, s.memberRepo, s.txManager)
 }
 
 func (s *ServiceSuite) SetupTest() {
@@ -46,7 +46,7 @@ func (s *ServiceSuite) SetupTest() {
 
 	s.taskRepo.ExpectedCalls = nil
 	s.commentRepo.ExpectedCalls = nil
-	s.teamRepo.ExpectedCalls = nil
+	s.memberRepo.ExpectedCalls = nil
 }
 
 func TestCommentService(t *testing.T) {

@@ -29,13 +29,13 @@ func (s *ServiceSuite) TestInviteByEmail_Success() {
 		CreatedAt: time.Now(),
 	}
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return(ownerMember, nil).Once()
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, inviteeEmail).
 		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
-	s.teamRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
+	s.invitationRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
 		Return((*model.TeamInvitation)(nil), model.ErrInvitationNotFound).Once()
-	s.teamRepo.On("CreateInvitation", mock.Anything, mock.Anything, mock.MatchedBy(func(inv *model.TeamInvitation) bool {
+	s.invitationRepo.On("CreateInvitation", mock.Anything, mock.Anything, mock.MatchedBy(func(inv *model.TeamInvitation) bool {
 		return inv != nil && inv.TeamID == teamID && inv.Email == inviteeEmail && inv.Role == model.RoleMember && inv.InvitedBy == inviterID
 	})).Return(nil).Once()
 	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).
@@ -52,6 +52,8 @@ func (s *ServiceSuite) TestInviteByEmail_Success() {
 	assert.Equal(s.T(), model.RoleMember, inv.Role)
 	assert.Equal(s.T(), model.InvitationStatusPending, inv.Status)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
+	s.invitationRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestInviteByEmail_Forbidden_NotOwnerOrAdmin() {
@@ -65,7 +67,7 @@ func (s *ServiceSuite) TestInviteByEmail_Forbidden_NotOwnerOrAdmin() {
 		CreatedAt: time.Now(),
 	}
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return(memberOnly, nil).Once()
 
 	inv, err := s.svc.InviteByEmail(s.ctx, teamID, inviterID, inviteeEmail, model.RoleMember)
@@ -74,6 +76,8 @@ func (s *ServiceSuite) TestInviteByEmail_Forbidden_NotOwnerOrAdmin() {
 	assert.ErrorIs(s.T(), err, model.ErrForbidden)
 	assert.Nil(s.T(), inv)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
+	s.invitationRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestInviteByEmail_Success_AdminInvites() {
@@ -87,13 +91,13 @@ func (s *ServiceSuite) TestInviteByEmail_Success_AdminInvites() {
 		CreatedAt: time.Now(),
 	}
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return(adminMember, nil).Once()
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, inviteeEmail).
 		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
-	s.teamRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
+	s.invitationRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
 		Return((*model.TeamInvitation)(nil), model.ErrInvitationNotFound).Once()
-	s.teamRepo.On("CreateInvitation", mock.Anything, mock.Anything, mock.MatchedBy(func(inv *model.TeamInvitation) bool {
+	s.invitationRepo.On("CreateInvitation", mock.Anything, mock.Anything, mock.MatchedBy(func(inv *model.TeamInvitation) bool {
 		return inv != nil && inv.TeamID == teamID && inv.Email == inviteeEmail && inv.Role == model.RoleMember && inv.InvitedBy == inviterID
 	})).Return(nil).Once()
 	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).
@@ -109,13 +113,15 @@ func (s *ServiceSuite) TestInviteByEmail_Success_AdminInvites() {
 	assert.Equal(s.T(), inviteeEmail, inv.Email)
 	assert.Equal(s.T(), model.RoleMember, inv.Role)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
+	s.invitationRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestInviteByEmail_Forbidden_MemberNotFound() {
 	teamID := uuid.MustParse(testTeamID)
 	inviterID := uuid.MustParse(testInviterID)
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
 
 	inv, err := s.svc.InviteByEmail(s.ctx, teamID, inviterID, inviteeEmail, model.RoleMember)
@@ -124,6 +130,8 @@ func (s *ServiceSuite) TestInviteByEmail_Forbidden_MemberNotFound() {
 	assert.ErrorIs(s.T(), err, model.ErrForbidden)
 	assert.Nil(s.T(), inv)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
+	s.invitationRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestInviteByEmail_InvalidRole() {
@@ -137,7 +145,7 @@ func (s *ServiceSuite) TestInviteByEmail_InvalidRole() {
 		CreatedAt: time.Now(),
 	}
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return(ownerMember, nil).Once()
 
 	inv, err := s.svc.InviteByEmail(s.ctx, teamID, inviterID, inviteeEmail, "owner")
@@ -146,6 +154,8 @@ func (s *ServiceSuite) TestInviteByEmail_InvalidRole() {
 	assert.ErrorIs(s.T(), err, model.ErrInvalidRole)
 	assert.Nil(s.T(), inv)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
+	s.invitationRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestInviteByEmail_AlreadyMember() {
@@ -168,11 +178,11 @@ func (s *ServiceSuite) TestInviteByEmail_AlreadyMember() {
 		CreatedAt: time.Now(),
 	}
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return(ownerMember, nil).Once()
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, inviteeEmail).
 		Return(existingUser, nil).Once()
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviteeID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviteeID).
 		Return(existingMember, nil).Once()
 
 	inv, err := s.svc.InviteByEmail(s.ctx, teamID, inviterID, inviteeEmail, model.RoleMember)
@@ -181,6 +191,8 @@ func (s *ServiceSuite) TestInviteByEmail_AlreadyMember() {
 	assert.ErrorIs(s.T(), err, model.ErrAlreadyMember)
 	assert.Nil(s.T(), inv)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
+	s.invitationRepo.AssertExpectations(s.T())
 	s.userRepo.AssertExpectations(s.T())
 }
 
@@ -203,11 +215,11 @@ func (s *ServiceSuite) TestInviteByEmail_AlreadyInvited() {
 		ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
 	}
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return(ownerMember, nil).Once()
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, inviteeEmail).
 		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
-	s.teamRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
+	s.invitationRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
 		Return(pendingInv, nil).Once()
 
 	inv, err := s.svc.InviteByEmail(s.ctx, teamID, inviterID, inviteeEmail, model.RoleMember)
@@ -216,6 +228,8 @@ func (s *ServiceSuite) TestInviteByEmail_AlreadyInvited() {
 	assert.ErrorIs(s.T(), err, model.ErrAlreadyInvited)
 	assert.Nil(s.T(), inv)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
+	s.invitationRepo.AssertExpectations(s.T())
 	s.userRepo.AssertExpectations(s.T())
 }
 
@@ -230,13 +244,13 @@ func (s *ServiceSuite) TestInviteByEmail_CreateInvitationError() {
 		CreatedAt: time.Now(),
 	}
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return(ownerMember, nil).Once()
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, inviteeEmail).
 		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
-	s.teamRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
+	s.invitationRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
 		Return((*model.TeamInvitation)(nil), model.ErrInvitationNotFound).Once()
-	s.teamRepo.On("CreateInvitation", mock.Anything, mock.Anything, mock.Anything).
+	s.invitationRepo.On("CreateInvitation", mock.Anything, mock.Anything, mock.Anything).
 		Return(assert.AnError).Once()
 
 	inv, err := s.svc.InviteByEmail(s.ctx, teamID, inviterID, inviteeEmail, model.RoleMember)
@@ -244,6 +258,8 @@ func (s *ServiceSuite) TestInviteByEmail_CreateInvitationError() {
 	assert.Error(s.T(), err)
 	assert.Nil(s.T(), inv)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
+	s.invitationRepo.AssertExpectations(s.T())
 	s.userRepo.AssertExpectations(s.T())
 }
 
@@ -260,15 +276,15 @@ func (s *ServiceSuite) TestInviteByEmail_Success_UserRegisteredNotInTeam() {
 	}
 	existingUser := &usermodel.User{ID: inviteeID, Email: inviteeEmail, Name: "Invited"}
 
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return(ownerMember, nil).Once()
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, inviteeEmail).
 		Return(existingUser, nil).Once()
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviteeID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviteeID).
 		Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
-	s.teamRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
+	s.invitationRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
 		Return((*model.TeamInvitation)(nil), model.ErrInvitationNotFound).Once()
-	s.teamRepo.On("CreateInvitation", mock.Anything, mock.Anything, mock.MatchedBy(func(inv *model.TeamInvitation) bool {
+	s.invitationRepo.On("CreateInvitation", mock.Anything, mock.Anything, mock.MatchedBy(func(inv *model.TeamInvitation) bool {
 		return inv != nil && inv.TeamID == teamID && inv.Email == inviteeEmail && inv.InvitedBy == inviterID
 	})).Return(nil).Once()
 	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).Return(&model.Team{ID: teamID, Name: "Test Team"}, nil).Maybe()
@@ -280,5 +296,7 @@ func (s *ServiceSuite) TestInviteByEmail_Success_UserRegisteredNotInTeam() {
 	assert.NotNil(s.T(), inv)
 	assert.Equal(s.T(), model.RoleAdmin, inv.Role)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
+	s.invitationRepo.AssertExpectations(s.T())
 	s.userRepo.AssertExpectations(s.T())
 }

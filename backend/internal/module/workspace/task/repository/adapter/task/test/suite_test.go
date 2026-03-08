@@ -28,7 +28,7 @@ func (s *AdapterSuite) SetupTest() {
 	}
 	s.taskReader = taskMocks.NewTaskReaderRepository(s.T())
 	s.taskWriter = taskMocks.NewTaskWriterRepository(s.T())
-	s.repo = taskAdapter.NewAdapter(s.taskReader, s.taskWriter)
+	s.repo = taskAdapter.NewAdapter(s.taskReader, s.taskWriter, nil)
 }
 
 func TestAdapter(t *testing.T) {

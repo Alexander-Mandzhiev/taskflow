@@ -25,8 +25,8 @@ func (s *ServiceSuite) TestGetByID_Success() {
 	}
 
 	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).Return(team, nil).Once()
-	s.teamRepo.On("GetMembersByTeamID", mock.Anything, mock.Anything, teamID).Return(members, nil).Once()
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(members[0], nil).Once()
+	s.memberRepo.On("GetMembersByTeamID", mock.Anything, mock.Anything, teamID).Return(members, nil).Once()
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(members[0], nil).Once()
 
 	got, err := s.svc.GetByID(s.ctx, teamID, userID)
 
@@ -36,6 +36,7 @@ func (s *ServiceSuite) TestGetByID_Success() {
 	assert.Equal(s.T(), "My Team", got.Name)
 	assert.Len(s.T(), got.Members, 1)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestGetByID_TeamNotFound() {
@@ -59,8 +60,8 @@ func (s *ServiceSuite) TestGetByID_Forbidden_NotMember() {
 	members := []*model.TeamMember{}
 
 	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).Return(team, nil).Once()
-	s.teamRepo.On("GetMembersByTeamID", mock.Anything, mock.Anything, teamID).Return(members, nil).Once()
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
+	s.memberRepo.On("GetMembersByTeamID", mock.Anything, mock.Anything, teamID).Return(members, nil).Once()
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
 
 	got, err := s.svc.GetByID(s.ctx, teamID, userID)
 
@@ -68,6 +69,7 @@ func (s *ServiceSuite) TestGetByID_Forbidden_NotMember() {
 	assert.ErrorIs(s.T(), err, model.ErrForbidden)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestGetByID_MembersError() {
@@ -76,11 +78,12 @@ func (s *ServiceSuite) TestGetByID_MembersError() {
 	team := &model.Team{ID: teamID, Name: "Team", CreatedBy: userID, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 
 	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).Return(team, nil).Once()
-	s.teamRepo.On("GetMembersByTeamID", mock.Anything, mock.Anything, teamID).Return(([]*model.TeamMember)(nil), assert.AnError).Once()
+	s.memberRepo.On("GetMembersByTeamID", mock.Anything, mock.Anything, teamID).Return(([]*model.TeamMember)(nil), assert.AnError).Once()
 
 	got, err := s.svc.GetByID(s.ctx, teamID, userID)
 
 	assert.Error(s.T(), err)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
 }

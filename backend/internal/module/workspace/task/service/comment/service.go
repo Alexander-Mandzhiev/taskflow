@@ -7,27 +7,27 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/database/txmanager"
 )
 
-var _ service.TaskCommentService = (*Service)(nil)
+var _ service.TaskCommentService = (*commentService)(nil)
 
-// Service — сервис комментариев к задачам. Доступ только для участников команды задачи.
-type Service struct {
+// commentService — сервис комментариев к задачам. Доступ только для участников команды задачи.
+type commentService struct {
 	taskRepo    taskRepo.TaskRepository
 	commentRepo taskRepo.TaskCommentRepository
-	teamRepo    teamRepoDef.TeamAdapter
+	memberRepo  teamRepoDef.MemberRepository
 	txManager   txmanager.TxManager
 }
 
-// NewService создаёт сервис комментариев. taskRepo и teamRepo — для проверки доступа (user в команде задачи).
-func NewService(
+// NewCommentService создаёт сервис комментариев. taskRepo и memberRepo — для проверки доступа (user в команде задачи).
+func NewCommentService(
 	taskRepo taskRepo.TaskRepository,
 	commentRepo taskRepo.TaskCommentRepository,
-	teamRepo teamRepoDef.TeamAdapter,
+	memberRepo teamRepoDef.MemberRepository,
 	txManager txmanager.TxManager,
-) *Service {
-	return &Service{
+) service.TaskCommentService {
+	return &commentService{
 		taskRepo:    taskRepo,
 		commentRepo: commentRepo,
-		teamRepo:    teamRepo,
+		memberRepo:  memberRepo,
 		txManager:   txManager,
 	}
 }

@@ -10,6 +10,12 @@ import (
 )
 
 // Create создаёт задачу. teamID и createdBy — в сигнатуре.
+// После успешной записи регистрирует post-commit хук инвалидации кеша списка по команде.
 func (r *Adapter) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input *model.TaskInput, createdBy uuid.UUID) (*model.Task, error) {
-	return r.taskWriter.Create(ctx, tx, teamID, input, createdBy)
+	created, err := r.taskWriter.Create(ctx, tx, teamID, input, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	r.registerInvalidateHook(ctx, teamID)
+	return created, nil
 }

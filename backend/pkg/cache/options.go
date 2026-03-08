@@ -18,6 +18,7 @@ type Config struct {
 	dialTimeout     time.Duration
 	readTimeout     time.Duration
 	writeTimeout    time.Duration
+	scanBatchSize   int // размер порции для SCAN в DelByPrefix; 0 = 100
 }
 
 // defaultConfig возвращает конфигурацию по умолчанию (без YAML/ENV приложение подключается к локальному Redis).
@@ -32,7 +33,13 @@ func defaultConfig() *Config {
 		dialTimeout:     5 * time.Second,
 		readTimeout:     3 * time.Second,
 		writeTimeout:    3 * time.Second,
+		scanBatchSize:   100,
 	}
+}
+
+// WithScanBatchSize задаёт размер порции для SCAN в DelByPrefix. 0 или не задано — 100.
+func WithScanBatchSize(n int) Option {
+	return func(c *Config) { c.scanBatchSize = n }
 }
 
 // WithAddr задаёт адрес Redis (например "localhost:6379"). Пустой адрес — кеш отключён.

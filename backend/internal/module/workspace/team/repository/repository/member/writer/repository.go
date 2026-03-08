@@ -3,7 +3,7 @@ package writer
 import (
 	"github.com/jmoiron/sqlx"
 
-	memberDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member"
+	memberDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/member"
 )
 
 var _ memberDef.MemberWriterRepository = (*repository)(nil)

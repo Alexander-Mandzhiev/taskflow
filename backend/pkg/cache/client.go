@@ -16,11 +16,32 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/tracing"
 )
 
+// internalClient — минимальный набор методов Redis, используемых пакетом. Реализуют *redis.Client и *redis.ClusterClient через адаптер.
+type internalClient interface {
+	Set(ctx context.Context, key string, value interface{}, ttl time.Duration) *redis.StatusCmd
+	Get(ctx context.Context, key string) *redis.StringCmd
+	Del(ctx context.Context, keys ...string) *redis.IntCmd
+	MGet(ctx context.Context, keys ...string) *redis.SliceCmd
+	Ping(ctx context.Context) *redis.StatusCmd
+	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
+	HGet(ctx context.Context, key, field string) *redis.StringCmd
+	HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd
+	HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd
+	Expire(ctx context.Context, key string, ttl time.Duration) *redis.BoolCmd
+	Scan(ctx context.Context, cursor uint64, match string, count int64) *redis.ScanCmd
+}
+
+// redisAdapter реализует internalClient через встраивание *redis.Client.
+type redisAdapter struct {
+	*redis.Client
+}
+
 type client struct {
-	rdb     redis.Cmdable
-	logger  Logger
-	timeout time.Duration
-	tracer  trace.Tracer
+	rdb           internalClient
+	logger        Logger
+	timeout       time.Duration
+	tracer        trace.Tracer
+	scanBatchSize int // размер порции для SCAN в DelByPrefix; задаётся при инициализации
 }
 
 // Logger — минимальный интерфейс для логов (реализует github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger).
@@ -31,17 +52,26 @@ type Logger interface {
 	Error(ctx context.Context, msg string, fields ...zap.Field)
 }
 
-// NewClient создаёт обёртку над go-redis клиентом (ClusterClient или Client) с трейсингом.
-// tracerName — название модуля для трейсинга (например "mkk.cache"). Если пустой, используется "redis.client".
-func NewClient(rdb redis.Cmdable, logger Logger, timeout time.Duration, tracerName string) RedisClient {
+// NewClient создаёт обёртку над *redis.Client с трейсингом.
+// scanBatchSize — размер порции для SCAN в DelByPrefix; должен быть > 0 (при инициализации задаётся снаружи).
+func NewClient(rdb *redis.Client, logger Logger, timeout time.Duration, tracerName string, scanBatchSize int) RedisClient {
+	return newClient(&redisAdapter{rdb}, logger, timeout, tracerName, scanBatchSize)
+}
+
+// newClient создаёт client с внутренним интерфейсом internalClient. scanBatchSize <= 0 заменяется на 100.
+func newClient(rdb internalClient, logger Logger, timeout time.Duration, tracerName string, scanBatchSize int) RedisClient {
 	if tracerName == "" {
 		tracerName = "redis.client"
 	}
+	if scanBatchSize <= 0 {
+		scanBatchSize = 100
+	}
 	return &client{
-		rdb:     rdb,
-		logger:  logger,
-		timeout: timeout,
-		tracer:  otel.GetTracerProvider().Tracer(tracerName),
+		rdb:           rdb,
+		logger:        logger,
+		timeout:       timeout,
+		tracer:        otel.GetTracerProvider().Tracer(tracerName),
+		scanBatchSize: scanBatchSize,
 	}
 }
 
@@ -229,6 +259,60 @@ func (c *client) Del(ctx context.Context, key string) error {
 	})
 }
 
+func (c *client) DelByPrefix(ctx context.Context, prefix string) error {
+	ctx, cancel := context.WithTimeout(ctx, c.timeout)
+	defer cancel()
+
+	pattern := prefix + "*"
+	ctx, span := c.tracer.Start(ctx, "redis.delbyprefix",
+		trace.WithSpanKind(trace.SpanKindClient),
+		trace.WithAttributes(
+			attribute.String("redis.operation", "delbyprefix"),
+			attribute.String("redis.prefix", prefix),
+		),
+	)
+	defer span.End()
+
+	var cursor uint64
+	var deleted int
+	for {
+		keys, nextCursor, err := c.rdb.Scan(ctx, cursor, pattern, int64(c.scanBatchSize)).Result()
+		if err != nil {
+			c.logger.Error(ctx, "Redis DelByPrefix scan failed",
+				zap.String("prefix", prefix),
+				zap.Error(err),
+			)
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+			return fmt.Errorf("scan: %w", err)
+		}
+		if len(keys) > 0 {
+			if err := c.rdb.Del(ctx, keys...).Err(); err != nil {
+				c.logger.Error(ctx, "Redis DelByPrefix del failed",
+					zap.String("prefix", prefix),
+					zap.Int("keys_count", len(keys)),
+					zap.Error(err),
+				)
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
+				return fmt.Errorf("del: %w", err)
+			}
+			deleted += len(keys)
+		}
+		cursor = nextCursor
+		if cursor == 0 {
+			break
+		}
+	}
+
+	span.SetStatus(codes.Ok, "success")
+	span.SetAttributes(
+		attribute.String("redis.status", "success"),
+		attribute.Int("redis.deleted_count", deleted),
+	)
+	return nil
+}
+
 func (c *client) Ping(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
@@ -240,8 +324,12 @@ func (c *client) Ping(ctx context.Context) error {
 func (c *client) HSet(ctx context.Context, key string, values map[string]interface{}) error {
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
+	args := make([]interface{}, 0, len(values)*2)
+	for k, v := range values {
+		args = append(args, k, v)
+	}
 	return c.withTrace(ctx, "hset", key, func(ctx context.Context) error {
-		return c.rdb.HSet(ctx, key, values).Err()
+		return c.rdb.HSet(ctx, key, args...).Err()
 	})
 }
 

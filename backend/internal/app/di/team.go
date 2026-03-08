@@ -7,13 +7,15 @@ import (
 	team_v1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/api/team/v1"
 	teamNotificationV1 "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/client/grpc/notification/v1"
 	teamRepoDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository"
-	teamRepoAdapter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/adapter"
-	teamRepoInvitationReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/invitation/reader"
-	teamRepoInvitationWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/invitation/writer"
-	teamRepoMemberReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member/reader"
-	teamRepoMemberWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member/writer"
-	teamRepoTeamReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team/reader"
-	teamRepoTeamWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team/writer"
+	teamRepoAdapterInvitation "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/adapter/invitation"
+	teamRepoAdapterMember "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/adapter/member"
+	teamRepoAdapterTeam "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/adapter/team"
+	teamRepoInvitationReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/invitation/reader"
+	teamRepoInvitationWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/invitation/writer"
+	teamRepoMemberReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/member/reader"
+	teamRepoMemberWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/member/writer"
+	teamRepoTeamReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/team/reader"
+	teamRepoTeamWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/team/writer"
 	teamServiceDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service"
 	teamServiceImpl "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service/service"
 )
@@ -31,14 +33,22 @@ func (d *Container) TeamV1API(ctx context.Context) (*team_v1.API, error) {
 	return d.teamAPI, nil
 }
 
-// TeamService возвращает сервис команд. Явно прокидывается адаптер пользователей (userRepo) для invite по email.
+// TeamService возвращает сервис команд.
 func (d *Container) TeamService(ctx context.Context) (teamServiceDef.TeamService, error) {
 	if d.teamService != nil {
 		return d.teamService, nil
 	}
-	repo, err := d.TeamAdapter(ctx)
+	teamRepo, err := d.TeamRepository(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("team adapter: %w", err)
+		return nil, fmt.Errorf("team repo: %w", err)
+	}
+	memberRepo, err := d.MemberRepository(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("member repo: %w", err)
+	}
+	invitationRepo, err := d.InvitationRepository(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("invitation repo: %w", err)
 	}
 	txMgr, err := d.UserTxManager(ctx)
 	if err != nil {
@@ -49,18 +59,18 @@ func (d *Container) TeamService(ctx context.Context) (teamServiceDef.TeamService
 		return nil, fmt.Errorf("user repository: %w", err)
 	}
 	notifier := teamNotificationV1.NewClient()
-	d.teamService = teamServiceImpl.NewTeamService(repo, txMgr, userRepo, notifier)
+	d.teamService = teamServiceImpl.NewTeamService(teamRepo, memberRepo, invitationRepo, txMgr, userRepo, notifier)
 	return d.teamService, nil
 }
 
-// TeamAdapter возвращает адаптер доступа к данным команд (team + member + invitation reader/writer).
-func (d *Container) TeamAdapter(ctx context.Context) (teamRepoDef.TeamAdapter, error) {
+// initTeamRepos создаёт team/member/invitation адаптеры при первом обращении к любому из репозиториев.
+func (d *Container) initTeamRepos(ctx context.Context) error {
 	if d.teamRepo != nil {
-		return d.teamRepo, nil
+		return nil
 	}
 	db, err := d.SqlxDB(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("sqlx db: %w", err)
+		return fmt.Errorf("sqlx db: %w", err)
 	}
 	teamReader := teamRepoTeamReader.NewRepository(db)
 	teamWriter := teamRepoTeamWriter.NewRepository(db)
@@ -68,6 +78,32 @@ func (d *Container) TeamAdapter(ctx context.Context) (teamRepoDef.TeamAdapter, e
 	memberWriter := teamRepoMemberWriter.NewRepository(db)
 	invitationReader := teamRepoInvitationReader.NewRepository(db)
 	invitationWriter := teamRepoInvitationWriter.NewRepository(db)
-	d.teamRepo = teamRepoAdapter.NewAdapter(teamReader, teamWriter, memberReader, memberWriter, invitationReader, invitationWriter)
+	d.teamRepo = teamRepoAdapterTeam.NewAdapter(teamReader, teamWriter)
+	d.memberRepo = teamRepoAdapterMember.NewAdapter(memberReader, memberWriter)
+	d.invitationRepo = teamRepoAdapterInvitation.NewAdapter(invitationReader, invitationWriter)
+	return nil
+}
+
+// TeamRepository возвращает репозиторий команд (таблица teams).
+func (d *Container) TeamRepository(ctx context.Context) (teamRepoDef.TeamRepository, error) {
+	if err := d.initTeamRepos(ctx); err != nil {
+		return nil, err
+	}
 	return d.teamRepo, nil
+}
+
+// MemberRepository возвращает репозиторий участников команд (таблица team_members).
+func (d *Container) MemberRepository(ctx context.Context) (teamRepoDef.MemberRepository, error) {
+	if err := d.initTeamRepos(ctx); err != nil {
+		return nil, err
+	}
+	return d.memberRepo, nil
+}
+
+// InvitationRepository возвращает репозиторий приглашений (таблица team_invitations).
+func (d *Container) InvitationRepository(ctx context.Context) (teamRepoDef.InvitationRepository, error) {
+	if err := d.initTeamRepos(ctx); err != nil {
+		return nil, err
+	}
+	return d.invitationRepo, nil
 }

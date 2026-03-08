@@ -20,12 +20,12 @@ func (s *teamService) Create(ctx context.Context, input *model.TeamInput, ownerU
 	var team *model.Team
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		var errTx error
-		team, errTx = s.repo.Create(ctx, tx, input, ownerUserID)
+		team, errTx = s.teamRepo.Create(ctx, tx, input, ownerUserID)
 		if errTx != nil {
 			return errTx
 		}
 
-		_, errTx = s.repo.AddMember(ctx, tx, team.ID, ownerUserID, model.RoleOwner)
+		_, errTx = s.memberRepo.AddMember(ctx, tx, team.ID, ownerUserID, model.RoleOwner)
 		return errTx
 	}); err != nil {
 		logger.Error(ctx, "Create team failed", zap.Error(err))

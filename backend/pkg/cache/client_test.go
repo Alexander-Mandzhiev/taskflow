@@ -18,7 +18,7 @@ func newTestClient(t *testing.T) (RedisClient, *miniredis.Miniredis, func()) {
 	mr, err := miniredis.Run()
 	require.NoError(t, err)
 	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr()})
-	client := NewClient(rdb, &logger.NoopLogger{}, 2*time.Second, "test.cache")
+	client := NewClient(rdb, &logger.NoopLogger{}, 2*time.Second, "test.cache", 100)
 	return client, mr, func() { mr.Close(); _ = rdb.Close() }
 }
 
@@ -47,6 +47,27 @@ func TestClient_Del(t *testing.T) {
 	require.NoError(t, err)
 	got, _ := client.Get(ctx, "k")
 	assert.Nil(t, got)
+}
+
+func TestClient_DelByPrefix(t *testing.T) {
+	client, _, cleanup := newTestClient(t)
+	defer cleanup()
+	ctx := context.Background()
+
+	prefix := "tasks:list:team-a:"
+	_ = client.Set(ctx, prefix+"page:0", "[]", time.Minute)
+	_ = client.Set(ctx, prefix+"page:1", "[]", time.Minute)
+	_ = client.Set(ctx, "tasks:list:team-b:page:0", "[]", time.Minute)
+
+	err := client.DelByPrefix(ctx, prefix)
+	require.NoError(t, err)
+
+	got1, _ := client.Get(ctx, prefix+"page:0")
+	got2, _ := client.Get(ctx, prefix+"page:1")
+	gotOther, _ := client.Get(ctx, "tasks:list:team-b:page:0")
+	assert.Nil(t, got1)
+	assert.Nil(t, got2)
+	assert.NotNil(t, gotOther, "keys with other prefix must remain")
 }
 
 func TestClient_Ping(t *testing.T) {

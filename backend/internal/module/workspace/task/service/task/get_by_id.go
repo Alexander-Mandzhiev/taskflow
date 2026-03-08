@@ -21,7 +21,7 @@ func (s *taskService) GetByID(ctx context.Context, taskID, userID uuid.UUID) (*m
 		if errTx != nil {
 			return errTx
 		}
-		if _, errTx := s.teamRepo.GetMember(ctx, tx, task.TeamID, userID); errTx != nil {
+		if _, errTx := s.memberRepo.GetMember(ctx, tx, task.TeamID, userID); errTx != nil {
 			if errors.Is(errTx, teamModel.ErrMemberNotFound) {
 				return model.ErrTaskNotFound
 			}

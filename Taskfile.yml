@@ -201,6 +201,23 @@ tasks:
         silent: true
 
   # ===========================================================================
+  # API CLIENT (smoke / e2e)
+  # ===========================================================================
+  api:smoke:
+    desc: "Запуск smoke-проверки API (бэкенд должен быть поднят). API_BASE_URL по умолчанию http://localhost:4000"
+    dir: backend
+    env:
+      API_BASE_URL: '{{.API_BASE_URL | default "http://localhost:4000"}}'
+    cmds:
+      - go run ./cmd/apiclient
+
+  api:smoke:build:
+    desc: "Собрать бинарник apiclient в ./bin"
+    dir: backend
+    cmds:
+      - go build -o {{.BIN_DIR}}/apiclient{{.EXE}} ./cmd/apiclient
+
+  # ===========================================================================
   # DOCKER COMPOSE — атомарные задачи + сценарии local/dev/prod
   # ===========================================================================
   # Сеть: taskflow-local | taskflow-dev | taskflow-prod (должна совпадать с DOCKER_NETWORK_NAME в .env).

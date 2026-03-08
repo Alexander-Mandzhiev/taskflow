@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/model"
+	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/resources"
 )
 
 // TaskRepository — доступ к данным задач (таблица tasks). Контракт для адаптера.
@@ -39,4 +40,12 @@ type ReportRepository interface {
 	TeamTaskStats(ctx context.Context, tx *sqlx.Tx, since time.Time) ([]*model.TeamTaskStats, error)
 	TopCreatorsByTeam(ctx context.Context, tx *sqlx.Tx, since time.Time, limit int) ([]*model.TeamTopCreator, error)
 	TasksWithInvalidAssignee(ctx context.Context, tx *sqlx.Tx) ([]*model.Task, error)
+}
+
+// TaskListCacheRepository — кеш списка задач по страницам (готовые страницы, TTL 5 мин).
+// Get — по промаху возвращает (nil, nil). Set — сохраняет страницу. InvalidateByTeam — сброс по команде при мутациях задачи.
+type TaskListCacheRepository interface {
+	Get(ctx context.Context, teamID uuid.UUID, filter *model.TaskListFilter) (*resources.TaskListPageCache, error)
+	Set(ctx context.Context, teamID uuid.UUID, filter *model.TaskListFilter, data *resources.TaskListPageCache, ttl time.Duration) error
+	InvalidateByTeam(ctx context.Context, teamID uuid.UUID) error
 }

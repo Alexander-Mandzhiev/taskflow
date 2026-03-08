@@ -1,4 +1,4 @@
-package adapter
+package team
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
-// GetByID возвращает только команду. При отсутствии — model.ErrTeamNotFound.
+// GetByID возвращает команду по id. При отсутствии — (nil, model.ErrTeamNotFound).
 func (r *Adapter) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) (*model.Team, error) {
 	return r.teamReader.GetByID(ctx, tx, teamID)
 }

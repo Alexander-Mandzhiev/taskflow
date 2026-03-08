@@ -19,6 +19,7 @@ func (s *ServiceSuite) TestCreate_NilInput() {
 	assert.ErrorIs(s.T(), err, model.ErrNilInput)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertNotCalled(s.T(), "Create")
+	s.memberRepo.AssertNotCalled(s.T(), "AddMember")
 }
 
 func (s *ServiceSuite) TestCreate_Success() {
@@ -37,7 +38,7 @@ func (s *ServiceSuite) TestCreate_Success() {
 	}
 
 	s.teamRepo.On("Create", mock.Anything, mock.Anything, input, ownerID).Return(created, nil).Once()
-	s.teamRepo.On("AddMember", mock.Anything, mock.Anything, teamID, ownerID, model.RoleOwner).Return(member, nil).Once()
+	s.memberRepo.On("AddMember", mock.Anything, mock.Anything, teamID, ownerID, model.RoleOwner).Return(member, nil).Once()
 
 	got, err := s.svc.Create(s.ctx, input, ownerID)
 
@@ -46,6 +47,7 @@ func (s *ServiceSuite) TestCreate_Success() {
 	assert.Equal(s.T(), teamID, got.ID)
 	assert.Equal(s.T(), input.Name, got.Name)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestCreate_RepoCreateError() {
@@ -53,6 +55,7 @@ func (s *ServiceSuite) TestCreate_RepoCreateError() {
 	ownerID := uuid.New()
 
 	s.teamRepo.On("Create", mock.Anything, mock.Anything, input, ownerID).Return((*model.Team)(nil), model.ErrInternal).Once()
+	s.memberRepo.AssertNotCalled(s.T(), "AddMember")
 
 	got, err := s.svc.Create(s.ctx, input, ownerID)
 
@@ -60,6 +63,7 @@ func (s *ServiceSuite) TestCreate_RepoCreateError() {
 	assert.ErrorIs(s.T(), err, model.ErrInternal)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestCreate_AddMemberError() {
@@ -69,11 +73,12 @@ func (s *ServiceSuite) TestCreate_AddMemberError() {
 	created := &model.Team{ID: teamID, Name: input.Name, CreatedBy: ownerID, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 
 	s.teamRepo.On("Create", mock.Anything, mock.Anything, input, ownerID).Return(created, nil).Once()
-	s.teamRepo.On("AddMember", mock.Anything, mock.Anything, teamID, ownerID, model.RoleOwner).Return((*model.TeamMember)(nil), assert.AnError).Once()
+	s.memberRepo.On("AddMember", mock.Anything, mock.Anything, teamID, ownerID, model.RoleOwner).Return((*model.TeamMember)(nil), assert.AnError).Once()
 
 	got, err := s.svc.Create(s.ctx, input, ownerID)
 
 	assert.Error(s.T(), err)
 	assert.Nil(s.T(), got)
 	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
 }

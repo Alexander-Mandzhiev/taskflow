@@ -12,21 +12,28 @@ import (
 func (s *AdapterSuite) TestUpdate_Success() {
 	tx := &sqlx.Tx{}
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
+	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 	input := &model.TaskInput{Title: "Updated", Description: "New desc", Status: model.TaskStatusInProgress}
+	current := &model.Task{TeamID: teamID}
 
+	s.taskReader.On("GetByID", mock.Anything, tx, taskID).Return(current, nil).Once()
 	s.taskWriter.On("Update", mock.Anything, tx, taskID, input).
 		Return(nil).Once()
 
 	err := s.repo.Update(s.ctx, tx, taskID, input)
 
 	assert.NoError(s.T(), err)
+	s.taskReader.AssertExpectations(s.T())
 	s.taskWriter.AssertExpectations(s.T())
 }
 
 func (s *AdapterSuite) TestUpdate_WriterError() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
+	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 	input := &model.TaskInput{Title: "Updated", Status: model.TaskStatusDone}
+	current := &model.Task{TeamID: teamID}
 
+	s.taskReader.On("GetByID", mock.Anything, mock.Anything, taskID).Return(current, nil).Once()
 	s.taskWriter.On("Update", mock.Anything, mock.Anything, taskID, input).
 		Return(model.ErrTaskNotFound).Once()
 
@@ -34,5 +41,6 @@ func (s *AdapterSuite) TestUpdate_WriterError() {
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
+	s.taskReader.AssertExpectations(s.T())
 	s.taskWriter.AssertExpectations(s.T())
 }

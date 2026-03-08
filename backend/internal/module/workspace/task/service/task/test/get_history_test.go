@@ -25,7 +25,7 @@ func (s *ServiceSuite) TestGetHistory_Success() {
 	}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
 	s.historyRepo.On("ListHistoryByTaskID", mock.Anything, mock.Anything, taskID).Return(entries, nil).Once()
 
 	got, err := s.svc.GetHistory(s.ctx, taskID, userID)
@@ -34,7 +34,7 @@ func (s *ServiceSuite) TestGetHistory_Success() {
 	assert.Len(s.T(), got, 1)
 	assert.Equal(s.T(), "title", got[0].FieldName)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
 	s.historyRepo.AssertExpectations(s.T())
 }
 
@@ -51,7 +51,7 @@ func (s *ServiceSuite) TestGetHistory_TaskNotFound() {
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
 	assert.Nil(s.T(), got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamRepo.AssertNotCalled(s.T(), "GetMember")
+	s.memberRepo.AssertNotCalled(s.T(), "GetMember")
 	s.historyRepo.AssertNotCalled(s.T(), "ListHistoryByTaskID")
 }
 
@@ -62,7 +62,7 @@ func (s *ServiceSuite) TestGetHistory_NotMember() {
 	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
 		Return((*teamModel.TeamMember)(nil), teamModel.ErrMemberNotFound).Once()
 
 	got, err := s.svc.GetHistory(s.ctx, taskID, userID)
@@ -71,7 +71,7 @@ func (s *ServiceSuite) TestGetHistory_NotMember() {
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
 	assert.Nil(s.T(), got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
 	s.historyRepo.AssertNotCalled(s.T(), "ListHistoryByTaskID")
 }
 
@@ -83,7 +83,7 @@ func (s *ServiceSuite) TestGetHistory_HistoryRepoError() {
 	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
-	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
 	s.historyRepo.On("ListHistoryByTaskID", mock.Anything, mock.Anything, taskID).
 		Return(([]*model.TaskHistory)(nil), assert.AnError).Once()
 
@@ -92,6 +92,6 @@ func (s *ServiceSuite) TestGetHistory_HistoryRepoError() {
 	assert.Error(s.T(), err)
 	assert.Nil(s.T(), got)
 	s.taskRepo.AssertExpectations(s.T())
-	s.teamRepo.AssertExpectations(s.T())
+	s.memberRepo.AssertExpectations(s.T())
 	s.historyRepo.AssertExpectations(s.T())
 }

@@ -30,7 +30,7 @@ func (d *Container) RedisClient(ctx context.Context) (cache.RedisClient, error) 
 		Password: redisCfg.Password(),
 	})
 
-	client := cache.NewClient(rdb, logger.Logger(), redisCfg.Timeout(), "cache.redis")
+	client := cache.NewClient(rdb, logger.Logger(), redisCfg.Timeout(), "cache.redis", 100)
 
 	if err := client.Ping(ctx); err != nil {
 		_ = rdb.Close()

@@ -39,20 +39,20 @@ packages:
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/service:
     config:
       include-regex: ".*Service"
-  # Team repository — контракт адаптера (TeamAdapter)
+  # Team repository — контракты адаптеров (TeamRepository, MemberRepository, InvitationRepository)
   github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository:
     config:
-      include-regex: ".*Adapter"
-  # Team repository — контракты reader/writer для teams
-  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team:
+      include-regex: ".*Repository"
+  # Team repository — контракты reader/writer для teams (внутри repository/repository)
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/team:
     config:
       include-regex: ".*Repository"
   # Team repository — контракты reader/writer для team_members
-  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/member:
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/member:
     config:
       include-regex: ".*Repository"
   # Team repository — контракты reader/writer для team_invitations
-  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/invitation:
+  github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/invitation:
     config:
       include-regex: ".*Repository"
 

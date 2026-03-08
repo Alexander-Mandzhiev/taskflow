@@ -3,7 +3,7 @@ package reader
 import (
 	"github.com/jmoiron/sqlx"
 
-	teamDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/team"
+	teamDef "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/repository/repository/team"
 )
 
 var _ teamDef.TeamReaderRepository = (*repository)(nil)

@@ -10,6 +10,7 @@ import (
 	taskRepoHistory "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/adapter/history"
 	taskRepoReport "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/adapter/report"
 	taskRepoTask "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/adapter/task"
+	taskRepoListCache "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/cache/list"
 	taskRepoCommentReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/repository/comment/reader"
 	taskRepoCommentWriter "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/repository/comment/writer"
 	taskRepoHistoryReader "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/task/repository/repository/history/reader"
@@ -57,15 +58,15 @@ func (d *Container) TaskService(ctx context.Context) (taskServiceDef.TaskService
 	if err != nil {
 		return nil, fmt.Errorf("task history repo: %w", err)
 	}
-	teamRepo, err := d.TeamAdapter(ctx)
+	memberRepo, err := d.MemberRepository(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("team adapter: %w", err)
+		return nil, fmt.Errorf("member repo: %w", err)
 	}
 	txMgr, err := d.UserTxManager(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("tx manager: %w", err)
 	}
-	d.taskService = taskServiceImpl.NewTaskService(taskRepo, historyRepo, teamRepo, txMgr)
+	d.taskService = taskServiceImpl.NewTaskService(taskRepo, historyRepo, memberRepo, txMgr)
 	return d.taskService, nil
 }
 
@@ -99,19 +100,19 @@ func (d *Container) TaskCommentService(ctx context.Context) (taskServiceDef.Task
 	if err != nil {
 		return nil, fmt.Errorf("task comment repo: %w", err)
 	}
-	teamRepo, err := d.TeamAdapter(ctx)
+	memberRepo, err := d.MemberRepository(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("team adapter: %w", err)
+		return nil, fmt.Errorf("member repo: %w", err)
 	}
 	txMgr, err := d.UserTxManager(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("tx manager: %w", err)
 	}
-	d.taskCommentService = taskServiceComment.NewService(taskRepo, commentRepo, teamRepo, txMgr)
+	d.taskCommentService = taskServiceComment.NewCommentService(taskRepo, commentRepo, memberRepo, txMgr)
 	return d.taskCommentService, nil
 }
 
-// TaskRepository возвращает репозиторий задач (адаптер reader + writer).
+// TaskRepository возвращает репозиторий задач (адаптер reader + writer + кеш списка).
 func (d *Container) TaskRepository(ctx context.Context) (taskRepoDef.TaskRepository, error) {
 	if d.taskRepo != nil {
 		return d.taskRepo, nil
@@ -122,7 +123,11 @@ func (d *Container) TaskRepository(ctx context.Context) (taskRepoDef.TaskReposit
 	}
 	reader := taskRepoTaskReader.NewRepository(db)
 	writer := taskRepoTaskWriter.NewRepository(db)
-	d.taskRepo = taskRepoTask.NewAdapter(reader, writer)
+	var listCache taskRepoDef.TaskListCacheRepository
+	if redisClient, err := d.RedisClient(ctx); err == nil {
+		listCache = taskRepoListCache.NewRepository(redisClient)
+	}
+	d.taskRepo = taskRepoTask.NewAdapter(reader, writer, listCache)
 	return d.taskRepo, nil
 }
 
