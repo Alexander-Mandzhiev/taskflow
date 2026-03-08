@@ -78,7 +78,7 @@ func (s *teamService) checkInviterPermissions(ctx context.Context, tx *sqlx.Tx, 
 		}
 		return err
 	}
-	if member.Role != model.RoleOwner {
+	if member.Role != model.RoleOwner && member.Role != model.RoleAdmin {
 		return model.ErrForbidden
 	}
 	return nil

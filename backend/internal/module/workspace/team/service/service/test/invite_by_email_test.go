@@ -54,7 +54,29 @@ func (s *ServiceSuite) TestInviteByEmail_Success() {
 	s.teamRepo.AssertExpectations(s.T())
 }
 
-func (s *ServiceSuite) TestInviteByEmail_Forbidden_NotOwner() {
+func (s *ServiceSuite) TestInviteByEmail_Forbidden_NotOwnerOrAdmin() {
+	teamID := uuid.MustParse(testTeamID)
+	inviterID := uuid.MustParse(testInviterID)
+	memberOnly := &model.TeamMember{
+		ID:        uuid.New(),
+		UserID:    inviterID,
+		TeamID:    teamID,
+		Role:      model.RoleMember,
+		CreatedAt: time.Now(),
+	}
+
+	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
+		Return(memberOnly, nil).Once()
+
+	inv, err := s.svc.InviteByEmail(s.ctx, teamID, inviterID, inviteeEmail, model.RoleMember)
+
+	assert.Error(s.T(), err)
+	assert.ErrorIs(s.T(), err, model.ErrForbidden)
+	assert.Nil(s.T(), inv)
+	s.teamRepo.AssertExpectations(s.T())
+}
+
+func (s *ServiceSuite) TestInviteByEmail_Success_AdminInvites() {
 	teamID := uuid.MustParse(testTeamID)
 	inviterID := uuid.MustParse(testInviterID)
 	adminMember := &model.TeamMember{
@@ -67,12 +89,25 @@ func (s *ServiceSuite) TestInviteByEmail_Forbidden_NotOwner() {
 
 	s.teamRepo.On("GetMember", mock.Anything, mock.Anything, teamID, inviterID).
 		Return(adminMember, nil).Once()
+	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, inviteeEmail).
+		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
+	s.teamRepo.On("GetPendingInvitationByTeamAndEmail", mock.Anything, mock.Anything, teamID, inviteeEmail).
+		Return((*model.TeamInvitation)(nil), model.ErrInvitationNotFound).Once()
+	s.teamRepo.On("CreateInvitation", mock.Anything, mock.Anything, mock.MatchedBy(func(inv *model.TeamInvitation) bool {
+		return inv != nil && inv.TeamID == teamID && inv.Email == inviteeEmail && inv.Role == model.RoleMember && inv.InvitedBy == inviterID
+	})).Return(nil).Once()
+	s.teamRepo.On("GetByID", mock.Anything, mock.Anything, teamID).
+		Return(&model.Team{ID: teamID, Name: "Test Team"}, nil).Maybe()
+	s.userRepo.On("GetByID", mock.Anything, mock.Anything, testInviterID).
+		Return(&usermodel.User{ID: inviterID, Email: "admin@example.com", Name: "Admin"}, nil).Maybe()
 
 	inv, err := s.svc.InviteByEmail(s.ctx, teamID, inviterID, inviteeEmail, model.RoleMember)
 
-	assert.Error(s.T(), err)
-	assert.ErrorIs(s.T(), err, model.ErrForbidden)
-	assert.Nil(s.T(), inv)
+	assert.NoError(s.T(), err)
+	assert.NotNil(s.T(), inv)
+	assert.Equal(s.T(), teamID, inv.TeamID)
+	assert.Equal(s.T(), inviteeEmail, inv.Email)
+	assert.Equal(s.T(), model.RoleMember, inv.Role)
 	s.teamRepo.AssertExpectations(s.T())
 }
 
