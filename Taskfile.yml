@@ -54,7 +54,7 @@ vars:
   SVC_TEAM: "{{.TEAM}}/service/service"
   SVC_TASK: "{{.TASK}}/service/task,{{.TASK}}/service/report,{{.TASK}}/service/comment"
   ADP_USER: "{{.IDENTITY}}/user/repository/adapter"
-  ADP_TEAM: "{{.TEAM}}/repository/adapter"
+  ADP_TEAM: "{{.TEAM}}/repository/adapter/team,{{.TEAM}}/repository/adapter/member,{{.TEAM}}/repository/adapter/invitation"
   ADP_TASK: "{{.TASK}}/repository/adapter/task,{{.TASK}}/repository/adapter/history,{{.TASK}}/repository/adapter/report,{{.TASK}}/repository/adapter/comment"
 
   COVER_PKG_API: "{{.API_ACCOUNT}},{{.API_TEAM}},{{.API_TASK}}"
@@ -62,7 +62,7 @@ vars:
   COVER_PKG_ADAPTER: "{{.ADP_USER}},{{.ADP_TEAM}},{{.ADP_TASK}}"
   COVER_PKG: "{{.COVER_PKG_API}},{{.COVER_PKG_SERVICE}},{{.COVER_PKG_ADAPTER}}"
   # Тест-пакеты: через пробелы (не запятые). Каждый пакет — путь к каталогу с *_test.go (часто .../test).
-  COVER_TEST_PKGS: "{{.API_ACCOUNT}}/test {{.API_TEAM}}/test {{.API_TASK}}/test {{.SVC_ACCOUNT}}/test {{.SVC_USER}}/test {{.SVC_TEAM}}/test {{.TASK}}/service/task/test {{.TASK}}/service/report/test {{.TASK}}/service/comment/test {{.ADP_USER}}/test {{.ADP_TEAM}}/test {{.TASK}}/repository/adapter/task/test {{.TASK}}/repository/adapter/history/test {{.TASK}}/repository/adapter/report/test {{.TASK}}/repository/adapter/comment/test"
+  COVER_TEST_PKGS: "{{.API_ACCOUNT}}/test {{.API_TEAM}}/test {{.API_TASK}}/test {{.SVC_ACCOUNT}}/test {{.SVC_USER}}/test {{.SVC_TEAM}}/test {{.TASK}}/service/task/test {{.TASK}}/service/report/test {{.TASK}}/service/comment/test {{.ADP_USER}}/test {{.TEAM}}/repository/adapter/team/test {{.TEAM}}/repository/adapter/member/test {{.TEAM}}/repository/adapter/invitation/test {{.TASK}}/repository/adapter/task/test {{.TASK}}/repository/adapter/history/test {{.TASK}}/repository/adapter/report/test {{.TASK}}/repository/adapter/comment/test"
 
 # =============================================================================
 # УСТАНОВКА ИНСТРУМЕНТОВ
