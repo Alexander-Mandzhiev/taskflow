@@ -21,6 +21,8 @@ CREATE INDEX idx_tasks_status ON tasks(status);
 CREATE INDEX idx_tasks_assignee_id ON tasks(assignee_id);
 CREATE INDEX idx_tasks_team_status ON tasks(team_id, status);
 CREATE INDEX idx_tasks_team_status_updated ON tasks(team_id, status, updated_at);
+CREATE INDEX idx_tasks_team_updated ON tasks(team_id, updated_at);
+CREATE INDEX idx_tasks_team_assignee_updated ON tasks(team_id, assignee_id, updated_at);
 CREATE INDEX idx_tasks_team_status_completed ON tasks(team_id, status, completed_at);
 CREATE INDEX idx_tasks_deleted_at ON tasks(deleted_at);
 

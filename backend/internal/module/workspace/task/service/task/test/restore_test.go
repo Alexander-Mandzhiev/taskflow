@@ -15,9 +15,9 @@ func (s *ServiceSuite) TestRestore_Success() {
 	userID := uuid.New()
 	taskID := uuid.New()
 	teamID := uuid.New()
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
-	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
-	restored := &model.Task{ID: taskID, Title: "Task", TeamID: teamID, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	member := teamModel.TeamMember{UserID: userID, TeamID: teamID}
+	restored := model.Task{ID: taskID, Title: "Task", TeamID: teamID, CreatedAt: time.Now(), UpdatedAt: time.Now()}
 
 	s.taskRepo.On("GetByIDIncludeDeleted", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
@@ -37,13 +37,13 @@ func (s *ServiceSuite) TestRestore_TaskNotFound() {
 	taskID := uuid.New()
 
 	s.taskRepo.On("GetByIDIncludeDeleted", mock.Anything, mock.Anything, taskID).
-		Return((*model.Task)(nil), model.ErrTaskNotFound).Once()
+		Return(model.Task{}, model.ErrTaskNotFound).Once()
 
 	got, err := s.svc.Restore(s.ctx, userID, taskID)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.Task{}, got)
 	s.taskRepo.AssertExpectations(s.T())
 	s.memberRepo.AssertNotCalled(s.T(), "GetMember")
 }
@@ -52,17 +52,17 @@ func (s *ServiceSuite) TestRestore_NotMember() {
 	userID := uuid.New()
 	taskID := uuid.New()
 	teamID := uuid.New()
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
 
 	s.taskRepo.On("GetByIDIncludeDeleted", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
-		Return((*teamModel.TeamMember)(nil), teamModel.ErrMemberNotFound).Once()
+		Return(teamModel.TeamMember{}, teamModel.ErrMemberNotFound).Once()
 
 	got, err := s.svc.Restore(s.ctx, userID, taskID)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.Task{}, got)
 	s.taskRepo.AssertExpectations(s.T())
 	s.memberRepo.AssertExpectations(s.T())
 	s.taskRepo.AssertNotCalled(s.T(), "Restore")

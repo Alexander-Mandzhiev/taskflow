@@ -12,28 +12,28 @@ import (
 )
 
 // Get возвращает сессию из кеша по sessionID.
-// При отсутствии или истечении ключа — model.ErrSessionNotFound.
+// При отсутствии или истечении ключа — (model.Session{}, model.ErrSessionNotFound).
 // При повреждённых данных удаляет запись и возвращает model.ErrSessionNotFound (self-healing).
-func (r *repository) Get(ctx context.Context, jti uuid.UUID) (*model.Session, error) {
+func (r *repository) Get(ctx context.Context, jti uuid.UUID) (model.Session, error) {
 	key := Key(jti)
 	data, err := r.redis.Get(ctx, key)
 	if err != nil {
-		return nil, err
+		return model.Session{}, err
 	}
 	if data == nil {
-		return nil, model.ErrSessionNotFound
+		return model.Session{}, model.ErrSessionNotFound
 	}
 
 	var c resources.SessionCache
 	if err := json.Unmarshal(data, &c); err != nil {
 		_ = r.redis.Del(ctx, key)
-		return nil, model.ErrSessionNotFound
+		return model.Session{}, model.ErrSessionNotFound
 	}
 
 	session, err := converter.FromCache(c)
 	if err != nil {
 		_ = r.redis.Del(ctx, key)
-		return nil, model.ErrSessionNotFound
+		return model.Session{}, model.ErrSessionNotFound
 	}
 
 	return session, nil

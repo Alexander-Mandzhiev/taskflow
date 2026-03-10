@@ -13,8 +13,8 @@ func (s *AdapterSuite) TestUpdate_Success() {
 	tx := &sqlx.Tx{}
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	input := &model.TaskInput{Title: "Updated", Description: "New desc", Status: model.TaskStatusInProgress}
-	current := &model.Task{TeamID: teamID}
+	input := model.TaskInput{Title: "Updated", Description: "New desc", Status: model.TaskStatusInProgress}
+	current := model.Task{TeamID: teamID}
 
 	s.taskReader.On("GetByID", mock.Anything, tx, taskID).Return(current, nil).Once()
 	s.taskWriter.On("Update", mock.Anything, tx, taskID, input).
@@ -30,8 +30,8 @@ func (s *AdapterSuite) TestUpdate_Success() {
 func (s *AdapterSuite) TestUpdate_WriterError() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	input := &model.TaskInput{Title: "Updated", Status: model.TaskStatusDone}
-	current := &model.Task{TeamID: teamID}
+	input := model.TaskInput{Title: "Updated", Status: model.TaskStatusDone}
+	current := model.Task{TeamID: teamID}
 
 	s.taskReader.On("GetByID", mock.Anything, mock.Anything, taskID).Return(current, nil).Once()
 	s.taskWriter.On("Update", mock.Anything, mock.Anything, taskID, input).

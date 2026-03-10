@@ -4,5 +4,5 @@ package model
 // Используется для детальной страницы команды (GET /api/v1/teams/{id}): один вызов репозитория возвращает команду + членов.
 type TeamWithMembers struct {
 	Team
-	Members []*TeamMember
+	Members []TeamMember
 }

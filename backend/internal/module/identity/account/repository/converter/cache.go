@@ -8,10 +8,7 @@ import (
 )
 
 // ToCache преобразует доменную модель Session в модель для записи в кеш.
-func ToCache(session *model.Session) resources.SessionCache {
-	if session == nil {
-		return resources.SessionCache{}
-	}
+func ToCache(session model.Session) resources.SessionCache {
 	return resources.SessionCache{
 		UserID:     session.UserID.String(),
 		CreatedAt:  session.CreatedAt,
@@ -22,12 +19,12 @@ func ToCache(session *model.Session) resources.SessionCache {
 }
 
 // FromCache преобразует модель из кеша в доменную Session.
-func FromCache(c resources.SessionCache) (*model.Session, error) {
+func FromCache(c resources.SessionCache) (model.Session, error) {
 	userID, err := uuid.Parse(c.UserID)
 	if err != nil {
-		return nil, err
+		return model.Session{}, err
 	}
-	return &model.Session{
+	return model.Session{
 		UserID:     userID,
 		CreatedAt:  c.CreatedAt,
 		DeviceType: c.DeviceType,

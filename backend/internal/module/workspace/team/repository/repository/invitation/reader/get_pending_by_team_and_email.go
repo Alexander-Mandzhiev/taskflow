@@ -16,7 +16,7 @@ import (
 )
 
 // GetPendingByTeamAndEmail возвращает приглашение со статусом pending для (team_id, email) или ErrInvitationNotFound.
-func (r *repository) GetPendingByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, email string) (*model.TeamInvitation, error) {
+func (r *repository) GetPendingByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, email string) (model.TeamInvitation, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "team_id", "email", "role", "invited_by", "status", "token", "expires_at", "created_at", "updated_at").
 		From("team_invitations").
@@ -24,7 +24,7 @@ func (r *repository) GetPendingByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, 
 		Limit(1).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build get pending invitation query: %w", err)
+		return model.TeamInvitation{}, fmt.Errorf("build get pending invitation query: %w", err)
 	}
 
 	var row resources.TeamInvitationRow
@@ -35,14 +35,14 @@ func (r *repository) GetPendingByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, 
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrInvitationNotFound
+			return model.TeamInvitation{}, model.ErrInvitationNotFound
 		}
-		return nil, toDomainError(err)
+		return model.TeamInvitation{}, toDomainError(err)
 	}
 
 	inv, err := converter.ToDomainTeamInvitation(row)
 	if err != nil {
-		return nil, err
+		return model.TeamInvitation{}, err
 	}
-	return &inv, nil
+	return inv, nil
 }

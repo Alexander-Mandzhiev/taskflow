@@ -49,10 +49,6 @@ func (m *Manager) executeTransaction(
 	)
 	defer span.End()
 
-	logger.Debug(ctx, "Transaction started",
-		zap.String("isolation_level", isolationLevel),
-	)
-
 	start := time.Now()
 
 	tx, err := m.db.BeginTxx(ctx, opts)
@@ -96,8 +92,6 @@ func (m *Manager) executeTransaction(
 		attribute.String("db.status", "commit"),
 		attribute.Float64("db.duration_us", float64(duration.Microseconds())),
 	)
-
-	logger.Debug(ctx, "Transaction committed", zap.Duration("duration", duration))
 
 	return &transactionResult{
 		duration: duration,

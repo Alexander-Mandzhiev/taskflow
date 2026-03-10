@@ -12,23 +12,23 @@ import (
 // TaskReaderRepository — чтение из таблицы tasks.
 // tx != nil — запрос в транзакции; tx == nil — вне транзакции.
 type TaskReaderRepository interface {
-	// GetByID возвращает задачу по id (без удалённых). При отсутствии — (nil, model.ErrTaskNotFound).
-	GetByID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (*model.Task, error)
+	// GetByID возвращает задачу по id (без удалённых). При отсутствии — (model.Task{}, model.ErrTaskNotFound).
+	GetByID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (model.Task, error)
 
-	// GetByIDIncludeDeleted возвращает задачу по id в том числе удалённую. При отсутствии — (nil, model.ErrTaskNotFound).
-	GetByIDIncludeDeleted(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (*model.Task, error)
+	// GetByIDIncludeDeleted возвращает задачу по id в том числе удалённую. При отсутствии — (model.Task{}, model.ErrTaskNotFound).
+	GetByIDIncludeDeleted(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (model.Task, error)
 
 	// List возвращает список задач по фильтру (критерии + limit/offset в filter). total — количество без LIMIT.
-	List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskListFilter) ([]*model.Task, int, error)
+	List(ctx context.Context, tx *sqlx.Tx, filter model.TaskListFilter) ([]model.Task, int, error)
 }
 
 // TaskWriterRepository — запись в таблицу tasks. Мутации в транзакции (tx из txmanager.WithTx).
 type TaskWriterRepository interface {
 	// Create создаёт задачу. teamID и createdBy — в сигнатуре.
-	Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input *model.TaskInput, createdBy uuid.UUID) (*model.Task, error)
+	Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input model.TaskInput, createdBy uuid.UUID) (model.Task, error)
 
 	// Update полностью обновляет изменяемые поля (title, description, status, assignee_id). taskID в сигнатуре.
-	Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input *model.TaskInput) error
+	Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input model.TaskInput) error
 
 	// SoftDelete помечает задачу удалённой (deleted_at = now()). При отсутствии — model.ErrTaskNotFound.
 	SoftDelete(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) error

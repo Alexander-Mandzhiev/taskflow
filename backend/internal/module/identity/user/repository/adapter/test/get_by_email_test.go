@@ -9,7 +9,7 @@ import (
 
 func (s *AdapterSuite) TestGetByEmail_Success() {
 	email := "u@ex.com"
-	user := &model.User{Email: email, Name: "User"}
+	user := model.User{Email: email, Name: "User"}
 
 	s.reader.On("GetByEmail", mock.Anything, mock.Anything, email).
 		Return(user, nil).Once()
@@ -24,12 +24,12 @@ func (s *AdapterSuite) TestGetByEmail_Success() {
 func (s *AdapterSuite) TestGetByEmail_NotFound() {
 	email := "missing@ex.com"
 	s.reader.On("GetByEmail", mock.Anything, mock.Anything, email).
-		Return((*model.User)(nil), model.ErrUserNotFound).Once()
+		Return(model.User{}, model.ErrUserNotFound).Once()
 
 	got, err := s.repo.GetByEmail(s.ctx, nil, email)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrUserNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.User{}, got)
 	s.reader.AssertExpectations(s.T())
 }

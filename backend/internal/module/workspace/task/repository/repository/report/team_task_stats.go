@@ -15,7 +15,7 @@ import (
 // TeamTaskStats возвращает для каждой команды: название, кол-во участников, кол-во задач в статусе done за период since.
 // Период для done-задач — по completed_at (момент перевода в done).
 // Запрос: LEFT JOIN + агрегация вместо коррелированных подзапросов для лучшей производительности при большом числе команд.
-func (r *repository) TeamTaskStats(ctx context.Context, tx *sqlx.Tx, since time.Time) ([]*model.TeamTaskStats, error) {
+func (r *repository) TeamTaskStats(ctx context.Context, tx *sqlx.Tx, since time.Time) ([]model.TeamTaskStats, error) {
 	const query = `
 		SELECT t.id AS team_id, t.name AS team_name,
 			COUNT(DISTINCT tm.user_id) AS member_count,
@@ -38,13 +38,13 @@ func (r *repository) TeamTaskStats(ctx context.Context, tx *sqlx.Tx, since time.
 		}
 	}
 
-	out := make([]*model.TeamTaskStats, 0, len(rows))
+	out := make([]model.TeamTaskStats, 0, len(rows))
 	for i := range rows {
 		stats, err := converter.ToTeamTaskStats(rows[i])
 		if err != nil {
 			return nil, fmt.Errorf("convert row %d: %w", i, err)
 		}
-		out = append(out, &stats)
+		out = append(out, stats)
 	}
 	return out, nil
 }

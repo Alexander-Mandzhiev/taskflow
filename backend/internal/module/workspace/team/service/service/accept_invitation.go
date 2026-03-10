@@ -9,6 +9,6 @@ import (
 )
 
 // AcceptInvitation — заглушка: принятие приглашения по токену пока не реализовано.
-func (s *teamService) AcceptInvitation(ctx context.Context, token string, userID uuid.UUID) (*model.TeamMember, error) {
-	return nil, model.ErrNotImplemented
+func (s *teamService) AcceptInvitation(ctx context.Context, token string, userID uuid.UUID) (model.TeamMember, error) {
+	return model.TeamMember{}, model.ErrNotImplemented
 }

@@ -10,10 +10,7 @@ import (
 const timeFormat = time.RFC3339
 
 // TaskToResponse конвертирует доменную задачу в DTO ответа.
-func TaskToResponse(t *model.Task) dto.TaskResponse {
-	if t == nil {
-		return dto.TaskResponse{}
-	}
+func TaskToResponse(t model.Task) dto.TaskResponse {
 	resp := dto.TaskResponse{
 		ID:          t.ID.String(),
 		Title:       t.Title,
@@ -36,7 +33,7 @@ func TaskToResponse(t *model.Task) dto.TaskResponse {
 }
 
 // TasksToResponse конвертирует список задач в DTO ответа.
-func TasksToResponse(tasks []*model.Task) []dto.TaskResponse {
+func TasksToResponse(tasks []model.Task) []dto.TaskResponse {
 	if len(tasks) == 0 {
 		return nil
 	}
@@ -48,10 +45,7 @@ func TasksToResponse(tasks []*model.Task) []dto.TaskResponse {
 }
 
 // TaskHistoryToResponse конвертирует историю изменений задачи в DTO ответа.
-func TaskHistoryToResponse(taskID string, entries []*model.TaskHistory) dto.TaskHistoryResponse {
-	if entries == nil {
-		entries = []*model.TaskHistory{}
-	}
+func TaskHistoryToResponse(taskID string, entries []model.TaskHistory) dto.TaskHistoryResponse {
 	items := make([]dto.TaskHistoryEntryResponse, 0, len(entries))
 	for _, e := range entries {
 		items = append(items, dto.TaskHistoryEntryResponse{
@@ -68,10 +62,7 @@ func TaskHistoryToResponse(taskID string, entries []*model.TaskHistory) dto.Task
 }
 
 // TeamTaskStatsToResponse конвертирует статистику по команде в DTO ответа.
-func TeamTaskStatsToResponse(s *model.TeamTaskStats) dto.TeamTaskStatsResponse {
-	if s == nil {
-		return dto.TeamTaskStatsResponse{}
-	}
+func TeamTaskStatsToResponse(s model.TeamTaskStats) dto.TeamTaskStatsResponse {
 	return dto.TeamTaskStatsResponse{
 		TeamID:         s.TeamID.String(),
 		TeamName:       s.TeamName,
@@ -81,7 +72,7 @@ func TeamTaskStatsToResponse(s *model.TeamTaskStats) dto.TeamTaskStatsResponse {
 }
 
 // TeamTaskStatsListToResponse конвертирует список статистики в DTO ответа.
-func TeamTaskStatsListToResponse(items []*model.TeamTaskStats) dto.TeamTaskStatsListResponse {
+func TeamTaskStatsListToResponse(items []model.TeamTaskStats) dto.TeamTaskStatsListResponse {
 	if len(items) == 0 {
 		return dto.TeamTaskStatsListResponse{Items: []dto.TeamTaskStatsResponse{}}
 	}
@@ -93,10 +84,7 @@ func TeamTaskStatsListToResponse(items []*model.TeamTaskStats) dto.TeamTaskStats
 }
 
 // TopCreatorToResponse конвертирует топ создателя в DTO ответа.
-func TopCreatorToResponse(c *model.TeamTopCreator) dto.TopCreatorResponse {
-	if c == nil {
-		return dto.TopCreatorResponse{}
-	}
+func TopCreatorToResponse(c model.TeamTopCreator) dto.TopCreatorResponse {
 	return dto.TopCreatorResponse{
 		TeamID:       c.TeamID.String(),
 		UserID:       c.UserID.String(),
@@ -106,7 +94,7 @@ func TopCreatorToResponse(c *model.TeamTopCreator) dto.TopCreatorResponse {
 }
 
 // TopCreatorsListToResponse конвертирует список топ создателей в DTO ответа.
-func TopCreatorsListToResponse(items []*model.TeamTopCreator) dto.TopCreatorsListResponse {
+func TopCreatorsListToResponse(items []model.TeamTopCreator) dto.TopCreatorsListResponse {
 	if len(items) == 0 {
 		return dto.TopCreatorsListResponse{Items: []dto.TopCreatorResponse{}}
 	}
@@ -118,10 +106,7 @@ func TopCreatorsListToResponse(items []*model.TeamTopCreator) dto.TopCreatorsLis
 }
 
 // CommentToResponse конвертирует доменный комментарий в DTO ответа.
-func CommentToResponse(c *model.TaskComment) dto.CommentResponse {
-	if c == nil {
-		return dto.CommentResponse{}
-	}
+func CommentToResponse(c model.TaskComment) dto.CommentResponse {
 	return dto.CommentResponse{
 		ID:        c.ID.String(),
 		TaskID:    c.TaskID.String(),
@@ -133,7 +118,7 @@ func CommentToResponse(c *model.TaskComment) dto.CommentResponse {
 }
 
 // CommentsToResponse конвертирует список комментариев в DTO ответа.
-func CommentsToResponse(comments []*model.TaskComment) dto.CommentListResponse {
+func CommentsToResponse(comments []model.TaskComment) dto.CommentListResponse {
 	if len(comments) == 0 {
 		return dto.CommentListResponse{Items: []dto.CommentResponse{}}
 	}

@@ -71,27 +71,25 @@ func (_c *UserService_ChangePassword_Call) RunAndReturn(run func(context.Context
 }
 
 // Create provides a mock function with given fields: ctx, input, passwordHash
-func (_m *UserService) Create(ctx context.Context, input *model.UserInput, passwordHash string) (*model.User, error) {
+func (_m *UserService) Create(ctx context.Context, input model.UserInput, passwordHash string) (model.User, error) {
 	ret := _m.Called(ctx, input, passwordHash)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *model.UserInput, string) (*model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.UserInput, string) (model.User, error)); ok {
 		return rf(ctx, input, passwordHash)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *model.UserInput, string) *model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.UserInput, string) model.User); ok {
 		r0 = rf(ctx, input, passwordHash)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *model.UserInput, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.UserInput, string) error); ok {
 		r1 = rf(ctx, input, passwordHash)
 	} else {
 		r1 = ret.Error(1)
@@ -107,25 +105,25 @@ type UserService_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - input *model.UserInput
+//   - input model.UserInput
 //   - passwordHash string
 func (_e *UserService_Expecter) Create(ctx interface{}, input interface{}, passwordHash interface{}) *UserService_Create_Call {
 	return &UserService_Create_Call{Call: _e.mock.On("Create", ctx, input, passwordHash)}
 }
 
-func (_c *UserService_Create_Call) Run(run func(ctx context.Context, input *model.UserInput, passwordHash string)) *UserService_Create_Call {
+func (_c *UserService_Create_Call) Run(run func(ctx context.Context, input model.UserInput, passwordHash string)) *UserService_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*model.UserInput), args[2].(string))
+		run(args[0].(context.Context), args[1].(model.UserInput), args[2].(string))
 	})
 	return _c
 }
 
-func (_c *UserService_Create_Call) Return(_a0 *model.User, _a1 error) *UserService_Create_Call {
+func (_c *UserService_Create_Call) Return(_a0 model.User, _a1 error) *UserService_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserService_Create_Call) RunAndReturn(run func(context.Context, *model.UserInput, string) (*model.User, error)) *UserService_Create_Call {
+func (_c *UserService_Create_Call) RunAndReturn(run func(context.Context, model.UserInput, string) (model.User, error)) *UserService_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -178,24 +176,22 @@ func (_c *UserService_Delete_Call) RunAndReturn(run func(context.Context, string
 }
 
 // GetByEmail provides a mock function with given fields: ctx, email
-func (_m *UserService) GetByEmail(ctx context.Context, email string) (*model.User, error) {
+func (_m *UserService) GetByEmail(ctx context.Context, email string) (model.User, error) {
 	ret := _m.Called(ctx, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByEmail")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.User, error)); ok {
 		return rf(ctx, email)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
 		r0 = rf(ctx, email)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -226,35 +222,33 @@ func (_c *UserService_GetByEmail_Call) Run(run func(ctx context.Context, email s
 	return _c
 }
 
-func (_c *UserService_GetByEmail_Call) Return(_a0 *model.User, _a1 error) *UserService_GetByEmail_Call {
+func (_c *UserService_GetByEmail_Call) Return(_a0 model.User, _a1 error) *UserService_GetByEmail_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserService_GetByEmail_Call) RunAndReturn(run func(context.Context, string) (*model.User, error)) *UserService_GetByEmail_Call {
+func (_c *UserService_GetByEmail_Call) RunAndReturn(run func(context.Context, string) (model.User, error)) *UserService_GetByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByID provides a mock function with given fields: ctx, id
-func (_m *UserService) GetByID(ctx context.Context, id string) (*model.User, error) {
+func (_m *UserService) GetByID(ctx context.Context, id string) (model.User, error) {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.User, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
 		r0 = rf(ctx, id)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
@@ -285,38 +279,36 @@ func (_c *UserService_GetByID_Call) Run(run func(ctx context.Context, id string)
 	return _c
 }
 
-func (_c *UserService_GetByID_Call) Return(_a0 *model.User, _a1 error) *UserService_GetByID_Call {
+func (_c *UserService_GetByID_Call) Return(_a0 model.User, _a1 error) *UserService_GetByID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserService_GetByID_Call) RunAndReturn(run func(context.Context, string) (*model.User, error)) *UserService_GetByID_Call {
+func (_c *UserService_GetByID_Call) RunAndReturn(run func(context.Context, string) (model.User, error)) *UserService_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function with given fields: ctx, id, input
-func (_m *UserService) Update(ctx context.Context, id string, input *model.UserInput) (*model.User, error) {
+func (_m *UserService) Update(ctx context.Context, id string, input model.UserInput) (model.User, error) {
 	ret := _m.Called(ctx, id, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *model.UserInput) (*model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, model.UserInput) (model.User, error)); ok {
 		return rf(ctx, id, input)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, *model.UserInput) *model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, model.UserInput) model.User); ok {
 		r0 = rf(ctx, id, input)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, *model.UserInput) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, model.UserInput) error); ok {
 		r1 = rf(ctx, id, input)
 	} else {
 		r1 = ret.Error(1)
@@ -333,24 +325,24 @@ type UserService_Update_Call struct {
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-//   - input *model.UserInput
+//   - input model.UserInput
 func (_e *UserService_Expecter) Update(ctx interface{}, id interface{}, input interface{}) *UserService_Update_Call {
 	return &UserService_Update_Call{Call: _e.mock.On("Update", ctx, id, input)}
 }
 
-func (_c *UserService_Update_Call) Run(run func(ctx context.Context, id string, input *model.UserInput)) *UserService_Update_Call {
+func (_c *UserService_Update_Call) Run(run func(ctx context.Context, id string, input model.UserInput)) *UserService_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(*model.UserInput))
+		run(args[0].(context.Context), args[1].(string), args[2].(model.UserInput))
 	})
 	return _c
 }
 
-func (_c *UserService_Update_Call) Return(_a0 *model.User, _a1 error) *UserService_Update_Call {
+func (_c *UserService_Update_Call) Return(_a0 model.User, _a1 error) *UserService_Update_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserService_Update_Call) RunAndReturn(run func(context.Context, string, *model.UserInput) (*model.User, error)) *UserService_Update_Call {
+func (_c *UserService_Update_Call) RunAndReturn(run func(context.Context, string, model.UserInput) (model.User, error)) *UserService_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

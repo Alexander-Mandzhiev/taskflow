@@ -13,21 +13,13 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *taskService) Create(ctx context.Context, userID, teamID uuid.UUID, input *model.TaskInput) (*model.Task, error) {
-	if input == nil {
-		logger.Warn(ctx, "Create task: nil input")
-		return nil, model.ErrNilInput
-	}
-	if err := model.ValidateTaskInput(input); err != nil {
-		return nil, err
-	}
-
-	prepared := *input
+func (s *taskService) Create(ctx context.Context, userID, teamID uuid.UUID, input model.TaskInput) (model.Task, error) {
+	prepared := input
 	if prepared.Status == "" {
 		prepared.Status = model.TaskStatusTodo
 	}
 
-	var created *model.Task
+	var created model.Task
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		if _, err := s.memberRepo.GetMember(ctx, tx, teamID, userID); err != nil {
 			if errors.Is(err, teamModel.ErrMemberNotFound) {
@@ -44,14 +36,14 @@ func (s *taskService) Create(ctx context.Context, userID, teamID uuid.UUID, inpu
 			}
 		}
 		var errTx error
-		created, errTx = s.taskRepo.Create(ctx, tx, teamID, &prepared, userID)
+		created, errTx = s.taskRepo.Create(ctx, tx, teamID, prepared, userID)
 		return errTx
 	}); err != nil {
 		if errors.Is(err, model.ErrTaskNotFound) || errors.Is(err, model.ErrAssigneeNotInTeam) {
-			return nil, err
+			return model.Task{}, err
 		}
 		logger.Error(ctx, "Create task failed", zap.Error(err))
-		return nil, err
+		return model.Task{}, err
 	}
 	return created, nil
 }

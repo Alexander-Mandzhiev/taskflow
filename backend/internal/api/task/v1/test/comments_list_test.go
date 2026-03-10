@@ -18,7 +18,7 @@ import (
 func (s *APISuite) TestListComments_Success() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
-	comments := []*model.TaskComment{
+	comments := []model.TaskComment{
 		{
 			ID:        uuid.New(),
 			TaskID:    taskID,
@@ -82,7 +82,7 @@ func (s *APISuite) TestListComments_InvalidTaskID() {
 func (s *APISuite) TestListComments_NotFound() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
-	s.commentService.On("ListByTaskID", mock.Anything, taskID, userID).Return(nil, model.ErrTaskNotFound).Once()
+	s.commentService.On("ListByTaskID", mock.Anything, taskID, userID).Return([]model.TaskComment(nil), model.ErrTaskNotFound).Once()
 
 	r := chi.NewRouter()
 	r.Get("/tasks/{id}/comments", s.api.ListComments)
@@ -99,7 +99,7 @@ func (s *APISuite) TestListComments_NotFound() {
 func (s *APISuite) TestListComments_InternalError() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
-	s.commentService.On("ListByTaskID", mock.Anything, taskID, userID).Return(nil, assert.AnError).Once()
+	s.commentService.On("ListByTaskID", mock.Anything, taskID, userID).Return([]model.TaskComment(nil), assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Get("/tasks/{id}/comments", s.api.ListComments)

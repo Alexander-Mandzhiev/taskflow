@@ -11,7 +11,7 @@ import (
 )
 
 // Create создаёт запись приглашения. Поля inv (id, token, status, expires_at и т.д.) заданы вызывающим.
-func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, inv *model.TeamInvitation) error {
+func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, inv model.TeamInvitation) error {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Insert("team_invitations").
 		Columns("id", "team_id", "email", "role", "invited_by", "status", "token", "expires_at").

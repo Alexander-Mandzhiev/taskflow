@@ -13,8 +13,8 @@ import (
 )
 
 // Set сохраняет страницу в кеш с TTL.
-func (r *Repository) Set(ctx context.Context, teamID uuid.UUID, filter *model.TaskListFilter, data *resources.TaskListPageCache, ttl time.Duration) error {
-	if filter == nil || data == nil {
+func (r *Repository) Set(ctx context.Context, teamID uuid.UUID, filter model.TaskListFilter, data *resources.TaskListPageCache, ttl time.Duration) error {
+	if data == nil {
 		return nil
 	}
 	if ttl <= 0 {

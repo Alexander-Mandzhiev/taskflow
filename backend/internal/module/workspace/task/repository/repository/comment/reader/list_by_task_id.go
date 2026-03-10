@@ -13,7 +13,7 @@ import (
 )
 
 // ListByTaskID возвращает комментарии к задаче по task_id (без удалённых), упорядоченные по created_at.
-func (r *repository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]*model.TaskComment, error) {
+func (r *repository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]model.TaskComment, error) {
 	const query = `
 		SELECT id, task_id, user_id, content, created_at, updated_at, deleted_at
 		FROM task_comments WHERE task_id = ? AND deleted_at IS NULL ORDER BY created_at ASC
@@ -29,13 +29,13 @@ func (r *repository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.
 		}
 	}
 
-	out := make([]*model.TaskComment, 0, len(rows))
+	out := make([]model.TaskComment, 0, len(rows))
 	for i := range rows {
 		c, err := converter.ToDomainTaskComment(rows[i])
 		if err != nil {
 			return nil, fmt.Errorf("convert row %d: %w", i, err)
 		}
-		out = append(out, &c)
+		out = append(out, c)
 	}
 	return out, nil
 }

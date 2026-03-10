@@ -27,23 +27,23 @@ func (_m *TaskHistoryReaderRepository) EXPECT() *TaskHistoryReaderRepository_Exp
 }
 
 // ListByTaskID provides a mock function with given fields: ctx, tx, taskID
-func (_m *TaskHistoryReaderRepository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]*model.TaskHistory, error) {
+func (_m *TaskHistoryReaderRepository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]model.TaskHistory, error) {
 	ret := _m.Called(ctx, tx, taskID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListByTaskID")
 	}
 
-	var r0 []*model.TaskHistory
+	var r0 []model.TaskHistory
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TaskHistory, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TaskHistory, error)); ok {
 		return rf(ctx, tx, taskID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []*model.TaskHistory); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []model.TaskHistory); ok {
 		r0 = rf(ctx, tx, taskID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TaskHistory)
+			r0 = ret.Get(0).([]model.TaskHistory)
 		}
 	}
 
@@ -76,12 +76,12 @@ func (_c *TaskHistoryReaderRepository_ListByTaskID_Call) Run(run func(ctx contex
 	return _c
 }
 
-func (_c *TaskHistoryReaderRepository_ListByTaskID_Call) Return(_a0 []*model.TaskHistory, _a1 error) *TaskHistoryReaderRepository_ListByTaskID_Call {
+func (_c *TaskHistoryReaderRepository_ListByTaskID_Call) Return(_a0 []model.TaskHistory, _a1 error) *TaskHistoryReaderRepository_ListByTaskID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskHistoryReaderRepository_ListByTaskID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TaskHistory, error)) *TaskHistoryReaderRepository_ListByTaskID_Call {
+func (_c *TaskHistoryReaderRepository_ListByTaskID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TaskHistory, error)) *TaskHistoryReaderRepository_ListByTaskID_Call {
 	_c.Call.Return(run)
 	return _c
 }

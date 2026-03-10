@@ -64,7 +64,7 @@ func (s *accountService) Refresh(ctx context.Context, refreshToken, userAgent, i
 }
 
 // sessionMatchesRequest — мягкая сверка: тип устройства по User-Agent и при необходимости IP.
-func sessionMatchesRequest(session *accountmodel.Session, userAgent, ip string) bool {
+func sessionMatchesRequest(session accountmodel.Session, userAgent, ip string) bool {
 	if session.UserAgent != "" && userAgent != "" {
 		if useragent.DeviceTypeFromUserAgent(userAgent) != session.DeviceType {
 			return false

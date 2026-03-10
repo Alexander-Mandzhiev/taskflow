@@ -14,7 +14,7 @@ import (
 func (s *AdapterSuite) TestCreateHistoryEntry_Success() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 	changedBy := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	entry := &model.TaskHistory{
+	entry := model.TaskHistory{
 		TaskID:    taskID,
 		ChangedBy: changedBy,
 		FieldName: "title",
@@ -34,7 +34,7 @@ func (s *AdapterSuite) TestCreateHistoryEntry_Success() {
 
 func (s *AdapterSuite) TestCreateHistoryEntry_WithTx() {
 	tx := &sqlx.Tx{}
-	entry := &model.TaskHistory{
+	entry := model.TaskHistory{
 		TaskID:    uuid.New(),
 		ChangedBy: uuid.New(),
 		FieldName: "status",
@@ -53,7 +53,7 @@ func (s *AdapterSuite) TestCreateHistoryEntry_WithTx() {
 }
 
 func (s *AdapterSuite) TestCreateHistoryEntry_WriterError() {
-	entry := &model.TaskHistory{
+	entry := model.TaskHistory{
 		TaskID: uuid.New(), ChangedBy: uuid.New(), FieldName: "description",
 		OldValue: "", NewValue: "Updated", ChangedAt: time.Now(),
 	}

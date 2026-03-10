@@ -70,33 +70,38 @@ func (_c *UserCacheRepository_Delete_Call) RunAndReturn(run func(context.Context
 }
 
 // Get provides a mock function with given fields: ctx, id
-func (_m *UserCacheRepository) Get(ctx context.Context, id string) (*model.User, error) {
+func (_m *UserCacheRepository) Get(ctx context.Context, id string) (model.User, bool, error) {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *model.User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*model.User, error)); ok {
+	var r0 model.User
+	var r1 bool
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (model.User, bool, error)); ok {
 		return rf(ctx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) model.User); ok {
 		r0 = rf(ctx, id)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string) bool); ok {
 		r1 = rf(ctx, id)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(bool)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(context.Context, string) error); ok {
+		r2 = rf(ctx, id)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // UserCacheRepository_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
@@ -118,18 +123,18 @@ func (_c *UserCacheRepository_Get_Call) Run(run func(ctx context.Context, id str
 	return _c
 }
 
-func (_c *UserCacheRepository_Get_Call) Return(_a0 *model.User, _a1 error) *UserCacheRepository_Get_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *UserCacheRepository_Get_Call) Return(_a0 model.User, _a1 bool, _a2 error) *UserCacheRepository_Get_Call {
+	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *UserCacheRepository_Get_Call) RunAndReturn(run func(context.Context, string) (*model.User, error)) *UserCacheRepository_Get_Call {
+func (_c *UserCacheRepository_Get_Call) RunAndReturn(run func(context.Context, string) (model.User, bool, error)) *UserCacheRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Set provides a mock function with given fields: ctx, id, user
-func (_m *UserCacheRepository) Set(ctx context.Context, id string, user *model.User) error {
+func (_m *UserCacheRepository) Set(ctx context.Context, id string, user model.User) error {
 	ret := _m.Called(ctx, id, user)
 
 	if len(ret) == 0 {
@@ -137,7 +142,7 @@ func (_m *UserCacheRepository) Set(ctx context.Context, id string, user *model.U
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, *model.User) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, model.User) error); ok {
 		r0 = rf(ctx, id, user)
 	} else {
 		r0 = ret.Error(0)
@@ -154,14 +159,14 @@ type UserCacheRepository_Set_Call struct {
 // Set is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id string
-//   - user *model.User
+//   - user model.User
 func (_e *UserCacheRepository_Expecter) Set(ctx interface{}, id interface{}, user interface{}) *UserCacheRepository_Set_Call {
 	return &UserCacheRepository_Set_Call{Call: _e.mock.On("Set", ctx, id, user)}
 }
 
-func (_c *UserCacheRepository_Set_Call) Run(run func(ctx context.Context, id string, user *model.User)) *UserCacheRepository_Set_Call {
+func (_c *UserCacheRepository_Set_Call) Run(run func(ctx context.Context, id string, user model.User)) *UserCacheRepository_Set_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(*model.User))
+		run(args[0].(context.Context), args[1].(string), args[2].(model.User))
 	})
 	return _c
 }
@@ -171,7 +176,7 @@ func (_c *UserCacheRepository_Set_Call) Return(_a0 error) *UserCacheRepository_S
 	return _c
 }
 
-func (_c *UserCacheRepository_Set_Call) RunAndReturn(run func(context.Context, string, *model.User) error) *UserCacheRepository_Set_Call {
+func (_c *UserCacheRepository_Set_Call) RunAndReturn(run func(context.Context, string, model.User) error) *UserCacheRepository_Set_Call {
 	_c.Call.Return(run)
 	return _c
 }

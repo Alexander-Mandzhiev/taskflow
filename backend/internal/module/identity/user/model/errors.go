@@ -7,7 +7,7 @@ var (
 	// ErrUserNotFound — пользователь не найден (по id или email).
 	ErrUserNotFound = errors.New("user not found")
 
-	// ErrNilInput — передан nil вместо *UserInput в Create/Update.
+	// ErrNilInput — передан нулевой UserInput в Create/Update (пустые Email и Name).
 	ErrNilInput = errors.New("user input is nil")
 
 	// ErrEmailDuplicate — email уже занят (нарушение уникальности при создании или обновлении).

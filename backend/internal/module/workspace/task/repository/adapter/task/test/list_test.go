@@ -12,8 +12,8 @@ import (
 func (s *AdapterSuite) TestList_Success() {
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
 	status := model.TaskStatusTodo
-	filter := &model.TaskListFilter{TeamID: &teamID, Status: &status, Limit: 10, Offset: 0}
-	tasks := []*model.Task{
+	filter := model.TaskListFilter{TeamID: &teamID, Status: &status, Limit: 10, Offset: 0}
+	tasks := []model.Task{
 		{ID: uuid.New(), Title: "Task 1", TeamID: teamID, Status: model.TaskStatusTodo},
 		{ID: uuid.New(), Title: "Task 2", TeamID: teamID, Status: model.TaskStatusTodo},
 	}
@@ -31,10 +31,10 @@ func (s *AdapterSuite) TestList_Success() {
 
 func (s *AdapterSuite) TestList_Empty() {
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
-	filter := &model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
+	filter := model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
 
 	s.taskReader.On("List", mock.Anything, mock.Anything, filter).
-		Return([]*model.Task{}, 0, nil).Once()
+		Return([]model.Task{}, 0, nil).Once()
 
 	got, total, err := s.repo.List(s.ctx, nil, filter)
 
@@ -46,10 +46,10 @@ func (s *AdapterSuite) TestList_Empty() {
 
 func (s *AdapterSuite) TestList_ReaderError() {
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
-	filter := &model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
+	filter := model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
 
 	s.taskReader.On("List", mock.Anything, mock.Anything, filter).
-		Return(([]*model.Task)(nil), 0, assert.AnError).Once()
+		Return(nil, 0, assert.AnError).Once()
 
 	got, total, err := s.repo.List(s.ctx, nil, filter)
 

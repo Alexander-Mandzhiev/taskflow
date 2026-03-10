@@ -10,7 +10,7 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *taskReportService) TasksWithInvalidAssignee(ctx context.Context, userID uuid.UUID) ([]*model.Task, error) {
+func (s *taskReportService) TasksWithInvalidAssignee(ctx context.Context, userID uuid.UUID) ([]model.Task, error) {
 	userTeams, err := s.teamSvc.ListByUserID(ctx, userID)
 	if err != nil {
 		logger.Error(ctx, "ListByUserID failed", zap.Error(err))
@@ -27,7 +27,7 @@ func (s *taskReportService) TasksWithInvalidAssignee(ctx context.Context, userID
 		return nil, err
 	}
 
-	out := make([]*model.Task, 0, len(all))
+	out := make([]model.Task, 0, len(all))
 	for _, task := range all {
 		if _, ok := teamIDs[task.TeamID]; ok {
 			out = append(out, task)

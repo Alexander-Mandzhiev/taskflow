@@ -15,7 +15,7 @@ import (
 )
 
 // selectByID читает участника по id внутри текущей транзакции (после AddMember).
-func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (*model.TeamMember, error) {
+func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (model.TeamMember, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "user_id", "team_id", "role", "created_at").
 		From("team_members").
@@ -23,20 +23,20 @@ func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (*m
 		Limit(1).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build select query: %w", err)
+		return model.TeamMember{}, fmt.Errorf("build select query: %w", err)
 	}
 
 	var row resources.TeamMemberRow
 	if err := tx.GetContext(ctx, &row, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrMemberNotFound
+			return model.TeamMember{}, model.ErrMemberNotFound
 		}
-		return nil, toDomainError(err)
+		return model.TeamMember{}, toDomainError(err)
 	}
 
 	member, err := converter.ToDomainTeamMember(row)
 	if err != nil {
-		return nil, err
+		return model.TeamMember{}, err
 	}
-	return &member, nil
+	return member, nil
 }

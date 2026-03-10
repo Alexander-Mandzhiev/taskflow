@@ -12,7 +12,7 @@ import (
 )
 
 // TasksWithInvalidAssignee возвращает задачи, у которых assignee не является участником команды задачи.
-func (r *repository) TasksWithInvalidAssignee(ctx context.Context, tx *sqlx.Tx) ([]*model.Task, error) {
+func (r *repository) TasksWithInvalidAssignee(ctx context.Context, tx *sqlx.Tx) ([]model.Task, error) {
 	const query = `
 		SELECT t.id, t.title, t.description, t.status, t.assignee_id, t.team_id, t.created_by, t.created_at, t.updated_at, t.completed_at, t.deleted_at
 		FROM tasks t
@@ -33,13 +33,13 @@ func (r *repository) TasksWithInvalidAssignee(ctx context.Context, tx *sqlx.Tx) 
 		}
 	}
 
-	out := make([]*model.Task, 0, len(rows))
+	out := make([]model.Task, 0, len(rows))
 	for i := range rows {
 		task, err := converter.ToDomainTask(rows[i])
 		if err != nil {
 			return nil, fmt.Errorf("convert row %d: %w", i, err)
 		}
-		out = append(out, &task)
+		out = append(out, task)
 	}
 	return out, nil
 }

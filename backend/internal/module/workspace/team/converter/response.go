@@ -10,10 +10,7 @@ import (
 const timeFormat = time.RFC3339
 
 // TeamToResponse конвертирует доменную команду в DTO ответа.
-func TeamToResponse(t *model.Team) dto.TeamResponse {
-	if t == nil {
-		return dto.TeamResponse{}
-	}
+func TeamToResponse(t model.Team) dto.TeamResponse {
 	return dto.TeamResponse{
 		ID:        t.ID.String(),
 		Name:      t.Name,
@@ -24,10 +21,7 @@ func TeamToResponse(t *model.Team) dto.TeamResponse {
 }
 
 // MemberToResponse конвертирует доменного участника в DTO ответа.
-func MemberToResponse(m *model.TeamMember) dto.MemberResponse {
-	if m == nil {
-		return dto.MemberResponse{}
-	}
+func MemberToResponse(m model.TeamMember) dto.MemberResponse {
 	return dto.MemberResponse{
 		ID:        m.ID.String(),
 		UserID:    m.UserID.String(),
@@ -38,33 +32,27 @@ func MemberToResponse(m *model.TeamMember) dto.MemberResponse {
 }
 
 // TeamWithMembersToResponse конвертирует доменную команду с участниками в DTO ответа.
-func TeamWithMembersToResponse(t *model.TeamWithMembers) dto.TeamWithMembersResponse {
-	if t == nil {
-		return dto.TeamWithMembersResponse{}
-	}
+func TeamWithMembersToResponse(t model.TeamWithMembers) dto.TeamWithMembersResponse {
 	members := make([]dto.MemberResponse, 0, len(t.Members))
 	for _, m := range t.Members {
 		members = append(members, MemberToResponse(m))
 	}
 	return dto.TeamWithMembersResponse{
-		Team:    TeamToResponse(&t.Team),
+		Team:    TeamToResponse(t.Team),
 		Members: members,
 	}
 }
 
 // TeamWithRoleToResponse конвертирует доменную команду с ролью в DTO ответа.
-func TeamWithRoleToResponse(t *model.TeamWithRole) dto.TeamWithRoleResponse {
-	if t == nil {
-		return dto.TeamWithRoleResponse{}
-	}
+func TeamWithRoleToResponse(t model.TeamWithRole) dto.TeamWithRoleResponse {
 	return dto.TeamWithRoleResponse{
-		TeamResponse: TeamToResponse(&t.Team),
+		TeamResponse: TeamToResponse(t.Team),
 		Role:         t.Role,
 	}
 }
 
 // TeamsWithRolesToResponse конвертирует список команд с ролями в DTO ответа.
-func TeamsWithRolesToResponse(teams []*model.TeamWithRole) []dto.TeamWithRoleResponse {
+func TeamsWithRolesToResponse(teams []model.TeamWithRole) []dto.TeamWithRoleResponse {
 	if len(teams) == 0 {
 		return []dto.TeamWithRoleResponse{}
 	}
@@ -76,10 +64,7 @@ func TeamsWithRolesToResponse(teams []*model.TeamWithRole) []dto.TeamWithRoleRes
 }
 
 // InvitationToResponse конвертирует приглашение в DTO ответа (без token в JSON).
-func InvitationToResponse(inv *model.TeamInvitation) dto.InvitationResponse {
-	if inv == nil {
-		return dto.InvitationResponse{}
-	}
+func InvitationToResponse(inv model.TeamInvitation) dto.InvitationResponse {
 	return dto.InvitationResponse{
 		ID:        inv.ID.String(),
 		TeamID:    inv.TeamID.String(),

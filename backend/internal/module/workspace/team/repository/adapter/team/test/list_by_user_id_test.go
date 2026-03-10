@@ -11,7 +11,7 @@ import (
 
 func (s *AdapterSuite) TestListByUserID_Success() {
 	userID := uuid.New()
-	want := []*model.TeamWithRole{
+	want := []model.TeamWithRole{
 		{Team: model.Team{ID: uuid.New(), Name: "Team A"}, Role: model.RoleOwner},
 		{Team: model.Team{ID: uuid.New(), Name: "Team B"}, Role: model.RoleMember},
 	}
@@ -29,7 +29,7 @@ func (s *AdapterSuite) TestListByUserID_Success() {
 func (s *AdapterSuite) TestListByUserID_Empty() {
 	userID := uuid.New()
 	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID).
-		Return([]*model.TeamWithRole{}, nil).Once()
+		Return([]model.TeamWithRole{}, nil).Once()
 
 	got, err := s.repo.ListByUserID(s.ctx, nil, userID)
 
@@ -42,7 +42,7 @@ func (s *AdapterSuite) TestListByUserID_Empty() {
 func (s *AdapterSuite) TestListByUserID_ReaderError() {
 	userID := uuid.New()
 	s.teamReader.On("ListByUserID", mock.Anything, mock.Anything, userID).
-		Return(([]*model.TeamWithRole)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.repo.ListByUserID(s.ctx, &sqlx.Tx{}, userID)
 

@@ -13,7 +13,7 @@ import (
 )
 
 // selectByID читает комментарий по ID после Create (в той же транзакции или на том же пуле).
-func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, commentID string) (*model.TaskComment, error) {
+func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, commentID string) (model.TaskComment, error) {
 	const query = `
 		SELECT id, task_id, user_id, content, created_at, updated_at, deleted_at
 		FROM task_comments WHERE id = ? AND deleted_at IS NULL LIMIT 1
@@ -27,13 +27,13 @@ func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, commentID stri
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrCommentNotFound
+			return model.TaskComment{}, model.ErrCommentNotFound
 		}
-		return nil, toDomainError(err)
+		return model.TaskComment{}, toDomainError(err)
 	}
 	comment, err := converter.ToDomainTaskComment(row)
 	if err != nil {
-		return nil, err
+		return model.TaskComment{}, err
 	}
-	return &comment, nil
+	return comment, nil
 }

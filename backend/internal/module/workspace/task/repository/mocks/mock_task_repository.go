@@ -27,27 +27,25 @@ func (_m *TaskRepository) EXPECT() *TaskRepository_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, tx, teamID, input, createdBy
-func (_m *TaskRepository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input *model.TaskInput, createdBy uuid.UUID) (*model.Task, error) {
+func (_m *TaskRepository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input model.TaskInput, createdBy uuid.UUID) (model.Task, error) {
 	ret := _m.Called(ctx, tx, teamID, input, createdBy)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.Task
+	var r0 model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput, uuid.UUID) (*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput, uuid.UUID) (model.Task, error)); ok {
 		return rf(ctx, tx, teamID, input, createdBy)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput, uuid.UUID) *model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput, uuid.UUID) model.Task); ok {
 		r0 = rf(ctx, tx, teamID, input, createdBy)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Task)
-		}
+		r0 = ret.Get(0).(model.Task)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput, uuid.UUID) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput, uuid.UUID) error); ok {
 		r1 = rf(ctx, tx, teamID, input, createdBy)
 	} else {
 		r1 = ret.Error(1)
@@ -65,48 +63,46 @@ type TaskRepository_Create_Call struct {
 //   - ctx context.Context
 //   - tx *sqlx.Tx
 //   - teamID uuid.UUID
-//   - input *model.TaskInput
+//   - input model.TaskInput
 //   - createdBy uuid.UUID
 func (_e *TaskRepository_Expecter) Create(ctx interface{}, tx interface{}, teamID interface{}, input interface{}, createdBy interface{}) *TaskRepository_Create_Call {
 	return &TaskRepository_Create_Call{Call: _e.mock.On("Create", ctx, tx, teamID, input, createdBy)}
 }
 
-func (_c *TaskRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input *model.TaskInput, createdBy uuid.UUID)) *TaskRepository_Create_Call {
+func (_c *TaskRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input model.TaskInput, createdBy uuid.UUID)) *TaskRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(uuid.UUID), args[3].(*model.TaskInput), args[4].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(uuid.UUID), args[3].(model.TaskInput), args[4].(uuid.UUID))
 	})
 	return _c
 }
 
-func (_c *TaskRepository_Create_Call) Return(_a0 *model.Task, _a1 error) *TaskRepository_Create_Call {
+func (_c *TaskRepository_Create_Call) Return(_a0 model.Task, _a1 error) *TaskRepository_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput, uuid.UUID) (*model.Task, error)) *TaskRepository_Create_Call {
+func (_c *TaskRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput, uuid.UUID) (model.Task, error)) *TaskRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByID provides a mock function with given fields: ctx, tx, taskID
-func (_m *TaskRepository) GetByID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (*model.Task, error) {
+func (_m *TaskRepository) GetByID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (model.Task, error) {
 	ret := _m.Called(ctx, tx, taskID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 *model.Task
+	var r0 model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) (*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) (model.Task, error)); ok {
 		return rf(ctx, tx, taskID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) *model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) model.Task); ok {
 		r0 = rf(ctx, tx, taskID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Task)
-		}
+		r0 = ret.Get(0).(model.Task)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID) error); ok {
@@ -138,35 +134,33 @@ func (_c *TaskRepository_GetByID_Call) Run(run func(ctx context.Context, tx *sql
 	return _c
 }
 
-func (_c *TaskRepository_GetByID_Call) Return(_a0 *model.Task, _a1 error) *TaskRepository_GetByID_Call {
+func (_c *TaskRepository_GetByID_Call) Return(_a0 model.Task, _a1 error) *TaskRepository_GetByID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskRepository_GetByID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) (*model.Task, error)) *TaskRepository_GetByID_Call {
+func (_c *TaskRepository_GetByID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) (model.Task, error)) *TaskRepository_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByIDIncludeDeleted provides a mock function with given fields: ctx, tx, taskID
-func (_m *TaskRepository) GetByIDIncludeDeleted(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (*model.Task, error) {
+func (_m *TaskRepository) GetByIDIncludeDeleted(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (model.Task, error) {
 	ret := _m.Called(ctx, tx, taskID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByIDIncludeDeleted")
 	}
 
-	var r0 *model.Task
+	var r0 model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) (*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) (model.Task, error)); ok {
 		return rf(ctx, tx, taskID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) *model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) model.Task); ok {
 		r0 = rf(ctx, tx, taskID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Task)
-		}
+		r0 = ret.Get(0).(model.Task)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID) error); ok {
@@ -198,45 +192,45 @@ func (_c *TaskRepository_GetByIDIncludeDeleted_Call) Run(run func(ctx context.Co
 	return _c
 }
 
-func (_c *TaskRepository_GetByIDIncludeDeleted_Call) Return(_a0 *model.Task, _a1 error) *TaskRepository_GetByIDIncludeDeleted_Call {
+func (_c *TaskRepository_GetByIDIncludeDeleted_Call) Return(_a0 model.Task, _a1 error) *TaskRepository_GetByIDIncludeDeleted_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskRepository_GetByIDIncludeDeleted_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) (*model.Task, error)) *TaskRepository_GetByIDIncludeDeleted_Call {
+func (_c *TaskRepository_GetByIDIncludeDeleted_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) (model.Task, error)) *TaskRepository_GetByIDIncludeDeleted_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function with given fields: ctx, tx, filter
-func (_m *TaskRepository) List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskListFilter) ([]*model.Task, int, error) {
+func (_m *TaskRepository) List(ctx context.Context, tx *sqlx.Tx, filter model.TaskListFilter) ([]model.Task, int, error) {
 	ret := _m.Called(ctx, tx, filter)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 []*model.Task
+	var r0 []model.Task
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TaskListFilter) ([]*model.Task, int, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TaskListFilter) ([]model.Task, int, error)); ok {
 		return rf(ctx, tx, filter)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TaskListFilter) []*model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TaskListFilter) []model.Task); ok {
 		r0 = rf(ctx, tx, filter)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.Task)
+			r0 = ret.Get(0).([]model.Task)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, *model.TaskListFilter) int); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, model.TaskListFilter) int); ok {
 		r1 = rf(ctx, tx, filter)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, *sqlx.Tx, *model.TaskListFilter) error); ok {
+	if rf, ok := ret.Get(2).(func(context.Context, *sqlx.Tx, model.TaskListFilter) error); ok {
 		r2 = rf(ctx, tx, filter)
 	} else {
 		r2 = ret.Error(2)
@@ -253,24 +247,24 @@ type TaskRepository_List_Call struct {
 // List is a helper method to define mock.On call
 //   - ctx context.Context
 //   - tx *sqlx.Tx
-//   - filter *model.TaskListFilter
+//   - filter model.TaskListFilter
 func (_e *TaskRepository_Expecter) List(ctx interface{}, tx interface{}, filter interface{}) *TaskRepository_List_Call {
 	return &TaskRepository_List_Call{Call: _e.mock.On("List", ctx, tx, filter)}
 }
 
-func (_c *TaskRepository_List_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, filter *model.TaskListFilter)) *TaskRepository_List_Call {
+func (_c *TaskRepository_List_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, filter model.TaskListFilter)) *TaskRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(*model.TaskListFilter))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(model.TaskListFilter))
 	})
 	return _c
 }
 
-func (_c *TaskRepository_List_Call) Return(_a0 []*model.Task, _a1 int, _a2 error) *TaskRepository_List_Call {
+func (_c *TaskRepository_List_Call) Return(_a0 []model.Task, _a1 int, _a2 error) *TaskRepository_List_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *TaskRepository_List_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, *model.TaskListFilter) ([]*model.Task, int, error)) *TaskRepository_List_Call {
+func (_c *TaskRepository_List_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, model.TaskListFilter) ([]model.Task, int, error)) *TaskRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -372,7 +366,7 @@ func (_c *TaskRepository_SoftDelete_Call) RunAndReturn(run func(context.Context,
 }
 
 // Update provides a mock function with given fields: ctx, tx, taskID, input
-func (_m *TaskRepository) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input *model.TaskInput) error {
+func (_m *TaskRepository) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input model.TaskInput) error {
 	ret := _m.Called(ctx, tx, taskID, input)
 
 	if len(ret) == 0 {
@@ -380,7 +374,7 @@ func (_m *TaskRepository) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.U
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput) error); ok {
 		r0 = rf(ctx, tx, taskID, input)
 	} else {
 		r0 = ret.Error(0)
@@ -398,14 +392,14 @@ type TaskRepository_Update_Call struct {
 //   - ctx context.Context
 //   - tx *sqlx.Tx
 //   - taskID uuid.UUID
-//   - input *model.TaskInput
+//   - input model.TaskInput
 func (_e *TaskRepository_Expecter) Update(ctx interface{}, tx interface{}, taskID interface{}, input interface{}) *TaskRepository_Update_Call {
 	return &TaskRepository_Update_Call{Call: _e.mock.On("Update", ctx, tx, taskID, input)}
 }
 
-func (_c *TaskRepository_Update_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input *model.TaskInput)) *TaskRepository_Update_Call {
+func (_c *TaskRepository_Update_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input model.TaskInput)) *TaskRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(uuid.UUID), args[3].(*model.TaskInput))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(uuid.UUID), args[3].(model.TaskInput))
 	})
 	return _c
 }
@@ -415,7 +409,7 @@ func (_c *TaskRepository_Update_Call) Return(_a0 error) *TaskRepository_Update_C
 	return _c
 }
 
-func (_c *TaskRepository_Update_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput) error) *TaskRepository_Update_Call {
+func (_c *TaskRepository_Update_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput) error) *TaskRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

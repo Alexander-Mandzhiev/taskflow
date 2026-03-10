@@ -12,7 +12,7 @@ const keyPrefix = "tasks:list"
 
 // Key возвращает ключ Redis для закешированной страницы списка задач.
 // Один ключ = одна страница (team_id + фильтр: status, assignee_id, limit, offset).
-func Key(teamID uuid.UUID, filter *model.TaskListFilter) string {
+func Key(teamID uuid.UUID, filter model.TaskListFilter) string {
 	return fmt.Sprintf("%s:%s:%s", keyPrefix, teamID.String(), filterSuffix(filter))
 }
 
@@ -21,10 +21,7 @@ func PrefixForTeam(teamID uuid.UUID) string {
 	return fmt.Sprintf("%s:%s:", keyPrefix, teamID.String())
 }
 
-func filterSuffix(filter *model.TaskListFilter) string {
-	if filter == nil {
-		return "all"
-	}
+func filterSuffix(filter model.TaskListFilter) string {
 	status := ""
 	if filter.Status != nil {
 		status = *filter.Status

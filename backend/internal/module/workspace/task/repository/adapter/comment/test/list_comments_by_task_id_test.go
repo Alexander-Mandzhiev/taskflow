@@ -14,7 +14,7 @@ import (
 func (s *AdapterSuite) TestListCommentsByTaskID_Success() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 	userID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	comments := []*model.TaskComment{
+	comments := []model.TaskComment{
 		{
 			ID:        uuid.New(),
 			TaskID:    taskID,
@@ -42,7 +42,7 @@ func (s *AdapterSuite) TestListCommentsByTaskID_Empty() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 
 	s.commentReader.On("ListByTaskID", mock.Anything, mock.Anything, taskID).
-		Return([]*model.TaskComment{}, nil).Once()
+		Return([]model.TaskComment{}, nil).Once()
 
 	got, err := s.repo.ListCommentsByTaskID(s.ctx, nil, taskID)
 
@@ -56,7 +56,7 @@ func (s *AdapterSuite) TestListCommentsByTaskID_WithTx_ReaderError() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 
 	s.commentReader.On("ListByTaskID", mock.Anything, tx, taskID).
-		Return(([]*model.TaskComment)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.repo.ListCommentsByTaskID(s.ctx, tx, taskID)
 

@@ -14,15 +14,8 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *taskService) Update(ctx context.Context, userID, taskID uuid.UUID, input *model.TaskInput) (*model.Task, error) {
-	if input == nil {
-		return nil, model.ErrNilInput
-	}
-	if err := model.ValidateTaskInput(input); err != nil {
-		return nil, err
-	}
-
-	var updated *model.Task
+func (s *taskService) Update(ctx context.Context, userID, taskID uuid.UUID, input model.TaskInput) (model.Task, error) {
+	var updated model.Task
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		current, errTx := s.taskRepo.GetByID(ctx, tx, taskID)
 		if errTx != nil {
@@ -53,16 +46,16 @@ func (s *taskService) Update(ctx context.Context, userID, taskID uuid.UUID, inpu
 		return errTx
 	}); err != nil {
 		if errors.Is(err, model.ErrTaskNotFound) || errors.Is(err, model.ErrAssigneeNotInTeam) {
-			return nil, err
+			return model.Task{}, err
 		}
 		logger.Error(ctx, "Update task failed", zap.Error(err))
-		return nil, err
+		return model.Task{}, err
 	}
 	return updated, nil
 }
 
 // recordUpdateHistory пишет в task_history записи только для изменившихся полей.
-func (s *taskService) recordUpdateHistory(ctx context.Context, tx *sqlx.Tx, taskID, userID uuid.UUID, current *model.Task, input *model.TaskInput, now time.Time) error {
+func (s *taskService) recordUpdateHistory(ctx context.Context, tx *sqlx.Tx, taskID, userID uuid.UUID, current model.Task, input model.TaskInput, now time.Time) error {
 	if err := s.recordHistoryIfChanged(ctx, tx, taskID, userID, "title", current.Title, input.Title, now); err != nil {
 		return err
 	}
@@ -87,7 +80,7 @@ func (s *taskService) recordHistoryIfChanged(ctx context.Context, tx *sqlx.Tx, t
 	if oldVal == newVal {
 		return nil
 	}
-	return s.historyRepo.CreateHistoryEntry(ctx, tx, &model.TaskHistory{
+	return s.historyRepo.CreateHistoryEntry(ctx, tx, model.TaskHistory{
 		TaskID: taskID, ChangedBy: userID, FieldName: fieldName, OldValue: oldVal, NewValue: newVal, ChangedAt: now,
 	})
 }

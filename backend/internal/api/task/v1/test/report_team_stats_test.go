@@ -17,7 +17,7 @@ import (
 func (s *APISuite) TestReportTeamStats_Success() {
 	userID := uuid.MustParse(testUserID)
 	teamID := uuid.New()
-	items := []*model.TeamTaskStats{
+	items := []model.TeamTaskStats{
 		{
 			TeamID:         teamID,
 			TeamName:       "My Team",
@@ -79,7 +79,7 @@ func (s *APISuite) TestReportTeamStats_InvalidSinceDays() {
 
 func (s *APISuite) TestReportTeamStats_InternalError() {
 	s.reportService.On("TeamTaskStats", mock.Anything, uuid.MustParse(testUserID), mock.AnythingOfType("time.Time")).
-		Return(nil, assert.AnError).Once()
+		Return([]model.TeamTaskStats(nil), assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Get("/reports/team-stats", s.api.ReportTeamStats)

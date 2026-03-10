@@ -11,7 +11,7 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *taskReportService) TeamTaskStats(ctx context.Context, userID uuid.UUID, since time.Time) ([]*model.TeamTaskStats, error) {
+func (s *taskReportService) TeamTaskStats(ctx context.Context, userID uuid.UUID, since time.Time) ([]model.TeamTaskStats, error) {
 	userTeams, err := s.teamSvc.ListByUserID(ctx, userID)
 	if err != nil {
 		logger.Error(ctx, "ListByUserID failed", zap.Error(err))
@@ -28,7 +28,7 @@ func (s *taskReportService) TeamTaskStats(ctx context.Context, userID uuid.UUID,
 		return nil, err
 	}
 
-	out := make([]*model.TeamTaskStats, 0, len(all))
+	out := make([]model.TeamTaskStats, 0, len(all))
 	for _, st := range all {
 		if _, ok := teamIDs[st.TeamID]; ok {
 			out = append(out, st)

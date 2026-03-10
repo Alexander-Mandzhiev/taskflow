@@ -25,27 +25,25 @@ func (_m *UserWriterRepository) EXPECT() *UserWriterRepository_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, tx, input, passwordHash
-func (_m *UserWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, input *model.UserInput, passwordHash string) (*model.User, error) {
+func (_m *UserWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, input model.UserInput, passwordHash string) (model.User, error) {
 	ret := _m.Called(ctx, tx, input, passwordHash)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.UserInput, string) (*model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.UserInput, string) (model.User, error)); ok {
 		return rf(ctx, tx, input, passwordHash)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.UserInput, string) *model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.UserInput, string) model.User); ok {
 		r0 = rf(ctx, tx, input, passwordHash)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, *model.UserInput, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, model.UserInput, string) error); ok {
 		r1 = rf(ctx, tx, input, passwordHash)
 	} else {
 		r1 = ret.Error(1)
@@ -62,25 +60,25 @@ type UserWriterRepository_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - tx *sqlx.Tx
-//   - input *model.UserInput
+//   - input model.UserInput
 //   - passwordHash string
 func (_e *UserWriterRepository_Expecter) Create(ctx interface{}, tx interface{}, input interface{}, passwordHash interface{}) *UserWriterRepository_Create_Call {
 	return &UserWriterRepository_Create_Call{Call: _e.mock.On("Create", ctx, tx, input, passwordHash)}
 }
 
-func (_c *UserWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, input *model.UserInput, passwordHash string)) *UserWriterRepository_Create_Call {
+func (_c *UserWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, input model.UserInput, passwordHash string)) *UserWriterRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(*model.UserInput), args[3].(string))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(model.UserInput), args[3].(string))
 	})
 	return _c
 }
 
-func (_c *UserWriterRepository_Create_Call) Return(_a0 *model.User, _a1 error) *UserWriterRepository_Create_Call {
+func (_c *UserWriterRepository_Create_Call) Return(_a0 model.User, _a1 error) *UserWriterRepository_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, *model.UserInput, string) (*model.User, error)) *UserWriterRepository_Create_Call {
+func (_c *UserWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, model.UserInput, string) (model.User, error)) *UserWriterRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -134,27 +132,25 @@ func (_c *UserWriterRepository_Delete_Call) RunAndReturn(run func(context.Contex
 }
 
 // Update provides a mock function with given fields: ctx, tx, id, input
-func (_m *UserWriterRepository) Update(ctx context.Context, tx *sqlx.Tx, id string, input *model.UserInput) (*model.User, error) {
+func (_m *UserWriterRepository) Update(ctx context.Context, tx *sqlx.Tx, id string, input model.UserInput) (model.User, error) {
 	ret := _m.Called(ctx, tx, id, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string, *model.UserInput) (*model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string, model.UserInput) (model.User, error)); ok {
 		return rf(ctx, tx, id, input)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string, *model.UserInput) *model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string, model.UserInput) model.User); ok {
 		r0 = rf(ctx, tx, id, input)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, string, *model.UserInput) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, string, model.UserInput) error); ok {
 		r1 = rf(ctx, tx, id, input)
 	} else {
 		r1 = ret.Error(1)
@@ -172,24 +168,24 @@ type UserWriterRepository_Update_Call struct {
 //   - ctx context.Context
 //   - tx *sqlx.Tx
 //   - id string
-//   - input *model.UserInput
+//   - input model.UserInput
 func (_e *UserWriterRepository_Expecter) Update(ctx interface{}, tx interface{}, id interface{}, input interface{}) *UserWriterRepository_Update_Call {
 	return &UserWriterRepository_Update_Call{Call: _e.mock.On("Update", ctx, tx, id, input)}
 }
 
-func (_c *UserWriterRepository_Update_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, id string, input *model.UserInput)) *UserWriterRepository_Update_Call {
+func (_c *UserWriterRepository_Update_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, id string, input model.UserInput)) *UserWriterRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(string), args[3].(*model.UserInput))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(string), args[3].(model.UserInput))
 	})
 	return _c
 }
 
-func (_c *UserWriterRepository_Update_Call) Return(_a0 *model.User, _a1 error) *UserWriterRepository_Update_Call {
+func (_c *UserWriterRepository_Update_Call) Return(_a0 model.User, _a1 error) *UserWriterRepository_Update_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserWriterRepository_Update_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, string, *model.UserInput) (*model.User, error)) *UserWriterRepository_Update_Call {
+func (_c *UserWriterRepository_Update_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, string, model.UserInput) (model.User, error)) *UserWriterRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

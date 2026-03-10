@@ -13,8 +13,8 @@ import (
 
 func (s *AdapterSuite) TestCreate_Success() {
 	ownerID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	input := &model.TeamInput{Name: "New Team"}
-	team := &model.Team{
+	input := model.TeamInput{Name: "New Team"}
+	team := model.Team{
 		ID:        uuid.New(),
 		Name:      input.Name,
 		CreatedBy: ownerID,
@@ -35,8 +35,8 @@ func (s *AdapterSuite) TestCreate_Success() {
 func (s *AdapterSuite) TestCreate_WithTx() {
 	tx := &sqlx.Tx{}
 	ownerID := uuid.New()
-	input := &model.TeamInput{Name: "Team"}
-	team := &model.Team{ID: uuid.New(), Name: input.Name, CreatedBy: ownerID}
+	input := model.TeamInput{Name: "Team"}
+	team := model.Team{ID: uuid.New(), Name: input.Name, CreatedBy: ownerID}
 
 	s.teamWriter.On("Create", mock.Anything, tx, input, ownerID).
 		Return(team, nil).Once()
@@ -50,14 +50,14 @@ func (s *AdapterSuite) TestCreate_WithTx() {
 
 func (s *AdapterSuite) TestCreate_WriterError() {
 	ownerID := uuid.New()
-	input := &model.TeamInput{Name: "Team"}
+	input := model.TeamInput{Name: "Team"}
 
 	s.teamWriter.On("Create", mock.Anything, mock.Anything, input, ownerID).
-		Return((*model.Team)(nil), assert.AnError).Once()
+		Return(model.Team{}, assert.AnError).Once()
 
 	got, err := s.repo.Create(s.ctx, nil, input, ownerID)
 
 	assert.Error(s.T(), err)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.Team{}, got)
 	s.teamWriter.AssertExpectations(s.T())
 }

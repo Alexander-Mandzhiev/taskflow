@@ -13,7 +13,7 @@ func (s *AdapterSuite) TestRestore_Success() {
 	tx := &sqlx.Tx{}
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	task := &model.Task{TeamID: teamID}
+	task := model.Task{TeamID: teamID}
 
 	s.taskReader.On("GetByIDIncludeDeleted", mock.Anything, tx, taskID).Return(task, nil).Once()
 	s.taskWriter.On("Restore", mock.Anything, tx, taskID).
@@ -29,7 +29,7 @@ func (s *AdapterSuite) TestRestore_Success() {
 func (s *AdapterSuite) TestRestore_TaskNotFound() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 	s.taskReader.On("GetByIDIncludeDeleted", mock.Anything, mock.Anything, taskID).
-		Return(nil, model.ErrTaskNotFound).Once()
+		Return(model.Task{}, model.ErrTaskNotFound).Once()
 
 	err := s.repo.Restore(s.ctx, nil, taskID)
 

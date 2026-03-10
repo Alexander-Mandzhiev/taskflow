@@ -14,7 +14,7 @@ import (
 func (s *AdapterSuite) TestListHistoryByTaskID_Success() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 	changedBy := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	entries := []*model.TaskHistory{
+	entries := []model.TaskHistory{
 		{
 			ID:        uuid.New(),
 			TaskID:    taskID,
@@ -43,7 +43,7 @@ func (s *AdapterSuite) TestListHistoryByTaskID_Empty() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 
 	s.historyReader.On("ListByTaskID", mock.Anything, mock.Anything, taskID).
-		Return([]*model.TaskHistory{}, nil).Once()
+		Return([]model.TaskHistory{}, nil).Once()
 
 	got, err := s.repo.ListHistoryByTaskID(s.ctx, nil, taskID)
 
@@ -57,7 +57,7 @@ func (s *AdapterSuite) TestListHistoryByTaskID_WithTx_ReaderError() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 
 	s.historyReader.On("ListByTaskID", mock.Anything, tx, taskID).
-		Return(([]*model.TaskHistory)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.repo.ListHistoryByTaskID(s.ctx, tx, taskID)
 

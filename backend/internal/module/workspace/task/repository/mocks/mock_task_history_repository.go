@@ -27,7 +27,7 @@ func (_m *TaskHistoryRepository) EXPECT() *TaskHistoryRepository_Expecter {
 }
 
 // CreateHistoryEntry provides a mock function with given fields: ctx, tx, entry
-func (_m *TaskHistoryRepository) CreateHistoryEntry(ctx context.Context, tx *sqlx.Tx, entry *model.TaskHistory) error {
+func (_m *TaskHistoryRepository) CreateHistoryEntry(ctx context.Context, tx *sqlx.Tx, entry model.TaskHistory) error {
 	ret := _m.Called(ctx, tx, entry)
 
 	if len(ret) == 0 {
@@ -35,7 +35,7 @@ func (_m *TaskHistoryRepository) CreateHistoryEntry(ctx context.Context, tx *sql
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TaskHistory) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TaskHistory) error); ok {
 		r0 = rf(ctx, tx, entry)
 	} else {
 		r0 = ret.Error(0)
@@ -52,14 +52,14 @@ type TaskHistoryRepository_CreateHistoryEntry_Call struct {
 // CreateHistoryEntry is a helper method to define mock.On call
 //   - ctx context.Context
 //   - tx *sqlx.Tx
-//   - entry *model.TaskHistory
+//   - entry model.TaskHistory
 func (_e *TaskHistoryRepository_Expecter) CreateHistoryEntry(ctx interface{}, tx interface{}, entry interface{}) *TaskHistoryRepository_CreateHistoryEntry_Call {
 	return &TaskHistoryRepository_CreateHistoryEntry_Call{Call: _e.mock.On("CreateHistoryEntry", ctx, tx, entry)}
 }
 
-func (_c *TaskHistoryRepository_CreateHistoryEntry_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, entry *model.TaskHistory)) *TaskHistoryRepository_CreateHistoryEntry_Call {
+func (_c *TaskHistoryRepository_CreateHistoryEntry_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, entry model.TaskHistory)) *TaskHistoryRepository_CreateHistoryEntry_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(*model.TaskHistory))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(model.TaskHistory))
 	})
 	return _c
 }
@@ -69,29 +69,29 @@ func (_c *TaskHistoryRepository_CreateHistoryEntry_Call) Return(_a0 error) *Task
 	return _c
 }
 
-func (_c *TaskHistoryRepository_CreateHistoryEntry_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, *model.TaskHistory) error) *TaskHistoryRepository_CreateHistoryEntry_Call {
+func (_c *TaskHistoryRepository_CreateHistoryEntry_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, model.TaskHistory) error) *TaskHistoryRepository_CreateHistoryEntry_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListHistoryByTaskID provides a mock function with given fields: ctx, tx, taskID
-func (_m *TaskHistoryRepository) ListHistoryByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]*model.TaskHistory, error) {
+func (_m *TaskHistoryRepository) ListHistoryByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]model.TaskHistory, error) {
 	ret := _m.Called(ctx, tx, taskID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListHistoryByTaskID")
 	}
 
-	var r0 []*model.TaskHistory
+	var r0 []model.TaskHistory
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TaskHistory, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TaskHistory, error)); ok {
 		return rf(ctx, tx, taskID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []*model.TaskHistory); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []model.TaskHistory); ok {
 		r0 = rf(ctx, tx, taskID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TaskHistory)
+			r0 = ret.Get(0).([]model.TaskHistory)
 		}
 	}
 
@@ -124,12 +124,12 @@ func (_c *TaskHistoryRepository_ListHistoryByTaskID_Call) Run(run func(ctx conte
 	return _c
 }
 
-func (_c *TaskHistoryRepository_ListHistoryByTaskID_Call) Return(_a0 []*model.TaskHistory, _a1 error) *TaskHistoryRepository_ListHistoryByTaskID_Call {
+func (_c *TaskHistoryRepository_ListHistoryByTaskID_Call) Return(_a0 []model.TaskHistory, _a1 error) *TaskHistoryRepository_ListHistoryByTaskID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskHistoryRepository_ListHistoryByTaskID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TaskHistory, error)) *TaskHistoryRepository_ListHistoryByTaskID_Call {
+func (_c *TaskHistoryRepository_ListHistoryByTaskID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TaskHistory, error)) *TaskHistoryRepository_ListHistoryByTaskID_Call {
 	_c.Call.Return(run)
 	return _c
 }

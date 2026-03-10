@@ -25,27 +25,25 @@ func (_m *TaskService) EXPECT() *TaskService_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, userID, teamID, input
-func (_m *TaskService) Create(ctx context.Context, userID uuid.UUID, teamID uuid.UUID, input *model.TaskInput) (*model.Task, error) {
+func (_m *TaskService) Create(ctx context.Context, userID uuid.UUID, teamID uuid.UUID, input model.TaskInput) (model.Task, error) {
 	ret := _m.Called(ctx, userID, teamID, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.Task
+	var r0 model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, *model.TaskInput) (*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, model.TaskInput) (model.Task, error)); ok {
 		return rf(ctx, userID, teamID, input)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, *model.TaskInput) *model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, model.TaskInput) model.Task); ok {
 		r0 = rf(ctx, userID, teamID, input)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Task)
-		}
+		r0 = ret.Get(0).(model.Task)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, *model.TaskInput) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, model.TaskInput) error); ok {
 		r1 = rf(ctx, userID, teamID, input)
 	} else {
 		r1 = ret.Error(1)
@@ -63,24 +61,24 @@ type TaskService_Create_Call struct {
 //   - ctx context.Context
 //   - userID uuid.UUID
 //   - teamID uuid.UUID
-//   - input *model.TaskInput
+//   - input model.TaskInput
 func (_e *TaskService_Expecter) Create(ctx interface{}, userID interface{}, teamID interface{}, input interface{}) *TaskService_Create_Call {
 	return &TaskService_Create_Call{Call: _e.mock.On("Create", ctx, userID, teamID, input)}
 }
 
-func (_c *TaskService_Create_Call) Run(run func(ctx context.Context, userID uuid.UUID, teamID uuid.UUID, input *model.TaskInput)) *TaskService_Create_Call {
+func (_c *TaskService_Create_Call) Run(run func(ctx context.Context, userID uuid.UUID, teamID uuid.UUID, input model.TaskInput)) *TaskService_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(uuid.UUID), args[3].(*model.TaskInput))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(uuid.UUID), args[3].(model.TaskInput))
 	})
 	return _c
 }
 
-func (_c *TaskService_Create_Call) Return(_a0 *model.Task, _a1 error) *TaskService_Create_Call {
+func (_c *TaskService_Create_Call) Return(_a0 model.Task, _a1 error) *TaskService_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskService_Create_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, *model.TaskInput) (*model.Task, error)) *TaskService_Create_Call {
+func (_c *TaskService_Create_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, model.TaskInput) (model.Task, error)) *TaskService_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -134,24 +132,22 @@ func (_c *TaskService_Delete_Call) RunAndReturn(run func(context.Context, uuid.U
 }
 
 // GetByID provides a mock function with given fields: ctx, taskID, userID
-func (_m *TaskService) GetByID(ctx context.Context, taskID uuid.UUID, userID uuid.UUID) (*model.Task, error) {
+func (_m *TaskService) GetByID(ctx context.Context, taskID uuid.UUID, userID uuid.UUID) (model.Task, error) {
 	ret := _m.Called(ctx, taskID, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 *model.Task
+	var r0 model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (model.Task, error)); ok {
 		return rf(ctx, taskID, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) model.Task); ok {
 		r0 = rf(ctx, taskID, userID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Task)
-		}
+		r0 = ret.Get(0).(model.Task)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
@@ -183,34 +179,34 @@ func (_c *TaskService_GetByID_Call) Run(run func(ctx context.Context, taskID uui
 	return _c
 }
 
-func (_c *TaskService_GetByID_Call) Return(_a0 *model.Task, _a1 error) *TaskService_GetByID_Call {
+func (_c *TaskService_GetByID_Call) Return(_a0 model.Task, _a1 error) *TaskService_GetByID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskService_GetByID_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) (*model.Task, error)) *TaskService_GetByID_Call {
+func (_c *TaskService_GetByID_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) (model.Task, error)) *TaskService_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetHistory provides a mock function with given fields: ctx, taskID, userID
-func (_m *TaskService) GetHistory(ctx context.Context, taskID uuid.UUID, userID uuid.UUID) ([]*model.TaskHistory, error) {
+func (_m *TaskService) GetHistory(ctx context.Context, taskID uuid.UUID, userID uuid.UUID) ([]model.TaskHistory, error) {
 	ret := _m.Called(ctx, taskID, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetHistory")
 	}
 
-	var r0 []*model.TaskHistory
+	var r0 []model.TaskHistory
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) ([]*model.TaskHistory, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) ([]model.TaskHistory, error)); ok {
 		return rf(ctx, taskID, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) []*model.TaskHistory); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) []model.TaskHistory); ok {
 		r0 = rf(ctx, taskID, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TaskHistory)
+			r0 = ret.Get(0).([]model.TaskHistory)
 		}
 	}
 
@@ -243,45 +239,45 @@ func (_c *TaskService_GetHistory_Call) Run(run func(ctx context.Context, taskID 
 	return _c
 }
 
-func (_c *TaskService_GetHistory_Call) Return(_a0 []*model.TaskHistory, _a1 error) *TaskService_GetHistory_Call {
+func (_c *TaskService_GetHistory_Call) Return(_a0 []model.TaskHistory, _a1 error) *TaskService_GetHistory_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskService_GetHistory_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) ([]*model.TaskHistory, error)) *TaskService_GetHistory_Call {
+func (_c *TaskService_GetHistory_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) ([]model.TaskHistory, error)) *TaskService_GetHistory_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // List provides a mock function with given fields: ctx, userID, filter
-func (_m *TaskService) List(ctx context.Context, userID uuid.UUID, filter *model.TaskListFilter) ([]*model.Task, int, error) {
+func (_m *TaskService) List(ctx context.Context, userID uuid.UUID, filter model.TaskListFilter) ([]model.Task, int, error) {
 	ret := _m.Called(ctx, userID, filter)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 []*model.Task
+	var r0 []model.Task
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *model.TaskListFilter) ([]*model.Task, int, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, model.TaskListFilter) ([]model.Task, int, error)); ok {
 		return rf(ctx, userID, filter)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *model.TaskListFilter) []*model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, model.TaskListFilter) []model.Task); ok {
 		r0 = rf(ctx, userID, filter)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.Task)
+			r0 = ret.Get(0).([]model.Task)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, *model.TaskListFilter) int); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, model.TaskListFilter) int); ok {
 		r1 = rf(ctx, userID, filter)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, *model.TaskListFilter) error); ok {
+	if rf, ok := ret.Get(2).(func(context.Context, uuid.UUID, model.TaskListFilter) error); ok {
 		r2 = rf(ctx, userID, filter)
 	} else {
 		r2 = ret.Error(2)
@@ -298,47 +294,45 @@ type TaskService_List_Call struct {
 // List is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userID uuid.UUID
-//   - filter *model.TaskListFilter
+//   - filter model.TaskListFilter
 func (_e *TaskService_Expecter) List(ctx interface{}, userID interface{}, filter interface{}) *TaskService_List_Call {
 	return &TaskService_List_Call{Call: _e.mock.On("List", ctx, userID, filter)}
 }
 
-func (_c *TaskService_List_Call) Run(run func(ctx context.Context, userID uuid.UUID, filter *model.TaskListFilter)) *TaskService_List_Call {
+func (_c *TaskService_List_Call) Run(run func(ctx context.Context, userID uuid.UUID, filter model.TaskListFilter)) *TaskService_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*model.TaskListFilter))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(model.TaskListFilter))
 	})
 	return _c
 }
 
-func (_c *TaskService_List_Call) Return(_a0 []*model.Task, _a1 int, _a2 error) *TaskService_List_Call {
+func (_c *TaskService_List_Call) Return(_a0 []model.Task, _a1 int, _a2 error) *TaskService_List_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *TaskService_List_Call) RunAndReturn(run func(context.Context, uuid.UUID, *model.TaskListFilter) ([]*model.Task, int, error)) *TaskService_List_Call {
+func (_c *TaskService_List_Call) RunAndReturn(run func(context.Context, uuid.UUID, model.TaskListFilter) ([]model.Task, int, error)) *TaskService_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Restore provides a mock function with given fields: ctx, userID, taskID
-func (_m *TaskService) Restore(ctx context.Context, userID uuid.UUID, taskID uuid.UUID) (*model.Task, error) {
+func (_m *TaskService) Restore(ctx context.Context, userID uuid.UUID, taskID uuid.UUID) (model.Task, error) {
 	ret := _m.Called(ctx, userID, taskID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Restore")
 	}
 
-	var r0 *model.Task
+	var r0 model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) (model.Task, error)); ok {
 		return rf(ctx, userID, taskID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) *model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) model.Task); ok {
 		r0 = rf(ctx, userID, taskID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Task)
-		}
+		r0 = ret.Get(0).(model.Task)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID) error); ok {
@@ -370,38 +364,36 @@ func (_c *TaskService_Restore_Call) Run(run func(ctx context.Context, userID uui
 	return _c
 }
 
-func (_c *TaskService_Restore_Call) Return(_a0 *model.Task, _a1 error) *TaskService_Restore_Call {
+func (_c *TaskService_Restore_Call) Return(_a0 model.Task, _a1 error) *TaskService_Restore_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskService_Restore_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) (*model.Task, error)) *TaskService_Restore_Call {
+func (_c *TaskService_Restore_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) (model.Task, error)) *TaskService_Restore_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function with given fields: ctx, userID, taskID, input
-func (_m *TaskService) Update(ctx context.Context, userID uuid.UUID, taskID uuid.UUID, input *model.TaskInput) (*model.Task, error) {
+func (_m *TaskService) Update(ctx context.Context, userID uuid.UUID, taskID uuid.UUID, input model.TaskInput) (model.Task, error) {
 	ret := _m.Called(ctx, userID, taskID, input)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 *model.Task
+	var r0 model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, *model.TaskInput) (*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, model.TaskInput) (model.Task, error)); ok {
 		return rf(ctx, userID, taskID, input)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, *model.TaskInput) *model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, model.TaskInput) model.Task); ok {
 		r0 = rf(ctx, userID, taskID, input)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Task)
-		}
+		r0 = ret.Get(0).(model.Task)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, *model.TaskInput) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, model.TaskInput) error); ok {
 		r1 = rf(ctx, userID, taskID, input)
 	} else {
 		r1 = ret.Error(1)
@@ -419,24 +411,24 @@ type TaskService_Update_Call struct {
 //   - ctx context.Context
 //   - userID uuid.UUID
 //   - taskID uuid.UUID
-//   - input *model.TaskInput
+//   - input model.TaskInput
 func (_e *TaskService_Expecter) Update(ctx interface{}, userID interface{}, taskID interface{}, input interface{}) *TaskService_Update_Call {
 	return &TaskService_Update_Call{Call: _e.mock.On("Update", ctx, userID, taskID, input)}
 }
 
-func (_c *TaskService_Update_Call) Run(run func(ctx context.Context, userID uuid.UUID, taskID uuid.UUID, input *model.TaskInput)) *TaskService_Update_Call {
+func (_c *TaskService_Update_Call) Run(run func(ctx context.Context, userID uuid.UUID, taskID uuid.UUID, input model.TaskInput)) *TaskService_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(uuid.UUID), args[3].(*model.TaskInput))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(uuid.UUID), args[3].(model.TaskInput))
 	})
 	return _c
 }
 
-func (_c *TaskService_Update_Call) Return(_a0 *model.Task, _a1 error) *TaskService_Update_Call {
+func (_c *TaskService_Update_Call) Return(_a0 model.Task, _a1 error) *TaskService_Update_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskService_Update_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, *model.TaskInput) (*model.Task, error)) *TaskService_Update_Call {
+func (_c *TaskService_Update_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, model.TaskInput) (model.Task, error)) *TaskService_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

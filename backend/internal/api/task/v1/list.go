@@ -46,21 +46,21 @@ func (api *API) List(w http.ResponseWriter, r *http.Request) {
 }
 
 // parseTaskListFilter собирает TaskListFilter из query-параметров. Использует pkg/util для парсинга.
-func parseTaskListFilter(q url.Values) (*model.TaskListFilter, error) {
+func parseTaskListFilter(q url.Values) (model.TaskListFilter, error) {
 	teamIDStr := q.Get("team_id")
 	if teamIDStr == "" {
-		return nil, model.ErrTeamIDRequired
+		return model.TaskListFilter{}, model.ErrTeamIDRequired
 	}
 	teamID, err := util.ParseUUID(teamIDStr)
 	if err != nil {
-		return nil, model.ErrForbidden
+		return model.TaskListFilter{}, model.ErrForbidden
 	}
 
 	limit := defaultLimit
 	if l := q.Get("limit"); l != "" {
 		limit, err = util.ParseInt(l)
 		if err != nil || limit <= 0 {
-			return nil, model.ErrPaginationRequired
+			return model.TaskListFilter{}, model.ErrPaginationRequired
 		}
 		if limit > maxLimit {
 			limit = maxLimit
@@ -75,7 +75,7 @@ func parseTaskListFilter(q url.Values) (*model.TaskListFilter, error) {
 		}
 	}
 
-	filter := &model.TaskListFilter{
+	filter := model.TaskListFilter{
 		TeamID: &teamID,
 		Limit:  limit,
 		Offset: offset,
@@ -86,7 +86,7 @@ func parseTaskListFilter(q url.Values) (*model.TaskListFilter, error) {
 	if a := q.Get("assignee_id"); a != "" {
 		aid, err := util.ParseUUID(a)
 		if err != nil {
-			return nil, model.ErrInvalidAssigneeID
+			return model.TaskListFilter{}, model.ErrInvalidAssigneeID
 		}
 		filter.AssigneeID = &aid
 	}

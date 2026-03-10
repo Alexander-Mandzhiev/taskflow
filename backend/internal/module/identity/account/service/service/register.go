@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 
@@ -24,18 +25,15 @@ func (s *accountService) Register(ctx context.Context, input accountmodel.Regist
 
 	// 2. Быстрая транзакция
 	err = s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
-		// Проверка для UX: избежать лишнего Insert, если email уже занят
 		existing, errGet := s.userRepo.GetByEmail(ctx, tx, input.Email)
 		if errGet != nil && !errors.Is(errGet, usermodel.ErrUserNotFound) {
 			return errGet
 		}
-		if existing != nil {
+		if existing.ID != uuid.Nil {
 			return usermodel.ErrEmailDuplicate
 		}
 
-		userInput := &usermodel.UserInput{Email: input.Email, Name: input.Name}
-		// Create сам проверит дубликат через БД и вернёт ErrEmailDuplicate,
-		// если кто-то зарегистрировался за миллисекунды после GetByEmail
+		userInput := usermodel.UserInput{Email: input.Email, Name: input.Name}
 		_, errCreate := s.userRepo.Create(ctx, tx, userInput, hash)
 		return errCreate
 	})

@@ -25,24 +25,22 @@ func (_m *TaskCommentService) EXPECT() *TaskCommentService_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, taskID, userID, content
-func (_m *TaskCommentService) Create(ctx context.Context, taskID uuid.UUID, userID uuid.UUID, content string) (*model.TaskComment, error) {
+func (_m *TaskCommentService) Create(ctx context.Context, taskID uuid.UUID, userID uuid.UUID, content string) (model.TaskComment, error) {
 	ret := _m.Called(ctx, taskID, userID, content)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.TaskComment
+	var r0 model.TaskComment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string) (*model.TaskComment, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string) (model.TaskComment, error)); ok {
 		return rf(ctx, taskID, userID, content)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string) *model.TaskComment); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID, string) model.TaskComment); ok {
 		r0 = rf(ctx, taskID, userID, content)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.TaskComment)
-		}
+		r0 = ret.Get(0).(model.TaskComment)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, uuid.UUID, string) error); ok {
@@ -75,34 +73,34 @@ func (_c *TaskCommentService_Create_Call) Run(run func(ctx context.Context, task
 	return _c
 }
 
-func (_c *TaskCommentService_Create_Call) Return(_a0 *model.TaskComment, _a1 error) *TaskCommentService_Create_Call {
+func (_c *TaskCommentService_Create_Call) Return(_a0 model.TaskComment, _a1 error) *TaskCommentService_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskCommentService_Create_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, string) (*model.TaskComment, error)) *TaskCommentService_Create_Call {
+func (_c *TaskCommentService_Create_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID, string) (model.TaskComment, error)) *TaskCommentService_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListByTaskID provides a mock function with given fields: ctx, taskID, userID
-func (_m *TaskCommentService) ListByTaskID(ctx context.Context, taskID uuid.UUID, userID uuid.UUID) ([]*model.TaskComment, error) {
+func (_m *TaskCommentService) ListByTaskID(ctx context.Context, taskID uuid.UUID, userID uuid.UUID) ([]model.TaskComment, error) {
 	ret := _m.Called(ctx, taskID, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListByTaskID")
 	}
 
-	var r0 []*model.TaskComment
+	var r0 []model.TaskComment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) ([]*model.TaskComment, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) ([]model.TaskComment, error)); ok {
 		return rf(ctx, taskID, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) []*model.TaskComment); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, uuid.UUID) []model.TaskComment); ok {
 		r0 = rf(ctx, taskID, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TaskComment)
+			r0 = ret.Get(0).([]model.TaskComment)
 		}
 	}
 
@@ -135,12 +133,12 @@ func (_c *TaskCommentService_ListByTaskID_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *TaskCommentService_ListByTaskID_Call) Return(_a0 []*model.TaskComment, _a1 error) *TaskCommentService_ListByTaskID_Call {
+func (_c *TaskCommentService_ListByTaskID_Call) Return(_a0 []model.TaskComment, _a1 error) *TaskCommentService_ListByTaskID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskCommentService_ListByTaskID_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) ([]*model.TaskComment, error)) *TaskCommentService_ListByTaskID_Call {
+func (_c *TaskCommentService_ListByTaskID_Call) RunAndReturn(run func(context.Context, uuid.UUID, uuid.UUID) ([]model.TaskComment, error)) *TaskCommentService_ListByTaskID_Call {
 	_c.Call.Return(run)
 	return _c
 }

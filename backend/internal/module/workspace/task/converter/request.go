@@ -9,12 +9,12 @@ import (
 
 // CreateTaskRequestToDomain конвертирует DTO запроса создания задачи в домен (TaskInput + teamID).
 // teamID парсится из req.TeamID; assignee_id опционален.
-func CreateTaskRequestToDomain(req dto.CreateTaskRequest) (teamID uuid.UUID, input *model.TaskInput, err error) {
+func CreateTaskRequestToDomain(req dto.CreateTaskRequest) (teamID uuid.UUID, input model.TaskInput, err error) {
 	teamID, err = uuid.Parse(req.TeamID)
 	if err != nil {
-		return uuid.Nil, nil, err
+		return uuid.Nil, model.TaskInput{}, err
 	}
-	input = &model.TaskInput{
+	input = model.TaskInput{
 		Title:       req.Title,
 		Description: req.Description,
 		Status:      req.Status,
@@ -22,7 +22,7 @@ func CreateTaskRequestToDomain(req dto.CreateTaskRequest) (teamID uuid.UUID, inp
 	if req.AssigneeID != nil && *req.AssigneeID != "" {
 		aid, e := uuid.Parse(*req.AssigneeID)
 		if e != nil {
-			return uuid.Nil, nil, e
+			return uuid.Nil, model.TaskInput{}, e
 		}
 		input.AssigneeID = &aid
 	}
@@ -30,8 +30,8 @@ func CreateTaskRequestToDomain(req dto.CreateTaskRequest) (teamID uuid.UUID, inp
 }
 
 // UpdateTaskRequestToDomain конвертирует DTO запроса обновления задачи в доменную модель.
-func UpdateTaskRequestToDomain(req dto.UpdateTaskRequest) (*model.TaskInput, error) {
-	input := &model.TaskInput{
+func UpdateTaskRequestToDomain(req dto.UpdateTaskRequest) (model.TaskInput, error) {
+	input := model.TaskInput{
 		Title:       req.Title,
 		Description: req.Description,
 		Status:      req.Status,
@@ -39,7 +39,7 @@ func UpdateTaskRequestToDomain(req dto.UpdateTaskRequest) (*model.TaskInput, err
 	if req.AssigneeID != nil && *req.AssigneeID != "" {
 		aid, err := uuid.Parse(*req.AssigneeID)
 		if err != nil {
-			return nil, err
+			return model.TaskInput{}, err
 		}
 		input.AssigneeID = &aid
 	} else {

@@ -40,11 +40,7 @@ func ToDomainTeamWithRole(r resources.TeamWithRoleRow) (model.TeamWithRole, erro
 }
 
 // ToRepoTeamInput преобразует доменный TeamInput в ресурс репозитория.
-// Вызывающий гарантирует m != nil; проверка на nil выполняется в сервисе до вызова репозитория.
-func ToRepoTeamInput(m *model.TeamInput) resources.TeamInput {
-	if m == nil {
-		return resources.TeamInput{}
-	}
+func ToRepoTeamInput(m model.TeamInput) resources.TeamInput {
 	return resources.TeamInput{
 		Name: m.Name,
 	}

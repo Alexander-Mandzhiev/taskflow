@@ -15,9 +15,9 @@ func (s *ServiceSuite) TestListByTaskID_Success() {
 	taskID := uuid.New()
 	userID := uuid.New()
 	teamID := uuid.New()
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
-	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
-	comments := []*model.TaskComment{
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	member := teamModel.TeamMember{UserID: userID, TeamID: teamID}
+	comments := []model.TaskComment{
 		{
 			ID:        uuid.New(),
 			TaskID:    taskID,
@@ -47,7 +47,7 @@ func (s *ServiceSuite) TestListByTaskID_TaskNotFound() {
 	userID := uuid.New()
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).
-		Return((*model.Task)(nil), model.ErrTaskNotFound).Once()
+		Return(model.Task{}, model.ErrTaskNotFound).Once()
 
 	got, err := s.svc.ListByTaskID(s.ctx, taskID, userID)
 
@@ -63,11 +63,11 @@ func (s *ServiceSuite) TestListByTaskID_NotMember() {
 	taskID := uuid.New()
 	userID := uuid.New()
 	teamID := uuid.New()
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
-		Return((*teamModel.TeamMember)(nil), teamModel.ErrMemberNotFound).Once()
+		Return(teamModel.TeamMember{}, teamModel.ErrMemberNotFound).Once()
 
 	got, err := s.svc.ListByTaskID(s.ctx, taskID, userID)
 
@@ -83,13 +83,13 @@ func (s *ServiceSuite) TestListByTaskID_CommentRepoError() {
 	taskID := uuid.New()
 	userID := uuid.New()
 	teamID := uuid.New()
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
-	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	member := teamModel.TeamMember{UserID: userID, TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
 	s.commentRepo.On("ListCommentsByTaskID", mock.Anything, mock.Anything, taskID).
-		Return(([]*model.TaskComment)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.svc.ListByTaskID(s.ctx, taskID, userID)
 

@@ -27,27 +27,25 @@ func (_m *TeamRepository) EXPECT() *TeamRepository_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, tx, input, ownerUserID
-func (_m *TeamRepository) Create(ctx context.Context, tx *sqlx.Tx, input *model.TeamInput, ownerUserID uuid.UUID) (*model.Team, error) {
+func (_m *TeamRepository) Create(ctx context.Context, tx *sqlx.Tx, input model.TeamInput, ownerUserID uuid.UUID) (model.Team, error) {
 	ret := _m.Called(ctx, tx, input, ownerUserID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.Team
+	var r0 model.Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TeamInput, uuid.UUID) (*model.Team, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TeamInput, uuid.UUID) (model.Team, error)); ok {
 		return rf(ctx, tx, input, ownerUserID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TeamInput, uuid.UUID) *model.Team); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TeamInput, uuid.UUID) model.Team); ok {
 		r0 = rf(ctx, tx, input, ownerUserID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Team)
-		}
+		r0 = ret.Get(0).(model.Team)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, *model.TeamInput, uuid.UUID) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, model.TeamInput, uuid.UUID) error); ok {
 		r1 = rf(ctx, tx, input, ownerUserID)
 	} else {
 		r1 = ret.Error(1)
@@ -64,48 +62,46 @@ type TeamRepository_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - tx *sqlx.Tx
-//   - input *model.TeamInput
+//   - input model.TeamInput
 //   - ownerUserID uuid.UUID
 func (_e *TeamRepository_Expecter) Create(ctx interface{}, tx interface{}, input interface{}, ownerUserID interface{}) *TeamRepository_Create_Call {
 	return &TeamRepository_Create_Call{Call: _e.mock.On("Create", ctx, tx, input, ownerUserID)}
 }
 
-func (_c *TeamRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, input *model.TeamInput, ownerUserID uuid.UUID)) *TeamRepository_Create_Call {
+func (_c *TeamRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, input model.TeamInput, ownerUserID uuid.UUID)) *TeamRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(*model.TeamInput), args[3].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(model.TeamInput), args[3].(uuid.UUID))
 	})
 	return _c
 }
 
-func (_c *TeamRepository_Create_Call) Return(_a0 *model.Team, _a1 error) *TeamRepository_Create_Call {
+func (_c *TeamRepository_Create_Call) Return(_a0 model.Team, _a1 error) *TeamRepository_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, *model.TeamInput, uuid.UUID) (*model.Team, error)) *TeamRepository_Create_Call {
+func (_c *TeamRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, model.TeamInput, uuid.UUID) (model.Team, error)) *TeamRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByID provides a mock function with given fields: ctx, tx, teamID
-func (_m *TeamRepository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) (*model.Team, error) {
+func (_m *TeamRepository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) (model.Team, error) {
 	ret := _m.Called(ctx, tx, teamID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 *model.Team
+	var r0 model.Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) (*model.Team, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) (model.Team, error)); ok {
 		return rf(ctx, tx, teamID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) *model.Team); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) model.Team); ok {
 		r0 = rf(ctx, tx, teamID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Team)
-		}
+		r0 = ret.Get(0).(model.Team)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID) error); ok {
@@ -137,34 +133,34 @@ func (_c *TeamRepository_GetByID_Call) Run(run func(ctx context.Context, tx *sql
 	return _c
 }
 
-func (_c *TeamRepository_GetByID_Call) Return(_a0 *model.Team, _a1 error) *TeamRepository_GetByID_Call {
+func (_c *TeamRepository_GetByID_Call) Return(_a0 model.Team, _a1 error) *TeamRepository_GetByID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamRepository_GetByID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) (*model.Team, error)) *TeamRepository_GetByID_Call {
+func (_c *TeamRepository_GetByID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) (model.Team, error)) *TeamRepository_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListByUserID provides a mock function with given fields: ctx, tx, userID
-func (_m *TeamRepository) ListByUserID(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) ([]*model.TeamWithRole, error) {
+func (_m *TeamRepository) ListByUserID(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) ([]model.TeamWithRole, error) {
 	ret := _m.Called(ctx, tx, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListByUserID")
 	}
 
-	var r0 []*model.TeamWithRole
+	var r0 []model.TeamWithRole
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TeamWithRole, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TeamWithRole, error)); ok {
 		return rf(ctx, tx, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []*model.TeamWithRole); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []model.TeamWithRole); ok {
 		r0 = rf(ctx, tx, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TeamWithRole)
+			r0 = ret.Get(0).([]model.TeamWithRole)
 		}
 	}
 
@@ -197,12 +193,12 @@ func (_c *TeamRepository_ListByUserID_Call) Run(run func(ctx context.Context, tx
 	return _c
 }
 
-func (_c *TeamRepository_ListByUserID_Call) Return(_a0 []*model.TeamWithRole, _a1 error) *TeamRepository_ListByUserID_Call {
+func (_c *TeamRepository_ListByUserID_Call) Return(_a0 []model.TeamWithRole, _a1 error) *TeamRepository_ListByUserID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamRepository_ListByUserID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TeamWithRole, error)) *TeamRepository_ListByUserID_Call {
+func (_c *TeamRepository_ListByUserID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TeamWithRole, error)) *TeamRepository_ListByUserID_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -13,10 +13,7 @@ import (
 )
 
 // Set создаёт или обновляет сессию в кеше по jti с заданным TTL.
-func (r *repository) Set(ctx context.Context, jti uuid.UUID, session *model.Session, ttl time.Duration) error {
-	if session == nil {
-		return nil
-	}
+func (r *repository) Set(ctx context.Context, jti uuid.UUID, session model.Session, ttl time.Duration) error {
 	c := converter.ToCache(session)
 	data, err := json.Marshal(c)
 	if err != nil {

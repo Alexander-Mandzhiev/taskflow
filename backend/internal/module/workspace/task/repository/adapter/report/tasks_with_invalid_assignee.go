@@ -9,6 +9,6 @@ import (
 )
 
 // TasksWithInvalidAssignee возвращает задачи с assignee не из команды.
-func (r *Adapter) TasksWithInvalidAssignee(ctx context.Context, tx *sqlx.Tx) ([]*model.Task, error) {
+func (r *Adapter) TasksWithInvalidAssignee(ctx context.Context, tx *sqlx.Tx) ([]model.Task, error) {
 	return r.reader.TasksWithInvalidAssignee(ctx, tx)
 }

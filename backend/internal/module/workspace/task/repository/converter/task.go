@@ -46,10 +46,7 @@ func ToDomainTask(r resources.TaskRow) (model.Task, error) {
 
 // ToRepoTaskCreateInput преобразует доменный TaskInput в ресурс репозитория для INSERT. teamID передаётся в сигнатуре.
 // Валидация и значения по умолчанию — в сервисе; сюда приходят уже подготовленные данные.
-func ToRepoTaskCreateInput(teamID uuid.UUID, input *model.TaskInput) (resources.TaskCreateInput, error) {
-	if input == nil {
-		return resources.TaskCreateInput{}, nil
-	}
+func ToRepoTaskCreateInput(teamID uuid.UUID, input model.TaskInput) (resources.TaskCreateInput, error) {
 	out := resources.TaskCreateInput{
 		TeamID:      teamID.String(),
 		Title:       input.Title,

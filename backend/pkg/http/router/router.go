@@ -10,10 +10,13 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
+
+	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
 )
 
 // NewRouter создаёт роутер: chi (RequestID, RealIP) → globalMiddlewares → Recoverer, Timeout.
 // globalMiddlewares задаются снаружи (в app), порядок в слайсе сохраняется.
+// Один timeout из конфига для всех путей (API и /debug/); в local — больше для pprof, в проде — меньше.
 func NewRouter(timeout time.Duration, globalMiddlewares []func(http.Handler) http.Handler) *chi.Mux {
 	r := chi.NewRouter()
 
@@ -25,7 +28,7 @@ func NewRouter(timeout time.Duration, globalMiddlewares []func(http.Handler) htt
 	}
 
 	r.Use(chimw.Recoverer)
-	r.Use(chimw.Timeout(timeout))
+	r.Use(middleware.TimeoutByPath(timeout, timeout, "/debug/"))
 
 	return r
 }

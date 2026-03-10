@@ -11,7 +11,7 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *taskReportService) TopCreatorsByTeam(ctx context.Context, userID uuid.UUID, since time.Time, limit int) ([]*model.TeamTopCreator, error) {
+func (s *taskReportService) TopCreatorsByTeam(ctx context.Context, userID uuid.UUID, since time.Time, limit int) ([]model.TeamTopCreator, error) {
 	if limit <= 0 {
 		return nil, model.ErrInvalidLimit
 	}
@@ -31,7 +31,7 @@ func (s *taskReportService) TopCreatorsByTeam(ctx context.Context, userID uuid.U
 		return nil, err
 	}
 
-	out := make([]*model.TeamTopCreator, 0, len(all))
+	out := make([]model.TeamTopCreator, 0, len(all))
 	for _, c := range all {
 		if _, ok := teamIDs[c.TeamID]; ok {
 			out = append(out, c)

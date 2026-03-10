@@ -12,7 +12,7 @@ import (
 func (s *AdapterSuite) TestGetMember_Success() {
 	teamID := uuid.New()
 	userID := uuid.New()
-	member := &model.TeamMember{TeamID: teamID, UserID: userID, Role: model.RoleAdmin}
+	member := model.TeamMember{TeamID: teamID, UserID: userID, Role: model.RoleAdmin}
 
 	s.memberReader.On("GetMember", mock.Anything, (*sqlx.Tx)(nil), teamID, userID).
 		Return(member, nil).Once()
@@ -28,7 +28,7 @@ func (s *AdapterSuite) TestGetMember_WithTx() {
 	tx := &sqlx.Tx{}
 	teamID := uuid.New()
 	userID := uuid.New()
-	member := &model.TeamMember{TeamID: teamID, UserID: userID, Role: model.RoleMember}
+	member := model.TeamMember{TeamID: teamID, UserID: userID, Role: model.RoleMember}
 
 	s.memberReader.On("GetMember", mock.Anything, tx, teamID, userID).
 		Return(member, nil).Once()
@@ -44,12 +44,12 @@ func (s *AdapterSuite) TestGetMember_NotFound() {
 	teamID := uuid.New()
 	userID := uuid.New()
 	s.memberReader.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
-		Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
+		Return(model.TeamMember{}, model.ErrMemberNotFound).Once()
 
 	got, err := s.repo.GetMember(s.ctx, nil, teamID, userID)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrMemberNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.TeamMember{}, got)
 	s.memberReader.AssertExpectations(s.T())
 }

@@ -16,7 +16,7 @@ import (
 
 func (s *APISuite) TestList_Success() {
 	teamID := uuid.MustParse(testTeamID)
-	teams := []*model2.TeamWithRole{
+	teams := []model2.TeamWithRole{
 		{
 			Team: model2.Team{
 				ID:        teamID,
@@ -51,7 +51,7 @@ func (s *APISuite) TestList_Success() {
 }
 
 func (s *APISuite) TestList_Empty() {
-	s.teamService.On("ListByUserID", mock.Anything, uuid.MustParse(testOwnerUserID)).Return([]*model2.TeamWithRole{}, nil).Once()
+	s.teamService.On("ListByUserID", mock.Anything, uuid.MustParse(testOwnerUserID)).Return([]model2.TeamWithRole{}, nil).Once()
 
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/teams", nil)
 	req = req.WithContext(metadata.SetUserID(req.Context(), testOwnerUserID))

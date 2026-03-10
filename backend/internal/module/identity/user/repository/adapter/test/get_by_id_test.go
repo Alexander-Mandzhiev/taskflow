@@ -12,7 +12,7 @@ import (
 func (s *AdapterSuite) TestGetByID_WithTx_ReadsFromDB() {
 	tx := &sqlx.Tx{}
 	id := uuid.New().String()
-	user := &model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
+	user := model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
 
 	s.reader.On("GetByID", mock.Anything, tx, id).
 		Return(user, nil).Once()
@@ -28,10 +28,10 @@ func (s *AdapterSuite) TestGetByID_WithTx_ReadsFromDB() {
 
 func (s *AdapterSuite) TestGetByID_NoTx_CacheHit() {
 	id := uuid.New().String()
-	user := &model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
+	user := model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
 
 	s.cache.On("Get", mock.Anything, id).
-		Return(user, nil).Once()
+		Return(user, true, nil).Once()
 
 	got, err := s.repo.GetByID(s.ctx, nil, id)
 
@@ -43,11 +43,11 @@ func (s *AdapterSuite) TestGetByID_NoTx_CacheHit() {
 
 func (s *AdapterSuite) TestGetByID_NoTx_CacheHit_IgnoresCacheError() {
 	id := uuid.New().String()
-	user := &model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
+	user := model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
 
 	// Даже если Redis вернул ошибку, но значение есть — считаем кеш-хитом.
 	s.cache.On("Get", mock.Anything, id).
-		Return(user, assert.AnError).Once()
+		Return(user, true, assert.AnError).Once()
 
 	got, err := s.repo.GetByID(s.ctx, nil, id)
 
@@ -60,10 +60,10 @@ func (s *AdapterSuite) TestGetByID_NoTx_CacheHit_IgnoresCacheError() {
 
 func (s *AdapterSuite) TestGetByID_NoTx_CacheMiss_FallbackToDB() {
 	id := uuid.New().String()
-	user := &model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
+	user := model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
 
 	s.cache.On("Get", mock.Anything, id).
-		Return((*model.User)(nil), nil).Once()
+		Return(model.User{}, false, nil).Once()
 	s.reader.On("GetByID", mock.Anything, mock.Anything, id).
 		Return(user, nil).Once()
 	s.cache.On("Set", mock.Anything, id, user).
@@ -79,10 +79,10 @@ func (s *AdapterSuite) TestGetByID_NoTx_CacheMiss_FallbackToDB() {
 
 func (s *AdapterSuite) TestGetByID_NoTx_CacheMiss_CacheSetError_Ignored() {
 	id := uuid.New().String()
-	user := &model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
+	user := model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
 
 	s.cache.On("Get", mock.Anything, id).
-		Return((*model.User)(nil), nil).Once()
+		Return(model.User{}, false, nil).Once()
 	s.reader.On("GetByID", mock.Anything, mock.Anything, id).
 		Return(user, nil).Once()
 	s.cache.On("Set", mock.Anything, id, user).
@@ -98,10 +98,10 @@ func (s *AdapterSuite) TestGetByID_NoTx_CacheMiss_CacheSetError_Ignored() {
 
 func (s *AdapterSuite) TestGetByID_NoTx_CacheError_FallbackToDB() {
 	id := uuid.New().String()
-	user := &model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
+	user := model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
 
 	s.cache.On("Get", mock.Anything, id).
-		Return((*model.User)(nil), assert.AnError).Once()
+		Return(model.User{}, false, assert.AnError).Once()
 	s.reader.On("GetByID", mock.Anything, mock.Anything, id).
 		Return(user, nil).Once()
 	s.cache.On("Set", mock.Anything, id, user).
@@ -118,15 +118,15 @@ func (s *AdapterSuite) TestGetByID_NoTx_CacheError_FallbackToDB() {
 func (s *AdapterSuite) TestGetByID_NoTx_DBError() {
 	id := uuid.New().String()
 	s.cache.On("Get", mock.Anything, id).
-		Return((*model.User)(nil), nil).Once()
+		Return(model.User{}, false, nil).Once()
 	s.reader.On("GetByID", mock.Anything, mock.Anything, id).
-		Return((*model.User)(nil), model.ErrUserNotFound).Once()
+		Return(model.User{}, model.ErrUserNotFound).Once()
 
 	got, err := s.repo.GetByID(s.ctx, nil, id)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrUserNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.User{}, got)
 	s.cache.AssertExpectations(s.T())
 	s.reader.AssertExpectations(s.T())
 }

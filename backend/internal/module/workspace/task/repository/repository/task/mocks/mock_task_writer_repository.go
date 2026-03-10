@@ -27,27 +27,25 @@ func (_m *TaskWriterRepository) EXPECT() *TaskWriterRepository_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, tx, teamID, input, createdBy
-func (_m *TaskWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input *model.TaskInput, createdBy uuid.UUID) (*model.Task, error) {
+func (_m *TaskWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input model.TaskInput, createdBy uuid.UUID) (model.Task, error) {
 	ret := _m.Called(ctx, tx, teamID, input, createdBy)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.Task
+	var r0 model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput, uuid.UUID) (*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput, uuid.UUID) (model.Task, error)); ok {
 		return rf(ctx, tx, teamID, input, createdBy)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput, uuid.UUID) *model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput, uuid.UUID) model.Task); ok {
 		r0 = rf(ctx, tx, teamID, input, createdBy)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Task)
-		}
+		r0 = ret.Get(0).(model.Task)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput, uuid.UUID) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput, uuid.UUID) error); ok {
 		r1 = rf(ctx, tx, teamID, input, createdBy)
 	} else {
 		r1 = ret.Error(1)
@@ -65,25 +63,25 @@ type TaskWriterRepository_Create_Call struct {
 //   - ctx context.Context
 //   - tx *sqlx.Tx
 //   - teamID uuid.UUID
-//   - input *model.TaskInput
+//   - input model.TaskInput
 //   - createdBy uuid.UUID
 func (_e *TaskWriterRepository_Expecter) Create(ctx interface{}, tx interface{}, teamID interface{}, input interface{}, createdBy interface{}) *TaskWriterRepository_Create_Call {
 	return &TaskWriterRepository_Create_Call{Call: _e.mock.On("Create", ctx, tx, teamID, input, createdBy)}
 }
 
-func (_c *TaskWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input *model.TaskInput, createdBy uuid.UUID)) *TaskWriterRepository_Create_Call {
+func (_c *TaskWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input model.TaskInput, createdBy uuid.UUID)) *TaskWriterRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(uuid.UUID), args[3].(*model.TaskInput), args[4].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(uuid.UUID), args[3].(model.TaskInput), args[4].(uuid.UUID))
 	})
 	return _c
 }
 
-func (_c *TaskWriterRepository_Create_Call) Return(_a0 *model.Task, _a1 error) *TaskWriterRepository_Create_Call {
+func (_c *TaskWriterRepository_Create_Call) Return(_a0 model.Task, _a1 error) *TaskWriterRepository_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput, uuid.UUID) (*model.Task, error)) *TaskWriterRepository_Create_Call {
+func (_c *TaskWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput, uuid.UUID) (model.Task, error)) *TaskWriterRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -185,7 +183,7 @@ func (_c *TaskWriterRepository_SoftDelete_Call) RunAndReturn(run func(context.Co
 }
 
 // Update provides a mock function with given fields: ctx, tx, taskID, input
-func (_m *TaskWriterRepository) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input *model.TaskInput) error {
+func (_m *TaskWriterRepository) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input model.TaskInput) error {
 	ret := _m.Called(ctx, tx, taskID, input)
 
 	if len(ret) == 0 {
@@ -193,7 +191,7 @@ func (_m *TaskWriterRepository) Update(ctx context.Context, tx *sqlx.Tx, taskID 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput) error); ok {
 		r0 = rf(ctx, tx, taskID, input)
 	} else {
 		r0 = ret.Error(0)
@@ -211,14 +209,14 @@ type TaskWriterRepository_Update_Call struct {
 //   - ctx context.Context
 //   - tx *sqlx.Tx
 //   - taskID uuid.UUID
-//   - input *model.TaskInput
+//   - input model.TaskInput
 func (_e *TaskWriterRepository_Expecter) Update(ctx interface{}, tx interface{}, taskID interface{}, input interface{}) *TaskWriterRepository_Update_Call {
 	return &TaskWriterRepository_Update_Call{Call: _e.mock.On("Update", ctx, tx, taskID, input)}
 }
 
-func (_c *TaskWriterRepository_Update_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input *model.TaskInput)) *TaskWriterRepository_Update_Call {
+func (_c *TaskWriterRepository_Update_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input model.TaskInput)) *TaskWriterRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(uuid.UUID), args[3].(*model.TaskInput))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(uuid.UUID), args[3].(model.TaskInput))
 	})
 	return _c
 }
@@ -228,7 +226,7 @@ func (_c *TaskWriterRepository_Update_Call) Return(_a0 error) *TaskWriterReposit
 	return _c
 }
 
-func (_c *TaskWriterRepository_Update_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, *model.TaskInput) error) *TaskWriterRepository_Update_Call {
+func (_c *TaskWriterRepository_Update_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, model.TaskInput) error) *TaskWriterRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

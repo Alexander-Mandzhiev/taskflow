@@ -10,7 +10,7 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *teamService) ListByUserID(ctx context.Context, userID uuid.UUID) ([]*model.TeamWithRole, error) {
+func (s *teamService) ListByUserID(ctx context.Context, userID uuid.UUID) ([]model.TeamWithRole, error) {
 	teams, err := s.teamRepo.ListByUserID(ctx, nil, userID)
 	if err != nil {
 		logger.Error(ctx, "ListByUserID failed", zap.Error(err))

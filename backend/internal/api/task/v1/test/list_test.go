@@ -18,7 +18,7 @@ import (
 func (s *APISuite) TestList_Success() {
 	teamID := uuid.New()
 	userID := uuid.MustParse(testUserID)
-	tasks := []*model.Task{
+	tasks := []model.Task{
 		{
 			ID:        uuid.New(),
 			Title:     "Task 1",
@@ -30,8 +30,8 @@ func (s *APISuite) TestList_Success() {
 		},
 	}
 
-	s.taskService.On("List", mock.Anything, userID, mock.MatchedBy(func(f *model.TaskListFilter) bool {
-		return f != nil && f.TeamID != nil && *f.TeamID == teamID && f.Limit == 20 && f.Offset == 0
+	s.taskService.On("List", mock.Anything, userID, mock.MatchedBy(func(f model.TaskListFilter) bool {
+		return f.TeamID != nil && *f.TeamID == teamID && f.Limit == 20 && f.Offset == 0
 	})).Return(tasks, 1, nil).Once()
 
 	r := chi.NewRouter()

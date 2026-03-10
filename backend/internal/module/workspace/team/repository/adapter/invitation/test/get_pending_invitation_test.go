@@ -14,7 +14,7 @@ import (
 func (s *AdapterSuite) TestGetPendingInvitationByTeamAndEmail_Success() {
 	teamID := uuid.New()
 	email := "user@example.com"
-	inv := &model.TeamInvitation{
+	inv := model.TeamInvitation{
 		TeamID:    teamID,
 		Email:     email,
 		Token:     "token",
@@ -36,7 +36,7 @@ func (s *AdapterSuite) TestGetPendingInvitationByTeamAndEmail_WithTx() {
 	tx := &sqlx.Tx{}
 	teamID := uuid.New()
 	email := "a@b.com"
-	inv := &model.TeamInvitation{TeamID: teamID, Email: email, Status: model.InvitationStatusPending}
+	inv := model.TeamInvitation{TeamID: teamID, Email: email, Status: model.InvitationStatusPending}
 
 	s.invitationReader.On("GetPendingByTeamAndEmail", mock.Anything, tx, teamID, email).
 		Return(inv, nil).Once()
@@ -52,12 +52,12 @@ func (s *AdapterSuite) TestGetPendingInvitationByTeamAndEmail_NotFound() {
 	teamID := uuid.New()
 	email := "nobody@example.com"
 	s.invitationReader.On("GetPendingByTeamAndEmail", mock.Anything, mock.Anything, teamID, email).
-		Return((*model.TeamInvitation)(nil), model.ErrInvitationNotFound).Once()
+		Return(model.TeamInvitation{}, model.ErrInvitationNotFound).Once()
 
 	got, err := s.repo.GetPendingInvitationByTeamAndEmail(s.ctx, nil, teamID, email)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrInvitationNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.TeamInvitation{}, got)
 	s.invitationReader.AssertExpectations(s.T())
 }

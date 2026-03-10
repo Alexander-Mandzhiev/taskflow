@@ -10,12 +10,9 @@ import (
 )
 
 // Set сохраняет пользователя в кеш по id с TTL.
-func (r *repository) Set(ctx context.Context, id string, user *model.User) error {
-	if user == nil {
-		return nil
-	}
+func (r *repository) Set(ctx context.Context, id string, user model.User) error {
 	key := Key(id)
-	c := converter.ToCache(*user)
+	c := converter.ToCache(user)
 	data, err := json.Marshal(c)
 	if err != nil {
 		return fmt.Errorf("cache marshal: %w", err)

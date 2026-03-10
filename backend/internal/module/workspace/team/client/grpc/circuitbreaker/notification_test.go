@@ -26,7 +26,7 @@ type countingMockNotification struct {
 	returnNilAfter int // после стольких вызовов возвращать nil (0 = всегда err)
 }
 
-func (m *countingMockNotification) NotifyInvitation(ctx context.Context, inv *model.TeamInvitation, teamName, inviterName string) error {
+func (m *countingMockNotification) NotifyInvitation(ctx context.Context, inv model.TeamInvitation, teamName, inviterName string) error {
 	m.mu.Lock()
 	m.callCount++
 	n := m.callCount
@@ -52,7 +52,7 @@ func TestNotificationWithCircuitBreaker_opens_after_consecutive_failures(t *test
 	}
 	w := NewNotificationWithCircuitBreaker(inner, st)
 	ctx := context.Background()
-	inv := &model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
+	inv := model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
 
 	// 3 вызова с ошибкой — inner вызывается 3 раза
 	for i := 0; i < 3; i++ {
@@ -79,7 +79,7 @@ func TestNotificationWithCircuitBreaker_halfopen_allows_probe_after_timeout(t *t
 	st.Timeout = 30 * time.Millisecond // короткий таймаут для теста
 	w := NewNotificationWithCircuitBreaker(inner, st)
 	ctx := context.Background()
-	inv := &model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
+	inv := model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
 
 	// 3 ошибки -> переход в Open
 	for i := 0; i < 3; i++ {
@@ -111,7 +111,7 @@ func TestNotifyInvitation_success(t *testing.T) {
 	inner := &countingMockNotification{err: nil}
 	w := NewNotificationWithCircuitBreaker(inner, gobreaker.Settings{})
 	ctx := context.Background()
-	inv := &model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
+	inv := model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
 
 	err := w.NotifyInvitation(ctx, inv, "Team", "User")
 	require.NoError(t, err)
@@ -127,7 +127,7 @@ func TestNewNotificationWithCircuitBreaker_empty_settings(t *testing.T) {
 	inner := &countingMockNotification{err: errors.New("fail")}
 	w := NewNotificationWithCircuitBreaker(inner, gobreaker.Settings{})
 	ctx := context.Background()
-	inv := &model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "x@y.z"}
+	inv := model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "x@y.z"}
 
 	// Дефолтный порог — 5 подряд ошибок
 	for i := 0; i < 5; i++ {
@@ -156,7 +156,7 @@ func TestNewNotificationWithCircuitBreaker_merge_custom_settings(t *testing.T) {
 	}
 	w := NewNotificationWithCircuitBreaker(inner, st)
 	ctx := context.Background()
-	inv := &model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
+	inv := model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
 
 	// 2 ошибки — кастомный порог
 	for i := 0; i < 2; i++ {
@@ -184,7 +184,7 @@ func TestNewNotificationWithCircuitBreaker_merge_optional_fields(t *testing.T) {
 	}
 	w := NewNotificationWithCircuitBreaker(inner, st)
 	ctx := context.Background()
-	inv := &model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
+	inv := model.TeamInvitation{ID: uuid.New(), TeamID: uuid.New(), Email: "a@b.c"}
 
 	// 1 ошибка -> Open (кастомный ReadyToTrip)
 	_ = w.NotifyInvitation(ctx, inv, "T", "U")

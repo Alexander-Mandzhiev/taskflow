@@ -27,24 +27,22 @@ func (_m *TaskCommentRepository) EXPECT() *TaskCommentRepository_Expecter {
 }
 
 // CreateComment provides a mock function with given fields: ctx, tx, taskID, userID, content
-func (_m *TaskCommentRepository) CreateComment(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, userID uuid.UUID, content string) (*model.TaskComment, error) {
+func (_m *TaskCommentRepository) CreateComment(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, userID uuid.UUID, content string) (model.TaskComment, error) {
 	ret := _m.Called(ctx, tx, taskID, userID, content)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateComment")
 	}
 
-	var r0 *model.TaskComment
+	var r0 model.TaskComment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) (*model.TaskComment, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) (model.TaskComment, error)); ok {
 		return rf(ctx, tx, taskID, userID, content)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) *model.TaskComment); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) model.TaskComment); ok {
 		r0 = rf(ctx, tx, taskID, userID, content)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.TaskComment)
-		}
+		r0 = ret.Get(0).(model.TaskComment)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) error); ok {
@@ -78,34 +76,34 @@ func (_c *TaskCommentRepository_CreateComment_Call) Run(run func(ctx context.Con
 	return _c
 }
 
-func (_c *TaskCommentRepository_CreateComment_Call) Return(_a0 *model.TaskComment, _a1 error) *TaskCommentRepository_CreateComment_Call {
+func (_c *TaskCommentRepository_CreateComment_Call) Return(_a0 model.TaskComment, _a1 error) *TaskCommentRepository_CreateComment_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskCommentRepository_CreateComment_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) (*model.TaskComment, error)) *TaskCommentRepository_CreateComment_Call {
+func (_c *TaskCommentRepository_CreateComment_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) (model.TaskComment, error)) *TaskCommentRepository_CreateComment_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListCommentsByTaskID provides a mock function with given fields: ctx, tx, taskID
-func (_m *TaskCommentRepository) ListCommentsByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]*model.TaskComment, error) {
+func (_m *TaskCommentRepository) ListCommentsByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]model.TaskComment, error) {
 	ret := _m.Called(ctx, tx, taskID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListCommentsByTaskID")
 	}
 
-	var r0 []*model.TaskComment
+	var r0 []model.TaskComment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TaskComment, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TaskComment, error)); ok {
 		return rf(ctx, tx, taskID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []*model.TaskComment); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []model.TaskComment); ok {
 		r0 = rf(ctx, tx, taskID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TaskComment)
+			r0 = ret.Get(0).([]model.TaskComment)
 		}
 	}
 
@@ -138,12 +136,12 @@ func (_c *TaskCommentRepository_ListCommentsByTaskID_Call) Run(run func(ctx cont
 	return _c
 }
 
-func (_c *TaskCommentRepository_ListCommentsByTaskID_Call) Return(_a0 []*model.TaskComment, _a1 error) *TaskCommentRepository_ListCommentsByTaskID_Call {
+func (_c *TaskCommentRepository_ListCommentsByTaskID_Call) Return(_a0 []model.TaskComment, _a1 error) *TaskCommentRepository_ListCommentsByTaskID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskCommentRepository_ListCommentsByTaskID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TaskComment, error)) *TaskCommentRepository_ListCommentsByTaskID_Call {
+func (_c *TaskCommentRepository_ListCommentsByTaskID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TaskComment, error)) *TaskCommentRepository_ListCommentsByTaskID_Call {
 	_c.Call.Return(run)
 	return _c
 }

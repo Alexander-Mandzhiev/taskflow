@@ -29,7 +29,7 @@ func (_m *TaskListCacheRepository) EXPECT() *TaskListCacheRepository_Expecter {
 }
 
 // Get provides a mock function with given fields: ctx, teamID, filter
-func (_m *TaskListCacheRepository) Get(ctx context.Context, teamID uuid.UUID, filter *model.TaskListFilter) (*resources.TaskListPageCache, error) {
+func (_m *TaskListCacheRepository) Get(ctx context.Context, teamID uuid.UUID, filter model.TaskListFilter) (*resources.TaskListPageCache, error) {
 	ret := _m.Called(ctx, teamID, filter)
 
 	if len(ret) == 0 {
@@ -38,10 +38,10 @@ func (_m *TaskListCacheRepository) Get(ctx context.Context, teamID uuid.UUID, fi
 
 	var r0 *resources.TaskListPageCache
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *model.TaskListFilter) (*resources.TaskListPageCache, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, model.TaskListFilter) (*resources.TaskListPageCache, error)); ok {
 		return rf(ctx, teamID, filter)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *model.TaskListFilter) *resources.TaskListPageCache); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, model.TaskListFilter) *resources.TaskListPageCache); ok {
 		r0 = rf(ctx, teamID, filter)
 	} else {
 		if ret.Get(0) != nil {
@@ -49,7 +49,7 @@ func (_m *TaskListCacheRepository) Get(ctx context.Context, teamID uuid.UUID, fi
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, *model.TaskListFilter) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, model.TaskListFilter) error); ok {
 		r1 = rf(ctx, teamID, filter)
 	} else {
 		r1 = ret.Error(1)
@@ -66,14 +66,14 @@ type TaskListCacheRepository_Get_Call struct {
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamID uuid.UUID
-//   - filter *model.TaskListFilter
+//   - filter model.TaskListFilter
 func (_e *TaskListCacheRepository_Expecter) Get(ctx interface{}, teamID interface{}, filter interface{}) *TaskListCacheRepository_Get_Call {
 	return &TaskListCacheRepository_Get_Call{Call: _e.mock.On("Get", ctx, teamID, filter)}
 }
 
-func (_c *TaskListCacheRepository_Get_Call) Run(run func(ctx context.Context, teamID uuid.UUID, filter *model.TaskListFilter)) *TaskListCacheRepository_Get_Call {
+func (_c *TaskListCacheRepository_Get_Call) Run(run func(ctx context.Context, teamID uuid.UUID, filter model.TaskListFilter)) *TaskListCacheRepository_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*model.TaskListFilter))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(model.TaskListFilter))
 	})
 	return _c
 }
@@ -83,7 +83,7 @@ func (_c *TaskListCacheRepository_Get_Call) Return(_a0 *resources.TaskListPageCa
 	return _c
 }
 
-func (_c *TaskListCacheRepository_Get_Call) RunAndReturn(run func(context.Context, uuid.UUID, *model.TaskListFilter) (*resources.TaskListPageCache, error)) *TaskListCacheRepository_Get_Call {
+func (_c *TaskListCacheRepository_Get_Call) RunAndReturn(run func(context.Context, uuid.UUID, model.TaskListFilter) (*resources.TaskListPageCache, error)) *TaskListCacheRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -136,7 +136,7 @@ func (_c *TaskListCacheRepository_InvalidateByTeam_Call) RunAndReturn(run func(c
 }
 
 // Set provides a mock function with given fields: ctx, teamID, filter, data, ttl
-func (_m *TaskListCacheRepository) Set(ctx context.Context, teamID uuid.UUID, filter *model.TaskListFilter, data *resources.TaskListPageCache, ttl time.Duration) error {
+func (_m *TaskListCacheRepository) Set(ctx context.Context, teamID uuid.UUID, filter model.TaskListFilter, data *resources.TaskListPageCache, ttl time.Duration) error {
 	ret := _m.Called(ctx, teamID, filter, data, ttl)
 
 	if len(ret) == 0 {
@@ -144,7 +144,7 @@ func (_m *TaskListCacheRepository) Set(ctx context.Context, teamID uuid.UUID, fi
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *model.TaskListFilter, *resources.TaskListPageCache, time.Duration) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, model.TaskListFilter, *resources.TaskListPageCache, time.Duration) error); ok {
 		r0 = rf(ctx, teamID, filter, data, ttl)
 	} else {
 		r0 = ret.Error(0)
@@ -161,16 +161,16 @@ type TaskListCacheRepository_Set_Call struct {
 // Set is a helper method to define mock.On call
 //   - ctx context.Context
 //   - teamID uuid.UUID
-//   - filter *model.TaskListFilter
+//   - filter model.TaskListFilter
 //   - data *resources.TaskListPageCache
 //   - ttl time.Duration
 func (_e *TaskListCacheRepository_Expecter) Set(ctx interface{}, teamID interface{}, filter interface{}, data interface{}, ttl interface{}) *TaskListCacheRepository_Set_Call {
 	return &TaskListCacheRepository_Set_Call{Call: _e.mock.On("Set", ctx, teamID, filter, data, ttl)}
 }
 
-func (_c *TaskListCacheRepository_Set_Call) Run(run func(ctx context.Context, teamID uuid.UUID, filter *model.TaskListFilter, data *resources.TaskListPageCache, ttl time.Duration)) *TaskListCacheRepository_Set_Call {
+func (_c *TaskListCacheRepository_Set_Call) Run(run func(ctx context.Context, teamID uuid.UUID, filter model.TaskListFilter, data *resources.TaskListPageCache, ttl time.Duration)) *TaskListCacheRepository_Set_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*model.TaskListFilter), args[3].(*resources.TaskListPageCache), args[4].(time.Duration))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(model.TaskListFilter), args[3].(*resources.TaskListPageCache), args[4].(time.Duration))
 	})
 	return _c
 }
@@ -180,7 +180,7 @@ func (_c *TaskListCacheRepository_Set_Call) Return(_a0 error) *TaskListCacheRepo
 	return _c
 }
 
-func (_c *TaskListCacheRepository_Set_Call) RunAndReturn(run func(context.Context, uuid.UUID, *model.TaskListFilter, *resources.TaskListPageCache, time.Duration) error) *TaskListCacheRepository_Set_Call {
+func (_c *TaskListCacheRepository_Set_Call) RunAndReturn(run func(context.Context, uuid.UUID, model.TaskListFilter, *resources.TaskListPageCache, time.Duration) error) *TaskListCacheRepository_Set_Call {
 	_c.Call.Return(run)
 	return _c
 }

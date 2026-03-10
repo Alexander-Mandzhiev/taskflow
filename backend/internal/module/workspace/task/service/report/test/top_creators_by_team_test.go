@@ -42,10 +42,10 @@ func (s *ServiceSuite) TestTopCreatorsByTeam_Success() {
 	teamID := uuid.New()
 	since := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
 	limit := 5
-	userTeams := []*teamModel.TeamWithRole{
+	userTeams := []teamModel.TeamWithRole{
 		{Team: teamModel.Team{ID: teamID, Name: "My Team"}, Role: teamModel.RoleOwner},
 	}
-	allCreators := []*model.TeamTopCreator{
+	allCreators := []model.TeamTopCreator{
 		{TeamID: teamID, UserID: userID, Rank: 1, CreatedCount: 42},
 		{TeamID: uuid.New(), UserID: uuid.New(), Rank: 1, CreatedCount: 10},
 	}
@@ -68,7 +68,7 @@ func (s *ServiceSuite) TestTopCreatorsByTeam_ListByUserIDError() {
 	since := time.Now()
 	limit := 3
 
-	s.teamSvc.On("ListByUserID", mock.Anything, userID).Return(([]*teamModel.TeamWithRole)(nil), assert.AnError).Once()
+	s.teamSvc.On("ListByUserID", mock.Anything, userID).Return(nil, assert.AnError).Once()
 
 	got, err := s.svc.TopCreatorsByTeam(s.ctx, userID, since, limit)
 
@@ -83,13 +83,13 @@ func (s *ServiceSuite) TestTopCreatorsByTeam_RepoError() {
 	teamID := uuid.New()
 	since := time.Now()
 	limit := 5
-	userTeams := []*teamModel.TeamWithRole{
+	userTeams := []teamModel.TeamWithRole{
 		{Team: teamModel.Team{ID: teamID, Name: "My Team"}, Role: teamModel.RoleOwner},
 	}
 
 	s.teamSvc.On("ListByUserID", mock.Anything, userID).Return(userTeams, nil).Once()
 	s.reportRepo.On("TopCreatorsByTeam", mock.Anything, mock.Anything, since, limit).
-		Return(([]*model.TeamTopCreator)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.svc.TopCreatorsByTeam(s.ctx, userID, since, limit)
 

@@ -74,24 +74,22 @@ func (_c *SessionCacheRepository_Delete_Call) RunAndReturn(run func(context.Cont
 }
 
 // Get provides a mock function with given fields: ctx, jti
-func (_m *SessionCacheRepository) Get(ctx context.Context, jti uuid.UUID) (*model.Session, error) {
+func (_m *SessionCacheRepository) Get(ctx context.Context, jti uuid.UUID) (model.Session, error) {
 	ret := _m.Called(ctx, jti)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 *model.Session
+	var r0 model.Session
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*model.Session, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (model.Session, error)); ok {
 		return rf(ctx, jti)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *model.Session); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) model.Session); ok {
 		r0 = rf(ctx, jti)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Session)
-		}
+		r0 = ret.Get(0).(model.Session)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
@@ -122,18 +120,18 @@ func (_c *SessionCacheRepository_Get_Call) Run(run func(ctx context.Context, jti
 	return _c
 }
 
-func (_c *SessionCacheRepository_Get_Call) Return(_a0 *model.Session, _a1 error) *SessionCacheRepository_Get_Call {
+func (_c *SessionCacheRepository_Get_Call) Return(_a0 model.Session, _a1 error) *SessionCacheRepository_Get_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *SessionCacheRepository_Get_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*model.Session, error)) *SessionCacheRepository_Get_Call {
+func (_c *SessionCacheRepository_Get_Call) RunAndReturn(run func(context.Context, uuid.UUID) (model.Session, error)) *SessionCacheRepository_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Set provides a mock function with given fields: ctx, jti, session, ttl
-func (_m *SessionCacheRepository) Set(ctx context.Context, jti uuid.UUID, session *model.Session, ttl time.Duration) error {
+func (_m *SessionCacheRepository) Set(ctx context.Context, jti uuid.UUID, session model.Session, ttl time.Duration) error {
 	ret := _m.Called(ctx, jti, session, ttl)
 
 	if len(ret) == 0 {
@@ -141,7 +139,7 @@ func (_m *SessionCacheRepository) Set(ctx context.Context, jti uuid.UUID, sessio
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, *model.Session, time.Duration) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, model.Session, time.Duration) error); ok {
 		r0 = rf(ctx, jti, session, ttl)
 	} else {
 		r0 = ret.Error(0)
@@ -158,15 +156,15 @@ type SessionCacheRepository_Set_Call struct {
 // Set is a helper method to define mock.On call
 //   - ctx context.Context
 //   - jti uuid.UUID
-//   - session *model.Session
+//   - session model.Session
 //   - ttl time.Duration
 func (_e *SessionCacheRepository_Expecter) Set(ctx interface{}, jti interface{}, session interface{}, ttl interface{}) *SessionCacheRepository_Set_Call {
 	return &SessionCacheRepository_Set_Call{Call: _e.mock.On("Set", ctx, jti, session, ttl)}
 }
 
-func (_c *SessionCacheRepository_Set_Call) Run(run func(ctx context.Context, jti uuid.UUID, session *model.Session, ttl time.Duration)) *SessionCacheRepository_Set_Call {
+func (_c *SessionCacheRepository_Set_Call) Run(run func(ctx context.Context, jti uuid.UUID, session model.Session, ttl time.Duration)) *SessionCacheRepository_Set_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(*model.Session), args[3].(time.Duration))
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(model.Session), args[3].(time.Duration))
 	})
 	return _c
 }
@@ -176,7 +174,7 @@ func (_c *SessionCacheRepository_Set_Call) Return(_a0 error) *SessionCacheReposi
 	return _c
 }
 
-func (_c *SessionCacheRepository_Set_Call) RunAndReturn(run func(context.Context, uuid.UUID, *model.Session, time.Duration) error) *SessionCacheRepository_Set_Call {
+func (_c *SessionCacheRepository_Set_Call) RunAndReturn(run func(context.Context, uuid.UUID, model.Session, time.Duration) error) *SessionCacheRepository_Set_Call {
 	_c.Call.Return(run)
 	return _c
 }

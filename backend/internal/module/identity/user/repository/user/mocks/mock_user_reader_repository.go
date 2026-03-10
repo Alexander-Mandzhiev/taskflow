@@ -25,24 +25,22 @@ func (_m *UserReaderRepository) EXPECT() *UserReaderRepository_Expecter {
 }
 
 // GetByEmail provides a mock function with given fields: ctx, tx, email
-func (_m *UserReaderRepository) GetByEmail(ctx context.Context, tx *sqlx.Tx, email string) (*model.User, error) {
+func (_m *UserReaderRepository) GetByEmail(ctx context.Context, tx *sqlx.Tx, email string) (model.User, error) {
 	ret := _m.Called(ctx, tx, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByEmail")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string) (*model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string) (model.User, error)); ok {
 		return rf(ctx, tx, email)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string) *model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string) model.User); ok {
 		r0 = rf(ctx, tx, email)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, string) error); ok {
@@ -74,35 +72,33 @@ func (_c *UserReaderRepository_GetByEmail_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *UserReaderRepository_GetByEmail_Call) Return(_a0 *model.User, _a1 error) *UserReaderRepository_GetByEmail_Call {
+func (_c *UserReaderRepository_GetByEmail_Call) Return(_a0 model.User, _a1 error) *UserReaderRepository_GetByEmail_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserReaderRepository_GetByEmail_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, string) (*model.User, error)) *UserReaderRepository_GetByEmail_Call {
+func (_c *UserReaderRepository_GetByEmail_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, string) (model.User, error)) *UserReaderRepository_GetByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByID provides a mock function with given fields: ctx, tx, id
-func (_m *UserReaderRepository) GetByID(ctx context.Context, tx *sqlx.Tx, id string) (*model.User, error) {
+func (_m *UserReaderRepository) GetByID(ctx context.Context, tx *sqlx.Tx, id string) (model.User, error) {
 	ret := _m.Called(ctx, tx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 *model.User
+	var r0 model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string) (*model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string) (model.User, error)); ok {
 		return rf(ctx, tx, id)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string) *model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, string) model.User); ok {
 		r0 = rf(ctx, tx, id)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
+		r0 = ret.Get(0).(model.User)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, string) error); ok {
@@ -134,12 +130,12 @@ func (_c *UserReaderRepository_GetByID_Call) Run(run func(ctx context.Context, t
 	return _c
 }
 
-func (_c *UserReaderRepository_GetByID_Call) Return(_a0 *model.User, _a1 error) *UserReaderRepository_GetByID_Call {
+func (_c *UserReaderRepository_GetByID_Call) Return(_a0 model.User, _a1 error) *UserReaderRepository_GetByID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *UserReaderRepository_GetByID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, string) (*model.User, error)) *UserReaderRepository_GetByID_Call {
+func (_c *UserReaderRepository_GetByID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, string) (model.User, error)) *UserReaderRepository_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }

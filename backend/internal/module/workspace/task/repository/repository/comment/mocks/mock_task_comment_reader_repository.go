@@ -27,23 +27,23 @@ func (_m *TaskCommentReaderRepository) EXPECT() *TaskCommentReaderRepository_Exp
 }
 
 // ListByTaskID provides a mock function with given fields: ctx, tx, taskID
-func (_m *TaskCommentReaderRepository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]*model.TaskComment, error) {
+func (_m *TaskCommentReaderRepository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]model.TaskComment, error) {
 	ret := _m.Called(ctx, tx, taskID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListByTaskID")
 	}
 
-	var r0 []*model.TaskComment
+	var r0 []model.TaskComment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TaskComment, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TaskComment, error)); ok {
 		return rf(ctx, tx, taskID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []*model.TaskComment); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID) []model.TaskComment); ok {
 		r0 = rf(ctx, tx, taskID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TaskComment)
+			r0 = ret.Get(0).([]model.TaskComment)
 		}
 	}
 
@@ -76,12 +76,12 @@ func (_c *TaskCommentReaderRepository_ListByTaskID_Call) Run(run func(ctx contex
 	return _c
 }
 
-func (_c *TaskCommentReaderRepository_ListByTaskID_Call) Return(_a0 []*model.TaskComment, _a1 error) *TaskCommentReaderRepository_ListByTaskID_Call {
+func (_c *TaskCommentReaderRepository_ListByTaskID_Call) Return(_a0 []model.TaskComment, _a1 error) *TaskCommentReaderRepository_ListByTaskID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskCommentReaderRepository_ListByTaskID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]*model.TaskComment, error)) *TaskCommentReaderRepository_ListByTaskID_Call {
+func (_c *TaskCommentReaderRepository_ListByTaskID_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID) ([]model.TaskComment, error)) *TaskCommentReaderRepository_ListByTaskID_Call {
 	_c.Call.Return(run)
 	return _c
 }

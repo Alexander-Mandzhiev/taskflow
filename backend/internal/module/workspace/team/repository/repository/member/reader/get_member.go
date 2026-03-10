@@ -16,7 +16,7 @@ import (
 )
 
 // GetMember возвращает участника по паре (team_id, user_id). При отсутствии — model.ErrMemberNotFound.
-func (r *repository) GetMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID) (*model.TeamMember, error) {
+func (r *repository) GetMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID) (model.TeamMember, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "user_id", "team_id", "role", "created_at").
 		From("team_members").
@@ -24,7 +24,7 @@ func (r *repository) GetMember(ctx context.Context, tx *sqlx.Tx, teamID, userID 
 		Limit(1).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build get member query: %w", err)
+		return model.TeamMember{}, fmt.Errorf("build get member query: %w", err)
 	}
 
 	var row resources.TeamMemberRow
@@ -35,14 +35,14 @@ func (r *repository) GetMember(ctx context.Context, tx *sqlx.Tx, teamID, userID 
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrMemberNotFound
+			return model.TeamMember{}, model.ErrMemberNotFound
 		}
-		return nil, toDomainError(err)
+		return model.TeamMember{}, toDomainError(err)
 	}
 
 	member, err := converter.ToDomainTeamMember(row)
 	if err != nil {
-		return nil, err
+		return model.TeamMember{}, err
 	}
-	return &member, nil
+	return member, nil
 }

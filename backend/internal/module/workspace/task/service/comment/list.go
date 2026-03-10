@@ -14,8 +14,8 @@ import (
 )
 
 // ListByTaskID возвращает комментарии к задаче. userID должен быть участником команды задачи.
-func (s *commentService) ListByTaskID(ctx context.Context, taskID, userID uuid.UUID) ([]*model.TaskComment, error) {
-	var comments []*model.TaskComment
+func (s *commentService) ListByTaskID(ctx context.Context, taskID, userID uuid.UUID) ([]model.TaskComment, error) {
+	var comments []model.TaskComment
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		task, errTx := s.taskRepo.GetByID(ctx, tx, taskID)
 		if errTx != nil {

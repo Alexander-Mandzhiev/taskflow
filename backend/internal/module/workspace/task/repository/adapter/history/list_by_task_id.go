@@ -10,6 +10,6 @@ import (
 )
 
 // ListHistoryByTaskID возвращает историю изменений задачи по task_id.
-func (r *Adapter) ListHistoryByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]*model.TaskHistory, error) {
+func (r *Adapter) ListHistoryByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]model.TaskHistory, error) {
 	return r.historyReader.ListByTaskID(ctx, tx, taskID)
 }

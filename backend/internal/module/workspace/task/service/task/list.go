@@ -11,10 +11,7 @@ import (
 	teamModel "github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/workspace/team/model"
 )
 
-func (s *taskService) List(ctx context.Context, userID uuid.UUID, filter *model.TaskListFilter) ([]*model.Task, int, error) {
-	if filter == nil {
-		return nil, 0, model.ErrPaginationRequired
-	}
+func (s *taskService) List(ctx context.Context, userID uuid.UUID, filter model.TaskListFilter) ([]model.Task, int, error) {
 	if filter.Limit <= 0 || filter.Offset < 0 {
 		return nil, 0, model.ErrPaginationRequired
 	}
@@ -22,7 +19,7 @@ func (s *taskService) List(ctx context.Context, userID uuid.UUID, filter *model.
 		return nil, 0, model.ErrForbidden
 	}
 
-	var items []*model.Task
+	var items []model.Task
 	var total int
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		if _, err := s.memberRepo.GetMember(ctx, tx, *filter.TeamID, userID); err != nil {

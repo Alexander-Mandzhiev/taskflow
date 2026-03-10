@@ -16,7 +16,7 @@ import (
 )
 
 // GetByIDIncludeDeleted возвращает задачу по id в том числе с deleted_at IS NOT NULL (для Restore).
-func (r *repository) GetByIDIncludeDeleted(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (*model.Task, error) {
+func (r *repository) GetByIDIncludeDeleted(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) (model.Task, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "title", "description", "status", "assignee_id", "team_id", "created_by", "created_at", "updated_at", "completed_at", "deleted_at").
 		From("tasks").
@@ -24,7 +24,7 @@ func (r *repository) GetByIDIncludeDeleted(ctx context.Context, tx *sqlx.Tx, tas
 		Limit(1).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build get by id query: %w", err)
+		return model.Task{}, fmt.Errorf("build get by id query: %w", err)
 	}
 
 	var row resources.TaskRow
@@ -35,14 +35,14 @@ func (r *repository) GetByIDIncludeDeleted(ctx context.Context, tx *sqlx.Tx, tas
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrTaskNotFound
+			return model.Task{}, model.ErrTaskNotFound
 		}
-		return nil, toDomainError(err)
+		return model.Task{}, toDomainError(err)
 	}
 
 	task, err := converter.ToDomainTask(row)
 	if err != nil {
-		return nil, err
+		return model.Task{}, err
 	}
-	return &task, nil
+	return task, nil
 }

@@ -13,8 +13,8 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *taskService) GetByID(ctx context.Context, taskID, userID uuid.UUID) (*model.Task, error) {
-	var task *model.Task
+func (s *taskService) GetByID(ctx context.Context, taskID, userID uuid.UUID) (model.Task, error) {
+	var task model.Task
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		var errTx error
 		task, errTx = s.taskRepo.GetByID(ctx, tx, taskID)
@@ -30,10 +30,10 @@ func (s *taskService) GetByID(ctx context.Context, taskID, userID uuid.UUID) (*m
 		return nil
 	}); err != nil {
 		if errors.Is(err, model.ErrTaskNotFound) {
-			return nil, err
+			return model.Task{}, err
 		}
 		logger.Error(ctx, "GetByID task failed", zap.Error(err))
-		return nil, err
+		return model.Task{}, err
 	}
 
 	return task, nil

@@ -20,7 +20,7 @@ func (s *APISuite) TestCreateComment_Success() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
 	content := "New comment"
-	created := &model.TaskComment{
+	created := model.TaskComment{
 		ID:        uuid.New(),
 		TaskID:    taskID,
 		UserID:    userID,
@@ -116,7 +116,7 @@ func (s *APISuite) TestCreateComment_NotFound() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
 	content := "Comment"
-	s.commentService.On("Create", mock.Anything, taskID, userID, content).Return(nil, model.ErrTaskNotFound).Once()
+	s.commentService.On("Create", mock.Anything, taskID, userID, content).Return(model.TaskComment{}, model.ErrTaskNotFound).Once()
 
 	body, _ := json.Marshal(map[string]string{"content": content})
 	r := chi.NewRouter()
@@ -136,7 +136,7 @@ func (s *APISuite) TestCreateComment_InternalError() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
 	content := "Comment"
-	s.commentService.On("Create", mock.Anything, taskID, userID, content).Return(nil, assert.AnError).Once()
+	s.commentService.On("Create", mock.Anything, taskID, userID, content).Return(model.TaskComment{}, assert.AnError).Once()
 
 	body, _ := json.Marshal(map[string]string{"content": content})
 	r := chi.NewRouter()

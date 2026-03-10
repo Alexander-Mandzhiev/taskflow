@@ -9,18 +9,18 @@ import (
 )
 
 func (s *ServiceSuite) TestUpdate_NilInput() {
-	got, err := s.svc.Update(s.ctx, uuid.New().String(), nil)
+	got, err := s.svc.Update(s.ctx, uuid.New().String(), model.UserInput{})
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrNilInput)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.User{}, got)
 	s.repo.AssertNotCalled(s.T(), "Update")
 }
 
 func (s *ServiceSuite) TestUpdate_Success() {
 	id := uuid.New().String()
-	input := &model.UserInput{Email: "new@ex.com", Name: "New"}
-	want := &model.User{ID: uuid.MustParse(id), Email: input.Email, Name: input.Name}
+	input := model.UserInput{Email: "new@ex.com", Name: "New"}
+	want := model.User{ID: uuid.MustParse(id), Email: input.Email, Name: input.Name}
 
 	s.repo.On("Update", mock.Anything, mock.Anything, id, input).
 		Return(want, nil).Once()
@@ -34,14 +34,14 @@ func (s *ServiceSuite) TestUpdate_Success() {
 
 func (s *ServiceSuite) TestUpdate_RepoError() {
 	id := uuid.New().String()
-	input := &model.UserInput{Email: "u@ex.com", Name: "User"}
+	input := model.UserInput{Email: "u@ex.com", Name: "User"}
 
 	s.repo.On("Update", mock.Anything, mock.Anything, id, input).
-		Return((*model.User)(nil), assert.AnError).Once()
+		Return(model.User{}, assert.AnError).Once()
 
 	got, err := s.svc.Update(s.ctx, id, input)
 
 	assert.Error(s.T(), err)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.User{}, got)
 	s.repo.AssertExpectations(s.T())
 }

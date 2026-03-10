@@ -13,5 +13,5 @@ import (
 type Notification interface {
 	// NotifyInvitation отправляет уведомление о приглашении. inv (в т.ч. Token), teamName, inviterName — данные для письма.
 
-	NotifyInvitation(ctx context.Context, inv *model.TeamInvitation, teamName, inviterName string) error
+	NotifyInvitation(ctx context.Context, inv model.TeamInvitation, teamName, inviterName string) error
 }

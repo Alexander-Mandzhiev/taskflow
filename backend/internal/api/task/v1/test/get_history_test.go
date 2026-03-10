@@ -18,7 +18,7 @@ import (
 func (s *APISuite) TestGetHistory_Success() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
-	entries := []*model.TaskHistory{
+	entries := []model.TaskHistory{
 		{
 			ID:        uuid.New(),
 			TaskID:    taskID,
@@ -85,7 +85,7 @@ func (s *APISuite) TestGetHistory_InvalidTaskID() {
 func (s *APISuite) TestGetHistory_NotFound() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
-	s.taskService.On("GetHistory", mock.Anything, taskID, userID).Return(nil, model.ErrTaskNotFound).Once()
+	s.taskService.On("GetHistory", mock.Anything, taskID, userID).Return([]model.TaskHistory(nil), model.ErrTaskNotFound).Once()
 
 	r := chi.NewRouter()
 	r.Get("/tasks/{id}/history", s.api.GetHistory)
@@ -102,7 +102,7 @@ func (s *APISuite) TestGetHistory_NotFound() {
 func (s *APISuite) TestGetHistory_InternalError() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
-	s.taskService.On("GetHistory", mock.Anything, taskID, userID).Return(nil, assert.AnError).Once()
+	s.taskService.On("GetHistory", mock.Anything, taskID, userID).Return([]model.TaskHistory(nil), assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Get("/tasks/{id}/history", s.api.GetHistory)

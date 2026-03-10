@@ -30,7 +30,7 @@ func NewClient( /* generatedClient notificationv1.NotificationServiceClient */ )
 
 // AcceptLink в проде собирается на стороне сервиса уведомлений из inv.Token и своего base URL.
 
-func (c *Client) NotifyInvitation(ctx context.Context, inv *model.TeamInvitation, teamName, inviterName string) error {
+func (c *Client) NotifyInvitation(ctx context.Context, inv model.TeamInvitation, teamName, inviterName string) error {
 	_ = ctx
 
 	req := converter.ToSendInvitationRequest(inv, teamName, inviterName)

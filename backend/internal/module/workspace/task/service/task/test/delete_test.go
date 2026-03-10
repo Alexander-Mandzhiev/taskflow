@@ -13,8 +13,8 @@ func (s *ServiceSuite) TestDelete_Success() {
 	userID := uuid.New()
 	taskID := uuid.New()
 	teamID := uuid.New()
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
-	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	member := teamModel.TeamMember{UserID: userID, TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
@@ -32,7 +32,7 @@ func (s *ServiceSuite) TestDelete_TaskNotFound() {
 	taskID := uuid.New()
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).
-		Return((*model.Task)(nil), model.ErrTaskNotFound).Once()
+		Return(model.Task{}, model.ErrTaskNotFound).Once()
 
 	err := s.svc.Delete(s.ctx, userID, taskID)
 
@@ -46,11 +46,11 @@ func (s *ServiceSuite) TestDelete_NotMember() {
 	userID := uuid.New()
 	taskID := uuid.New()
 	teamID := uuid.New()
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
-		Return((*teamModel.TeamMember)(nil), teamModel.ErrMemberNotFound).Once()
+		Return(teamModel.TeamMember{}, teamModel.ErrMemberNotFound).Once()
 
 	err := s.svc.Delete(s.ctx, userID, taskID)
 
@@ -65,8 +65,8 @@ func (s *ServiceSuite) TestDelete_SoftDeleteError() {
 	userID := uuid.New()
 	taskID := uuid.New()
 	teamID := uuid.New()
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
-	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	member := teamModel.TeamMember{UserID: userID, TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()

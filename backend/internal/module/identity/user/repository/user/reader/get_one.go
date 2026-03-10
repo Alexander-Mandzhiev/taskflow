@@ -16,7 +16,7 @@ import (
 
 // getOne выполняет SELECT по условию where и возвращает одну запись или model.ErrUserNotFound.
 // При tx != nil запрос в транзакции, иначе через readPool.
-func (r *repository) getOne(ctx context.Context, tx *sqlx.Tx, where sq.Eq, errLabel string) (*model.User, error) {
+func (r *repository) getOne(ctx context.Context, tx *sqlx.Tx, where sq.Eq, errLabel string) (model.User, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "email", "name", "password_hash", "created_at", "updated_at", "deleted_at").
 		From("users").
@@ -25,7 +25,7 @@ func (r *repository) getOne(ctx context.Context, tx *sqlx.Tx, where sq.Eq, errLa
 		Limit(1).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build %s query: %w", errLabel, err)
+		return model.User{}, fmt.Errorf("build %s query: %w", errLabel, err)
 	}
 
 	var row resources.UserRow
@@ -36,14 +36,14 @@ func (r *repository) getOne(ctx context.Context, tx *sqlx.Tx, where sq.Eq, errLa
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrUserNotFound
+			return model.User{}, model.ErrUserNotFound
 		}
-		return nil, toDomainError(err)
+		return model.User{}, toDomainError(err)
 	}
 
 	user, err := converter.ToDomainUser(row)
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
-	return &user, nil
+	return user, nil
 }

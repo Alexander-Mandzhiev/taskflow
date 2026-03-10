@@ -12,10 +12,10 @@ import (
 func (s *ServiceSuite) TestTasksWithInvalidAssignee_Success() {
 	userID := uuid.New()
 	teamID := uuid.New()
-	userTeams := []*teamModel.TeamWithRole{
+	userTeams := []teamModel.TeamWithRole{
 		{Team: teamModel.Team{ID: teamID, Name: "My Team"}, Role: teamModel.RoleOwner},
 	}
-	allTasks := []*model.Task{
+	allTasks := []model.Task{
 		{ID: uuid.New(), Title: "Bad assignee task", TeamID: teamID},
 		{ID: uuid.New(), Title: "Other team task", TeamID: uuid.New()},
 	}
@@ -35,10 +35,10 @@ func (s *ServiceSuite) TestTasksWithInvalidAssignee_Success() {
 
 func (s *ServiceSuite) TestTasksWithInvalidAssignee_Empty() {
 	userID := uuid.New()
-	userTeams := []*teamModel.TeamWithRole{}
+	userTeams := []teamModel.TeamWithRole{}
 
 	s.teamSvc.On("ListByUserID", mock.Anything, userID).Return(userTeams, nil).Once()
-	s.reportRepo.On("TasksWithInvalidAssignee", mock.Anything, mock.Anything).Return([]*model.Task{}, nil).Once()
+	s.reportRepo.On("TasksWithInvalidAssignee", mock.Anything, mock.Anything).Return([]model.Task{}, nil).Once()
 
 	got, err := s.svc.TasksWithInvalidAssignee(s.ctx, userID)
 
@@ -51,7 +51,7 @@ func (s *ServiceSuite) TestTasksWithInvalidAssignee_Empty() {
 func (s *ServiceSuite) TestTasksWithInvalidAssignee_ListByUserIDError() {
 	userID := uuid.New()
 
-	s.teamSvc.On("ListByUserID", mock.Anything, userID).Return(([]*teamModel.TeamWithRole)(nil), assert.AnError).Once()
+	s.teamSvc.On("ListByUserID", mock.Anything, userID).Return(nil, assert.AnError).Once()
 
 	got, err := s.svc.TasksWithInvalidAssignee(s.ctx, userID)
 
@@ -64,13 +64,13 @@ func (s *ServiceSuite) TestTasksWithInvalidAssignee_ListByUserIDError() {
 func (s *ServiceSuite) TestTasksWithInvalidAssignee_RepoError() {
 	userID := uuid.New()
 	teamID := uuid.New()
-	userTeams := []*teamModel.TeamWithRole{
+	userTeams := []teamModel.TeamWithRole{
 		{Team: teamModel.Team{ID: teamID, Name: "My Team"}, Role: teamModel.RoleOwner},
 	}
 
 	s.teamSvc.On("ListByUserID", mock.Anything, userID).Return(userTeams, nil).Once()
 	s.reportRepo.On("TasksWithInvalidAssignee", mock.Anything, mock.Anything).
-		Return(([]*model.Task)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.svc.TasksWithInvalidAssignee(s.ctx, userID)
 

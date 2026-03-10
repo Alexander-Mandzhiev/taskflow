@@ -25,7 +25,7 @@ func (_m *TaskHistoryWriterRepository) EXPECT() *TaskHistoryWriterRepository_Exp
 }
 
 // Create provides a mock function with given fields: ctx, tx, entry
-func (_m *TaskHistoryWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, entry *model.TaskHistory) error {
+func (_m *TaskHistoryWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, entry model.TaskHistory) error {
 	ret := _m.Called(ctx, tx, entry)
 
 	if len(ret) == 0 {
@@ -33,7 +33,7 @@ func (_m *TaskHistoryWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TaskHistory) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TaskHistory) error); ok {
 		r0 = rf(ctx, tx, entry)
 	} else {
 		r0 = ret.Error(0)
@@ -50,14 +50,14 @@ type TaskHistoryWriterRepository_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - tx *sqlx.Tx
-//   - entry *model.TaskHistory
+//   - entry model.TaskHistory
 func (_e *TaskHistoryWriterRepository_Expecter) Create(ctx interface{}, tx interface{}, entry interface{}) *TaskHistoryWriterRepository_Create_Call {
 	return &TaskHistoryWriterRepository_Create_Call{Call: _e.mock.On("Create", ctx, tx, entry)}
 }
 
-func (_c *TaskHistoryWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, entry *model.TaskHistory)) *TaskHistoryWriterRepository_Create_Call {
+func (_c *TaskHistoryWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, entry model.TaskHistory)) *TaskHistoryWriterRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(*model.TaskHistory))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(model.TaskHistory))
 	})
 	return _c
 }
@@ -67,7 +67,7 @@ func (_c *TaskHistoryWriterRepository_Create_Call) Return(_a0 error) *TaskHistor
 	return _c
 }
 
-func (_c *TaskHistoryWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, *model.TaskHistory) error) *TaskHistoryWriterRepository_Create_Call {
+func (_c *TaskHistoryWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, model.TaskHistory) error) *TaskHistoryWriterRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

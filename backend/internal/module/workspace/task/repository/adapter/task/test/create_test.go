@@ -12,8 +12,8 @@ import (
 func (s *AdapterSuite) TestCreate_Success() {
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
 	createdBy := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	input := &model.TaskInput{Title: "Task", Description: "Desc", Status: model.TaskStatusTodo}
-	task := &model.Task{
+	input := model.TaskInput{Title: "Task", Description: "Desc", Status: model.TaskStatusTodo}
+	task := model.Task{
 		ID:          uuid.New(),
 		Title:       input.Title,
 		Description: input.Description,
@@ -36,8 +36,8 @@ func (s *AdapterSuite) TestCreate_WithTx() {
 	tx := &sqlx.Tx{}
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
 	createdBy := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	input := &model.TaskInput{Title: "Task", Status: model.TaskStatusTodo}
-	task := &model.Task{
+	input := model.TaskInput{Title: "Task", Status: model.TaskStatusTodo}
+	task := model.Task{
 		ID: uuid.New(), Title: input.Title, Status: input.Status, TeamID: teamID, CreatedBy: createdBy,
 	}
 
@@ -54,14 +54,14 @@ func (s *AdapterSuite) TestCreate_WithTx() {
 func (s *AdapterSuite) TestCreate_WriterError() {
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
 	createdBy := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
-	input := &model.TaskInput{Title: "Task", Status: model.TaskStatusTodo}
+	input := model.TaskInput{Title: "Task", Status: model.TaskStatusTodo}
 
 	s.taskWriter.On("Create", mock.Anything, mock.Anything, teamID, input, createdBy).
-		Return((*model.Task)(nil), assert.AnError).Once()
+		Return(model.Task{}, assert.AnError).Once()
 
 	got, err := s.repo.Create(s.ctx, nil, teamID, input, createdBy)
 
 	assert.Error(s.T(), err)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.Task{}, got)
 	s.taskWriter.AssertExpectations(s.T())
 }

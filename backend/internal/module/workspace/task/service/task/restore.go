@@ -13,8 +13,8 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *taskService) Restore(ctx context.Context, userID, taskID uuid.UUID) (*model.Task, error) {
-	var restored *model.Task
+func (s *taskService) Restore(ctx context.Context, userID, taskID uuid.UUID) (model.Task, error) {
+	var restored model.Task
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		task, errTx := s.taskRepo.GetByIDIncludeDeleted(ctx, tx, taskID)
 		if errTx != nil {
@@ -33,10 +33,10 @@ func (s *taskService) Restore(ctx context.Context, userID, taskID uuid.UUID) (*m
 		return errTx
 	}); err != nil {
 		if errors.Is(err, model.ErrTaskNotFound) {
-			return nil, err
+			return model.Task{}, err
 		}
 		logger.Error(ctx, "Restore task failed", zap.Error(err))
-		return nil, err
+		return model.Task{}, err
 	}
 	return restored, nil
 }

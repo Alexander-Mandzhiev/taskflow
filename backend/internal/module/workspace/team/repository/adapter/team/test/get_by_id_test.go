@@ -13,7 +13,7 @@ import (
 
 func (s *AdapterSuite) TestGetByID_Success() {
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
-	team := &model.Team{
+	team := model.Team{
 		ID:        teamID,
 		Name:      "My Team",
 		CreatedBy: uuid.New(),
@@ -34,7 +34,7 @@ func (s *AdapterSuite) TestGetByID_Success() {
 func (s *AdapterSuite) TestGetByID_WithTx() {
 	tx := &sqlx.Tx{}
 	teamID := uuid.New()
-	team := &model.Team{ID: teamID, Name: "Team"}
+	team := model.Team{ID: teamID, Name: "Team"}
 
 	s.teamReader.On("GetByID", mock.Anything, tx, teamID).
 		Return(team, nil).Once()
@@ -49,12 +49,12 @@ func (s *AdapterSuite) TestGetByID_WithTx() {
 func (s *AdapterSuite) TestGetByID_TeamNotFound() {
 	teamID := uuid.New()
 	s.teamReader.On("GetByID", mock.Anything, mock.Anything, teamID).
-		Return((*model.Team)(nil), model.ErrTeamNotFound).Once()
+		Return(model.Team{}, model.ErrTeamNotFound).Once()
 
 	got, err := s.repo.GetByID(s.ctx, nil, teamID)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrTeamNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.Team{}, got)
 	s.teamReader.AssertExpectations(s.T())
 }

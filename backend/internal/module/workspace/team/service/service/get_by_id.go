@@ -12,8 +12,8 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *teamService) GetByID(ctx context.Context, teamID, userID uuid.UUID) (*model.TeamWithMembers, error) {
-	var result *model.TeamWithMembers
+func (s *teamService) GetByID(ctx context.Context, teamID, userID uuid.UUID) (model.TeamWithMembers, error) {
+	var result model.TeamWithMembers
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		team, errTx := s.teamRepo.GetByID(ctx, tx, teamID)
 		if errTx != nil {
@@ -30,13 +30,13 @@ func (s *teamService) GetByID(ctx context.Context, teamID, userID uuid.UUID) (*m
 			}
 			return errTx
 		}
-		result = &model.TeamWithMembers{Team: *team, Members: members}
+		result = model.TeamWithMembers{Team: team, Members: members}
 		return nil
 	}); err != nil {
 		if !errors.Is(err, model.ErrForbidden) {
 			logger.Error(ctx, "GetByID failed", zap.Error(err))
 		}
-		return nil, err
+		return model.TeamWithMembers{}, err
 	}
 
 	return result, nil

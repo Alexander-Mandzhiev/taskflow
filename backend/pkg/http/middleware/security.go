@@ -61,9 +61,13 @@ func RequestFirewallMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Разрешаем только API.
-		// В текущем приложении все роуты живут под /api/v1.
+		// Разрешаем только API и pprof (для профилирования под нагрузкой).
+		// В текущем приложении все роуты живут под /api/v1; /debug/pprof — для go tool pprof.
 		if strings.HasPrefix(p, "/api/") || p == "/api" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(p, "/debug/") {
 			next.ServeHTTP(w, r)
 			return
 		}

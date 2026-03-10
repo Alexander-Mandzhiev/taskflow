@@ -12,7 +12,7 @@ import (
 func (s *ServiceSuite) TestList_NilFilter() {
 	userID := uuid.New()
 
-	got, total, err := s.svc.List(s.ctx, userID, nil)
+	got, total, err := s.svc.List(s.ctx, userID, model.TaskListFilter{})
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrPaginationRequired)
@@ -25,7 +25,7 @@ func (s *ServiceSuite) TestList_NilFilter() {
 func (s *ServiceSuite) TestList_NoPagination() {
 	userID := uuid.New()
 	teamID := uuid.New()
-	filter := &model.TaskListFilter{TeamID: &teamID, Limit: 0, Offset: 0}
+	filter := model.TaskListFilter{TeamID: &teamID, Limit: 0, Offset: 0}
 
 	got, total, err := s.svc.List(s.ctx, userID, filter)
 
@@ -39,7 +39,7 @@ func (s *ServiceSuite) TestList_NoPagination() {
 
 func (s *ServiceSuite) TestList_NoTeamID() {
 	userID := uuid.New()
-	filter := &model.TaskListFilter{Limit: 10, Offset: 0}
+	filter := model.TaskListFilter{Limit: 10, Offset: 0}
 
 	got, total, err := s.svc.List(s.ctx, userID, filter)
 
@@ -54,10 +54,10 @@ func (s *ServiceSuite) TestList_NoTeamID() {
 func (s *ServiceSuite) TestList_NotMember() {
 	userID := uuid.New()
 	teamID := uuid.New()
-	filter := &model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
+	filter := model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
 
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
-		Return((*teamModel.TeamMember)(nil), teamModel.ErrMemberNotFound).Once()
+		Return(teamModel.TeamMember{}, teamModel.ErrMemberNotFound).Once()
 
 	got, total, err := s.svc.List(s.ctx, userID, filter)
 
@@ -72,9 +72,9 @@ func (s *ServiceSuite) TestList_NotMember() {
 func (s *ServiceSuite) TestList_Success() {
 	userID := uuid.New()
 	teamID := uuid.New()
-	filter := &model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
-	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
-	tasks := []*model.Task{
+	filter := model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
+	member := teamModel.TeamMember{UserID: userID, TeamID: teamID}
+	tasks := []model.Task{
 		{ID: uuid.New(), Title: "Task 1", TeamID: teamID},
 		{ID: uuid.New(), Title: "Task 2", TeamID: teamID},
 	}
@@ -94,12 +94,12 @@ func (s *ServiceSuite) TestList_Success() {
 func (s *ServiceSuite) TestList_RepoError() {
 	userID := uuid.New()
 	teamID := uuid.New()
-	filter := &model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
-	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
+	filter := model.TaskListFilter{TeamID: &teamID, Limit: 10, Offset: 0}
+	member := teamModel.TeamMember{UserID: userID, TeamID: teamID}
 
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
 	s.taskRepo.On("List", mock.Anything, mock.Anything, filter).
-		Return(([]*model.Task)(nil), 0, assert.AnError).Once()
+		Return(nil, 0, assert.AnError).Once()
 
 	got, total, err := s.svc.List(s.ctx, userID, filter)
 

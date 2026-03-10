@@ -17,7 +17,7 @@ import (
 
 // GetByID возвращает команду по id (без удалённых).
 // При tx != nil запрос выполняется в транзакции.
-func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) (*model.Team, error) {
+func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) (model.Team, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "name", "created_by", "created_at", "updated_at", "deleted_at").
 		From("teams").
@@ -26,7 +26,7 @@ func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID)
 		Limit(1).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build get by id query: %w", err)
+		return model.Team{}, fmt.Errorf("build get by id query: %w", err)
 	}
 
 	var row resources.TeamRow
@@ -37,14 +37,14 @@ func (r *repository) GetByID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID)
 	}
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrTeamNotFound
+			return model.Team{}, model.ErrTeamNotFound
 		}
-		return nil, toDomainError(err)
+		return model.Team{}, toDomainError(err)
 	}
 
 	team, err := converter.ToDomainTeam(row)
 	if err != nil {
-		return nil, err
+		return model.Team{}, err
 	}
-	return &team, nil
+	return team, nil
 }

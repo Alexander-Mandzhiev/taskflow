@@ -10,9 +10,9 @@ import (
 )
 
 func (s *AdapterSuite) TestCreate_Success_WithoutRegistry() {
-	input := &model.UserInput{Email: "u@ex.com", Name: "User"}
+	input := model.UserInput{Email: "u@ex.com", Name: "User"}
 	hash := "hashed"
-	user := &model.User{ID: uuid.New(), Email: input.Email, Name: input.Name}
+	user := model.User{ID: uuid.New(), Email: input.Email, Name: input.Name}
 
 	s.writer.On("Create", mock.Anything, mock.Anything, input, hash).
 		Return(user, nil).Once()
@@ -28,9 +28,9 @@ func (s *AdapterSuite) TestCreate_Success_WithoutRegistry() {
 func (s *AdapterSuite) TestCreate_Success_WithRegistry_RegistersHook() {
 	registry := txmanager.NewHookRegistry()
 	ctx := txmanager.WithHookRegistry(s.ctx, registry)
-	input := &model.UserInput{Email: "u@ex.com", Name: "User"}
+	input := model.UserInput{Email: "u@ex.com", Name: "User"}
 	hash := "hashed"
-	user := &model.User{ID: uuid.New(), Email: input.Email, Name: input.Name}
+	user := model.User{ID: uuid.New(), Email: input.Email, Name: input.Name}
 
 	s.writer.On("Create", mock.Anything, mock.Anything, input, hash).
 		Return(user, nil).Once()
@@ -49,14 +49,14 @@ func (s *AdapterSuite) TestCreate_Success_WithRegistry_RegistersHook() {
 }
 
 func (s *AdapterSuite) TestCreate_WriterError() {
-	input := &model.UserInput{Email: "u@ex.com", Name: "User"}
+	input := model.UserInput{Email: "u@ex.com", Name: "User"}
 	s.writer.On("Create", mock.Anything, mock.Anything, input, mock.AnythingOfType("string")).
-		Return((*model.User)(nil), assert.AnError).Once()
+		Return(model.User{}, assert.AnError).Once()
 
 	got, err := s.repo.Create(s.ctx, nil, input, "hash")
 
 	assert.Error(s.T(), err)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.User{}, got)
 	s.writer.AssertExpectations(s.T())
 	s.cache.AssertNotCalled(s.T(), "Set")
 }

@@ -11,7 +11,7 @@ import (
 
 // Update обновляет задачу. Запись в task_history — зона ответственности сервиса.
 // После успешного обновления регистрирует post-commit хук инвалидации кеша списка по команде.
-func (r *Adapter) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input *model.TaskInput) error {
+func (r *Adapter) Update(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID, input model.TaskInput) error {
 	current, err := r.taskReader.GetByID(ctx, tx, taskID)
 	if err != nil {
 		return err

@@ -14,7 +14,7 @@ import (
 func (s *AdapterSuite) TestGetByIDIncludeDeleted_Success() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 	deletedAt := time.Now()
-	task := &model.Task{
+	task := model.Task{
 		ID:        taskID,
 		Title:     "Deleted Task",
 		TeamID:    uuid.MustParse("550e8400-e29b-41d4-a716-446655440001"),
@@ -35,12 +35,12 @@ func (s *AdapterSuite) TestGetByIDIncludeDeleted_Success() {
 func (s *AdapterSuite) TestGetByIDIncludeDeleted_TaskNotFound() {
 	taskID := uuid.MustParse("660e8400-e29b-41d4-a716-446655440002")
 	s.taskReader.On("GetByIDIncludeDeleted", mock.Anything, mock.Anything, taskID).
-		Return((*model.Task)(nil), model.ErrTaskNotFound).Once()
+		Return(model.Task{}, model.ErrTaskNotFound).Once()
 
 	got, err := s.repo.GetByIDIncludeDeleted(s.ctx, nil, taskID)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.Task{}, got)
 	s.taskReader.AssertExpectations(s.T())
 }

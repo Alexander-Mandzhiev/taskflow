@@ -10,26 +10,26 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/module/identity/user/repository/resources"
 )
 
-// Get возвращает пользователя из кеша по id. При промахе — (nil, nil).
-// При повреждённых данных удаляет запись и возвращает (nil, nil) — self-healing cache miss.
-func (r *repository) Get(ctx context.Context, id string) (*model.User, error) {
+// Get возвращает пользователя из кеша по id. При промахе или повреждённых данных — (model.User{}, false, nil).
+// При ошибке Redis — (model.User{}, false, err). При успехе — (user, true, nil).
+func (r *repository) Get(ctx context.Context, id string) (model.User, bool, error) {
 	key := Key(id)
 	data, err := r.redis.Get(ctx, key)
 	if err != nil {
-		return nil, fmt.Errorf("cache get: %w", err)
+		return model.User{}, false, fmt.Errorf("cache get: %w", err)
 	}
 	if data == nil {
-		return nil, nil
+		return model.User{}, false, nil
 	}
 	var c resources.UserCache
 	if err := json.Unmarshal(data, &c); err != nil {
 		_ = r.redis.Del(ctx, key)
-		return nil, nil
+		return model.User{}, false, nil
 	}
 	user, err := converter.FromCache(c)
 	if err != nil {
 		_ = r.redis.Del(ctx, key)
-		return nil, nil
+		return model.User{}, false, nil
 	}
-	return &user, nil
+	return user, true, nil
 }

@@ -11,13 +11,13 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *teamService) Create(ctx context.Context, input *model.TeamInput, ownerUserID uuid.UUID) (*model.Team, error) {
-	if input == nil {
+func (s *teamService) Create(ctx context.Context, input model.TeamInput, ownerUserID uuid.UUID) (model.Team, error) {
+	if input.Name == "" {
 		logger.Warn(ctx, "Create team: nil input")
-		return nil, model.ErrNilInput
+		return model.Team{}, model.ErrNilInput
 	}
 
-	var team *model.Team
+	var team model.Team
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		var errTx error
 		team, errTx = s.teamRepo.Create(ctx, tx, input, ownerUserID)
@@ -29,7 +29,7 @@ func (s *teamService) Create(ctx context.Context, input *model.TeamInput, ownerU
 		return errTx
 	}); err != nil {
 		logger.Error(ctx, "Create team failed", zap.Error(err))
-		return nil, err
+		return model.Team{}, err
 	}
 	return team, nil
 }

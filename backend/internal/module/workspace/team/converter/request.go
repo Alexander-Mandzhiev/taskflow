@@ -6,6 +6,6 @@ import (
 )
 
 // CreateTeamRequestToDomain конвертирует DTO запроса создания команды в доменную модель.
-func CreateTeamRequestToDomain(req dto.CreateTeamRequest) *model.TeamInput {
-	return &model.TeamInput{Name: req.Name}
+func CreateTeamRequestToDomain(req dto.CreateTeamRequest) model.TeamInput {
+	return model.TeamInput{Name: req.Name}
 }

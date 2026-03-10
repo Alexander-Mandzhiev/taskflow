@@ -9,10 +9,10 @@ app:
 
 http:
   address: "0.0.0.0:4000"
-  timeout: 60s
+  timeout: 600s        # для pprof profile?seconds= до 600; в проде — меньше (например 60s)
   read_header_timeout: 5s
   read_timeout: 15s
-  write_timeout: 15s
+  write_timeout: 600s  # для pprof profile?seconds=N нужно >= N; в проде — меньше
   idle_timeout: 60s
   max_header_bytes: 1048576
   shutdown_timeout: 10s

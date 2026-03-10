@@ -34,7 +34,7 @@ func (s *ServiceSuite) TestRefresh_SessionNotFound() {
 	refreshToken, jti, err := jwt.GenerateRefreshToken(userID.String(), "web", "test-refresh-secret", time.Hour)
 	s.Require().NoError(err)
 
-	s.sessionRepo.On("Get", mock.Anything, jti).Return((*accountmodel.Session)(nil), accountmodel.ErrSessionNotFound).Once()
+	s.sessionRepo.On("Get", mock.Anything, jti).Return(accountmodel.Session{}, accountmodel.ErrSessionNotFound).Once()
 
 	accessToken, gotUserID, err := s.svc.Refresh(s.ctx, refreshToken, "Mozilla/5.0", "192.168.1.1")
 
@@ -49,7 +49,7 @@ func (s *ServiceSuite) TestRefresh_GetSessionError() {
 	refreshToken, jti, err := jwt.GenerateRefreshToken(userID.String(), "web", "test-refresh-secret", time.Hour)
 	s.Require().NoError(err)
 
-	s.sessionRepo.On("Get", mock.Anything, jti).Return((*accountmodel.Session)(nil), assert.AnError).Once()
+	s.sessionRepo.On("Get", mock.Anything, jti).Return(accountmodel.Session{}, assert.AnError).Once()
 
 	accessToken, gotUserID, err := s.svc.Refresh(s.ctx, refreshToken, "Mozilla/5.0", "192.168.1.1")
 
@@ -65,7 +65,7 @@ func (s *ServiceSuite) TestRefresh_SessionMetadataMismatch() {
 	s.Require().NoError(err)
 
 	// Сессия с другим типом устройства (mobile vs desktop в запросе)
-	session := &accountmodel.Session{
+	session := accountmodel.Session{
 		UserID:     userID,
 		DeviceType: "mobile",
 		UserAgent:  "Mobile Safari",
@@ -86,7 +86,7 @@ func (s *ServiceSuite) TestRefresh_Success() {
 	refreshToken, jti, err := jwt.GenerateRefreshToken(userID.String(), "web", "test-refresh-secret", time.Hour)
 	s.Require().NoError(err)
 
-	session := &accountmodel.Session{
+	session := accountmodel.Session{
 		UserID:     userID,
 		DeviceType: "desktop",
 		UserAgent:  "Mozilla/5.0",
@@ -108,7 +108,7 @@ func (s *ServiceSuite) TestRefresh_Success_EmptySessionMetadata() {
 	refreshToken, jti, err := jwt.GenerateRefreshToken(userID.String(), "web", "test-refresh-secret", time.Hour)
 	s.Require().NoError(err)
 
-	session := &accountmodel.Session{
+	session := accountmodel.Session{
 		UserID:     userID,
 		DeviceType: "desktop",
 		UserAgent:  "",

@@ -19,7 +19,7 @@ func (s *APISuite) TestGetByID_Success() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
 	teamID := uuid.New()
-	task := &model.Task{
+	task := model.Task{
 		ID:          taskID,
 		Title:       "My Task",
 		Description: "Description",
@@ -80,7 +80,7 @@ func (s *APISuite) TestGetByID_InvalidUUID() {
 func (s *APISuite) TestGetByID_NotFound() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
-	s.taskService.On("GetByID", mock.Anything, taskID, userID).Return(nil, model.ErrTaskNotFound).Once()
+	s.taskService.On("GetByID", mock.Anything, taskID, userID).Return(model.Task{}, model.ErrTaskNotFound).Once()
 
 	r := chi.NewRouter()
 	r.Get("/tasks/{id}", s.api.GetByID)
@@ -97,7 +97,7 @@ func (s *APISuite) TestGetByID_NotFound() {
 func (s *APISuite) TestGetByID_Forbidden() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
-	s.taskService.On("GetByID", mock.Anything, taskID, userID).Return(nil, model.ErrForbidden).Once()
+	s.taskService.On("GetByID", mock.Anything, taskID, userID).Return(model.Task{}, model.ErrForbidden).Once()
 
 	r := chi.NewRouter()
 	r.Get("/tasks/{id}", s.api.GetByID)
@@ -114,7 +114,7 @@ func (s *APISuite) TestGetByID_Forbidden() {
 func (s *APISuite) TestGetByID_InternalError() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
-	s.taskService.On("GetByID", mock.Anything, taskID, userID).Return(nil, assert.AnError).Once()
+	s.taskService.On("GetByID", mock.Anything, taskID, userID).Return(model.Task{}, assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Get("/tasks/{id}", s.api.GetByID)

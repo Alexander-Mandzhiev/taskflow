@@ -24,7 +24,7 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(sr, r)
 		duration := time.Since(startTime)
 
-		// Логируем только ошибки и медленные запросы; req_id связывает запрос с логами в БД/сервисах
+		// Логируем только ошибки и медленные запросы; успешные быстрые — без лога (метрики).
 		switch {
 		case sr.status >= 500:
 			logger.Error(ctx, "[HTTP] Server error",

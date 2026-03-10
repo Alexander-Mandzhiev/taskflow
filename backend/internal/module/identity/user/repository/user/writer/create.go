@@ -15,7 +15,7 @@ import (
 // Create создаёт пользователя и возвращает сохранённую сущность.
 // UUID генерируется на стороне Go; created_at/updated_at проставляются MySQL (DEFAULT CURRENT_TIMESTAMP).
 // Вызывается только внутри txmanager.WithTx, tx передаётся явно.
-func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, input *model.UserInput, passwordHash string) (*model.User, error) {
+func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, input model.UserInput, passwordHash string) (model.User, error) {
 	in := converter.ToRepoInput(input)
 	id := uuid.New().String()
 
@@ -25,12 +25,12 @@ func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, input *model.UserI
 		Values(id, in.Email, in.Name, passwordHash).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build create query: %w", err)
+		return model.User{}, fmt.Errorf("build create query: %w", err)
 	}
 
 	_, err = tx.ExecContext(ctx, query, args...)
 	if err != nil {
-		return nil, toDomainError(err)
+		return model.User{}, toDomainError(err)
 	}
 
 	return r.selectByID(ctx, tx, id)

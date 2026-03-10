@@ -13,7 +13,7 @@ import (
 )
 
 // Create создаёт комментарий к задаче; id генерируется, created_at/updated_at — в БД.
-func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, taskID, userID uuid.UUID, content string) (*model.TaskComment, error) {
+func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, taskID, userID uuid.UUID, content string) (model.TaskComment, error) {
 	id := uuid.New().String()
 	in := converter.ToRepoTaskCommentCreateInput(taskID, userID, content)
 
@@ -23,7 +23,7 @@ func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, taskID, userID uui
 		Values(id, in.TaskID, in.UserID, in.Content, sq.Expr("NOW()"), sq.Expr("NOW()")).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build create query: %w", err)
+		return model.TaskComment{}, fmt.Errorf("build create query: %w", err)
 	}
 
 	if tx != nil {
@@ -32,7 +32,7 @@ func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, taskID, userID uui
 		_, err = r.writePool.ExecContext(ctx, query, args...)
 	}
 	if err != nil {
-		return nil, toDomainError(err)
+		return model.TaskComment{}, toDomainError(err)
 	}
 
 	return r.selectByID(ctx, tx, id)

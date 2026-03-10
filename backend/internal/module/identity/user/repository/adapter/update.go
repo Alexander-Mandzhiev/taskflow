@@ -12,10 +12,10 @@ import (
 
 // Update обновляет пользователя в БД.
 // Обновление кеша выполняется через post-commit hook в txmanager.
-func (r *Adapter) Update(ctx context.Context, tx *sqlx.Tx, id string, input *model.UserInput) (*model.User, error) {
+func (r *Adapter) Update(ctx context.Context, tx *sqlx.Tx, id string, input model.UserInput) (model.User, error) {
 	user, err := r.writer.Update(ctx, tx, id, input)
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
 	registry := txmanager.GetHookRegistry(ctx)
 	if registry != nil {

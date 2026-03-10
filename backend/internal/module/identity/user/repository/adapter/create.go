@@ -12,10 +12,10 @@ import (
 
 // Create создаёт пользователя в БД.
 // Сохранение в кеш выполняется через post-commit hook в txmanager.
-func (r *Adapter) Create(ctx context.Context, tx *sqlx.Tx, input *model.UserInput, passwordHash string) (*model.User, error) {
+func (r *Adapter) Create(ctx context.Context, tx *sqlx.Tx, input model.UserInput, passwordHash string) (model.User, error) {
 	user, err := r.writer.Create(ctx, tx, input, passwordHash)
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
 	registry := txmanager.GetHookRegistry(ctx)
 	if registry != nil {

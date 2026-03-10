@@ -11,10 +11,7 @@ import (
 )
 
 // Create добавляет запись в task_history. id и changed_at могут быть заданы в entry; иначе генерируются.
-func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, entry *model.TaskHistory) error {
-	if entry == nil {
-		return nil
-	}
+func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, entry model.TaskHistory) error {
 	row := converter.ToRepoTaskHistory(entry)
 	if entry.ID == uuid.Nil {
 		row.ID = uuid.New().String()

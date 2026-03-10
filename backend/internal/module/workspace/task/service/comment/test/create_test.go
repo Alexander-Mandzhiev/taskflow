@@ -16,9 +16,9 @@ func (s *ServiceSuite) TestCreate_Success() {
 	userID := uuid.New()
 	teamID := uuid.New()
 	content := "New comment"
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
-	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
-	created := &model.TaskComment{
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	member := teamModel.TeamMember{UserID: userID, TeamID: teamID}
+	created := model.TaskComment{
 		ID:        uuid.New(),
 		TaskID:    taskID,
 		UserID:    userID,
@@ -35,7 +35,6 @@ func (s *ServiceSuite) TestCreate_Success() {
 	got, err := s.svc.Create(s.ctx, taskID, userID, content)
 
 	assert.NoError(s.T(), err)
-	assert.NotNil(s.T(), got)
 	assert.Equal(s.T(), content, got.Content)
 	assert.Equal(s.T(), taskID, got.TaskID)
 	assert.Equal(s.T(), userID, got.UserID)
@@ -50,13 +49,13 @@ func (s *ServiceSuite) TestCreate_TaskNotFound() {
 	content := "Comment"
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).
-		Return((*model.Task)(nil), model.ErrTaskNotFound).Once()
+		Return(model.Task{}, model.ErrTaskNotFound).Once()
 
 	got, err := s.svc.Create(s.ctx, taskID, userID, content)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.TaskComment{}, got)
 	s.taskRepo.AssertExpectations(s.T())
 	s.memberRepo.AssertNotCalled(s.T(), "GetMember")
 	s.commentRepo.AssertNotCalled(s.T(), "CreateComment")
@@ -66,18 +65,18 @@ func (s *ServiceSuite) TestCreate_NotMember() {
 	taskID := uuid.New()
 	userID := uuid.New()
 	teamID := uuid.New()
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
 	content := "Comment"
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).
-		Return((*teamModel.TeamMember)(nil), teamModel.ErrMemberNotFound).Once()
+		Return(teamModel.TeamMember{}, teamModel.ErrMemberNotFound).Once()
 
 	got, err := s.svc.Create(s.ctx, taskID, userID, content)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrTaskNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.TaskComment{}, got)
 	s.taskRepo.AssertExpectations(s.T())
 	s.memberRepo.AssertExpectations(s.T())
 	s.commentRepo.AssertNotCalled(s.T(), "CreateComment")
@@ -88,18 +87,18 @@ func (s *ServiceSuite) TestCreate_CommentRepoError() {
 	userID := uuid.New()
 	teamID := uuid.New()
 	content := "Comment"
-	task := &model.Task{ID: taskID, Title: "Task", TeamID: teamID}
-	member := &teamModel.TeamMember{UserID: userID, TeamID: teamID}
+	task := model.Task{ID: taskID, Title: "Task", TeamID: teamID}
+	member := teamModel.TeamMember{UserID: userID, TeamID: teamID}
 
 	s.taskRepo.On("GetByID", mock.Anything, mock.Anything, taskID).Return(task, nil).Once()
 	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(member, nil).Once()
 	s.commentRepo.On("CreateComment", mock.Anything, mock.Anything, taskID, userID, content).
-		Return((*model.TaskComment)(nil), assert.AnError).Once()
+		Return(model.TaskComment{}, assert.AnError).Once()
 
 	got, err := s.svc.Create(s.ctx, taskID, userID, content)
 
 	assert.Error(s.T(), err)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.TaskComment{}, got)
 	s.taskRepo.AssertExpectations(s.T())
 	s.memberRepo.AssertExpectations(s.T())
 	s.commentRepo.AssertExpectations(s.T())

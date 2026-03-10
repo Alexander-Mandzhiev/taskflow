@@ -13,6 +13,7 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/internal/app/di"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/closer"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/config/contracts"
+	debughttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/debug"
 	healthhttp "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/health"
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/middleware"
 	httprouter "github.com/Alexander-Mandzhiev/taskflow/backend/pkg/http/router"
@@ -210,6 +211,7 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	a.stopRouter = stopRouter
 
 	healthhttp.RegisterRoutes(r)
+	debughttp.RegisterRoutes(r)
 
 	if err := a.di.RegisterAccountRoutes(ctx, r); err != nil {
 		return fmt.Errorf("register account routes: %w", err)
@@ -236,8 +238,8 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	return nil
 }
 
-// initHTTPRouter создаёт роутер и подключает глобальные middleware (firewall, IP rate limit, logging, metric, CORS).
-// Возвращает роутер и stop для graceful shutdown (остановка IP rate limiter).
+// initHTTPRouter создаёт роутер и подключает глобальные middleware (firewall, logging, metric, CORS).
+// Возвращает роутер и stop для graceful shutdown.
 func (a *App) initHTTPRouter(ctx context.Context) (*chi.Mux, func()) {
 	buckets := a.cfg.Metric().BucketBoundaries()
 	if len(buckets) == 0 {
@@ -246,10 +248,11 @@ func (a *App) initHTTPRouter(ctx context.Context) (*chi.Mux, func()) {
 
 	corsCfg := a.cfg.CORS()
 
-	ipRateLimitMw, stopIPLimiter := middleware.RateLimitMiddleware()
+	rateLimitMw, stopRateLimit := middleware.RateLimitMiddleware()
+
 	global := []func(http.Handler) http.Handler{
 		middleware.RequestFirewallMiddleware,
-		ipRateLimitMw,
+		rateLimitMw,
 		middleware.LoggingMiddleware,
 		metric.HTTPMiddleware(ctx, buckets),
 	}
@@ -265,5 +268,8 @@ func (a *App) initHTTPRouter(ctx context.Context) (*chi.Mux, func()) {
 	}
 
 	r := httprouter.NewRouter(a.cfg.HTTP().Timeout(), global)
-	return r, stopIPLimiter
+	return r, func() {
+		stopRateLimit()
+		logger.Info(ctx, "🚦 [Shutdown] Closed IP rate limiter")
+	}
 }

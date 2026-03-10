@@ -15,7 +15,7 @@ import (
 
 // ListByUserID возвращает команды, где пользователь участник, с его ролью в каждой.
 // Один запрос: teams JOIN team_members ON team_id WHERE team_members.user_id = userID.
-func (r *repository) ListByUserID(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) ([]*model.TeamWithRole, error) {
+func (r *repository) ListByUserID(ctx context.Context, tx *sqlx.Tx, userID uuid.UUID) ([]model.TeamWithRole, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("t.id", "t.name", "t.created_by", "t.created_at", "t.updated_at", "t.deleted_at", "tm.role").
 		From("teams t").
@@ -38,13 +38,13 @@ func (r *repository) ListByUserID(ctx context.Context, tx *sqlx.Tx, userID uuid.
 		return nil, toDomainError(err)
 	}
 
-	out := make([]*model.TeamWithRole, 0, len(rows))
+	out := make([]model.TeamWithRole, 0, len(rows))
 	for i := range rows {
 		item, err := converter.ToDomainTeamWithRole(rows[i])
 		if err != nil {
 			return nil, fmt.Errorf("convert row %d: %w", i, err)
 		}
-		out = append(out, &item)
+		out = append(out, item)
 	}
 	return out, nil
 }

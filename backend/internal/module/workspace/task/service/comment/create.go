@@ -14,8 +14,8 @@ import (
 )
 
 // Create создаёт комментарий к задаче. userID должен быть участником команды задачи.
-func (s *commentService) Create(ctx context.Context, taskID, userID uuid.UUID, content string) (*model.TaskComment, error) {
-	var comment *model.TaskComment
+func (s *commentService) Create(ctx context.Context, taskID, userID uuid.UUID, content string) (model.TaskComment, error) {
+	var comment model.TaskComment
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		task, errTx := s.taskRepo.GetByID(ctx, tx, taskID)
 		if errTx != nil {
@@ -31,10 +31,10 @@ func (s *commentService) Create(ctx context.Context, taskID, userID uuid.UUID, c
 		return errTx
 	}); err != nil {
 		if errors.Is(err, model.ErrTaskNotFound) {
-			return nil, err
+			return model.TaskComment{}, err
 		}
 		logger.Error(ctx, "Create comment failed", zap.Error(err))
-		return nil, err
+		return model.TaskComment{}, err
 	}
 	return comment, nil
 }

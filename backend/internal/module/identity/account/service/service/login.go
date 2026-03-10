@@ -39,7 +39,7 @@ func (s *accountService) Login(ctx context.Context, input accountmodel.LoginInpu
 		return "", "", err
 	}
 
-	session := &accountmodel.Session{
+	session := accountmodel.Session{
 		UserID:     user.ID,
 		CreatedAt:  time.Now(),
 		DeviceType: client,

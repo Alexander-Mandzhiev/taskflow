@@ -12,7 +12,7 @@ import (
 )
 
 // AddMember добавляет участника в команду. При нарушении uk возвращает model.ErrAlreadyMember.
-func (r *repository) AddMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID, role string) (*model.TeamMember, error) {
+func (r *repository) AddMember(ctx context.Context, tx *sqlx.Tx, teamID, userID uuid.UUID, role string) (model.TeamMember, error) {
 	id := uuid.New().String()
 
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
@@ -21,12 +21,12 @@ func (r *repository) AddMember(ctx context.Context, tx *sqlx.Tx, teamID, userID 
 		Values(id, userID.String(), teamID.String(), role).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build add member query: %w", err)
+		return model.TeamMember{}, fmt.Errorf("build add member query: %w", err)
 	}
 
 	_, err = tx.ExecContext(ctx, query, args...)
 	if err != nil {
-		return nil, toDomainError(err)
+		return model.TeamMember{}, toDomainError(err)
 	}
 
 	return r.selectByID(ctx, tx, id)

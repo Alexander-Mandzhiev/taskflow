@@ -10,6 +10,6 @@ import (
 )
 
 // CreateComment создаёт комментарий к задаче (task_id, user_id, content).
-func (r *Adapter) CreateComment(ctx context.Context, tx *sqlx.Tx, taskID, userID uuid.UUID, content string) (*model.TaskComment, error) {
+func (r *Adapter) CreateComment(ctx context.Context, tx *sqlx.Tx, taskID, userID uuid.UUID, content string) (model.TaskComment, error) {
 	return r.commentWriter.Create(ctx, tx, taskID, userID, content)
 }

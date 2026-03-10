@@ -14,8 +14,8 @@ import (
 
 // List возвращает список задач по фильтру (критерии + limit/offset в filter). total — общее количество без LIMIT.
 // При наличии listCache: сначала Get, при попадании — возврат; при промахе — reader.List и Set.
-func (r *Adapter) List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskListFilter) ([]*model.Task, int, error) {
-	if r.listCache != nil && filter != nil && filter.TeamID != nil {
+func (r *Adapter) List(ctx context.Context, tx *sqlx.Tx, filter model.TaskListFilter) ([]model.Task, int, error) {
+	if r.listCache != nil && filter.TeamID != nil {
 		cached, err := r.listCache.Get(ctx, *filter.TeamID, filter)
 		if err != nil {
 			logger.Warn(ctx, "task list cache get failed, falling back to DB", zap.Error(err))
@@ -29,7 +29,7 @@ func (r *Adapter) List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskListF
 		return nil, 0, err
 	}
 
-	if r.listCache != nil && filter != nil && filter.TeamID != nil {
+	if r.listCache != nil && filter.TeamID != nil {
 		if setErr := r.listCache.Set(ctx, *filter.TeamID, filter, &resources.TaskListPageCache{
 			Items:  items,
 			Total:  total,

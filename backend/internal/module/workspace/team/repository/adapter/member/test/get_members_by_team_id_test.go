@@ -11,7 +11,7 @@ import (
 
 func (s *AdapterSuite) TestGetMembersByTeamID_Success() {
 	teamID := uuid.New()
-	want := []*model.TeamMember{
+	want := []model.TeamMember{
 		{TeamID: teamID, UserID: uuid.New(), Role: model.RoleOwner},
 		{TeamID: teamID, UserID: uuid.New(), Role: model.RoleMember},
 	}
@@ -29,7 +29,7 @@ func (s *AdapterSuite) TestGetMembersByTeamID_Success() {
 func (s *AdapterSuite) TestGetMembersByTeamID_Empty() {
 	teamID := uuid.New()
 	s.memberReader.On("GetByTeamID", mock.Anything, mock.Anything, teamID).
-		Return([]*model.TeamMember{}, nil).Once()
+		Return([]model.TeamMember{}, nil).Once()
 
 	got, err := s.repo.GetMembersByTeamID(s.ctx, nil, teamID)
 
@@ -42,7 +42,7 @@ func (s *AdapterSuite) TestGetMembersByTeamID_Empty() {
 func (s *AdapterSuite) TestGetMembersByTeamID_ReaderError() {
 	teamID := uuid.New()
 	s.memberReader.On("GetByTeamID", mock.Anything, mock.Anything, teamID).
-		Return(([]*model.TeamMember)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.repo.GetMembersByTeamID(s.ctx, &sqlx.Tx{}, teamID)
 

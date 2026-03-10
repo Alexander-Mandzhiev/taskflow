@@ -84,10 +84,6 @@ func (m *Manager) executeHooks(ctx context.Context, hooks []PostCommitHook) {
 				}
 			} else {
 				hookDuration := time.Since(hookStart)
-				logger.Debug(ctx, "Post-commit hook executed",
-					zap.Int("hook_index", i),
-					zap.Duration("duration", hookDuration),
-				)
 				if span := trace.SpanFromContext(ctx); span.IsRecording() {
 					span.SetAttributes(
 						attribute.String(fmt.Sprintf("db.hook.%d.status", i), "success"),

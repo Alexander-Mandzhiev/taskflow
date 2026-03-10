@@ -17,7 +17,7 @@ import (
 func (s *APISuite) TestReportTopCreators_Success() {
 	userID := uuid.MustParse(testUserID)
 	teamID := uuid.New()
-	items := []*model.TeamTopCreator{
+	items := []model.TeamTopCreator{
 		{
 			TeamID:       teamID,
 			UserID:       userID,
@@ -78,7 +78,7 @@ func (s *APISuite) TestReportTopCreators_InvalidLimit() {
 
 func (s *APISuite) TestReportTopCreators_InternalError() {
 	s.reportService.On("TopCreatorsByTeam", mock.Anything, uuid.MustParse(testUserID), mock.AnythingOfType("time.Time"), 3).
-		Return(nil, assert.AnError).Once()
+		Return([]model.TeamTopCreator(nil), assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Get("/reports/top-creators", s.api.ReportTopCreators)

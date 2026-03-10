@@ -27,7 +27,7 @@ func (_m *InvitationRepository) EXPECT() *InvitationRepository_Expecter {
 }
 
 // CreateInvitation provides a mock function with given fields: ctx, tx, inv
-func (_m *InvitationRepository) CreateInvitation(ctx context.Context, tx *sqlx.Tx, inv *model.TeamInvitation) error {
+func (_m *InvitationRepository) CreateInvitation(ctx context.Context, tx *sqlx.Tx, inv model.TeamInvitation) error {
 	ret := _m.Called(ctx, tx, inv)
 
 	if len(ret) == 0 {
@@ -35,7 +35,7 @@ func (_m *InvitationRepository) CreateInvitation(ctx context.Context, tx *sqlx.T
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TeamInvitation) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TeamInvitation) error); ok {
 		r0 = rf(ctx, tx, inv)
 	} else {
 		r0 = ret.Error(0)
@@ -52,14 +52,14 @@ type InvitationRepository_CreateInvitation_Call struct {
 // CreateInvitation is a helper method to define mock.On call
 //   - ctx context.Context
 //   - tx *sqlx.Tx
-//   - inv *model.TeamInvitation
+//   - inv model.TeamInvitation
 func (_e *InvitationRepository_Expecter) CreateInvitation(ctx interface{}, tx interface{}, inv interface{}) *InvitationRepository_CreateInvitation_Call {
 	return &InvitationRepository_CreateInvitation_Call{Call: _e.mock.On("CreateInvitation", ctx, tx, inv)}
 }
 
-func (_c *InvitationRepository_CreateInvitation_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, inv *model.TeamInvitation)) *InvitationRepository_CreateInvitation_Call {
+func (_c *InvitationRepository_CreateInvitation_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, inv model.TeamInvitation)) *InvitationRepository_CreateInvitation_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(*model.TeamInvitation))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(model.TeamInvitation))
 	})
 	return _c
 }
@@ -69,30 +69,28 @@ func (_c *InvitationRepository_CreateInvitation_Call) Return(_a0 error) *Invitat
 	return _c
 }
 
-func (_c *InvitationRepository_CreateInvitation_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, *model.TeamInvitation) error) *InvitationRepository_CreateInvitation_Call {
+func (_c *InvitationRepository_CreateInvitation_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, model.TeamInvitation) error) *InvitationRepository_CreateInvitation_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetPendingInvitationByTeamAndEmail provides a mock function with given fields: ctx, tx, teamID, email
-func (_m *InvitationRepository) GetPendingInvitationByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, email string) (*model.TeamInvitation, error) {
+func (_m *InvitationRepository) GetPendingInvitationByTeamAndEmail(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, email string) (model.TeamInvitation, error) {
 	ret := _m.Called(ctx, tx, teamID, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPendingInvitationByTeamAndEmail")
 	}
 
-	var r0 *model.TeamInvitation
+	var r0 model.TeamInvitation
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, string) (*model.TeamInvitation, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, string) (model.TeamInvitation, error)); ok {
 		return rf(ctx, tx, teamID, email)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, string) *model.TeamInvitation); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, string) model.TeamInvitation); ok {
 		r0 = rf(ctx, tx, teamID, email)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.TeamInvitation)
-		}
+		r0 = ret.Get(0).(model.TeamInvitation)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID, string) error); ok {
@@ -125,12 +123,12 @@ func (_c *InvitationRepository_GetPendingInvitationByTeamAndEmail_Call) Run(run 
 	return _c
 }
 
-func (_c *InvitationRepository_GetPendingInvitationByTeamAndEmail_Call) Return(_a0 *model.TeamInvitation, _a1 error) *InvitationRepository_GetPendingInvitationByTeamAndEmail_Call {
+func (_c *InvitationRepository_GetPendingInvitationByTeamAndEmail_Call) Return(_a0 model.TeamInvitation, _a1 error) *InvitationRepository_GetPendingInvitationByTeamAndEmail_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *InvitationRepository_GetPendingInvitationByTeamAndEmail_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, string) (*model.TeamInvitation, error)) *InvitationRepository_GetPendingInvitationByTeamAndEmail_Call {
+func (_c *InvitationRepository_GetPendingInvitationByTeamAndEmail_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, string) (model.TeamInvitation, error)) *InvitationRepository_GetPendingInvitationByTeamAndEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }

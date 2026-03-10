@@ -18,8 +18,8 @@ import (
 const invitationExpiresIn = 7 * 24 * time.Hour
 
 // InviteByEmail создаёт приглашение (запись в team_invitations). Проверки и данные для уведомления — в одной транзакции; отправка notifier — после коммита.
-func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID uuid.UUID, inviteeEmail, role string) (*model.TeamInvitation, error) {
-	var inv *model.TeamInvitation
+func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID uuid.UUID, inviteeEmail, role string) (model.TeamInvitation, error) {
+	var inv model.TeamInvitation
 	var teamName, inviterName string
 
 	err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
@@ -36,7 +36,7 @@ func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID u
 			return err
 		}
 
-		inv = &model.TeamInvitation{
+		inv = model.TeamInvitation{
 			ID:        uuid.New(),
 			TeamID:    teamID,
 			Email:     inviteeEmail,
@@ -56,10 +56,10 @@ func (s *teamService) InviteByEmail(ctx context.Context, teamID, inviterUserID u
 	if err != nil {
 		if errors.Is(err, model.ErrForbidden) || errors.Is(err, model.ErrAlreadyMember) ||
 			errors.Is(err, model.ErrAlreadyInvited) || errors.Is(err, model.ErrInvalidRole) {
-			return nil, err
+			return model.TeamInvitation{}, err
 		}
 		logger.Error(ctx, "InviteByEmail failed", zap.Error(err))
-		return nil, err
+		return model.TeamInvitation{}, err
 	}
 
 	if s.notifier != nil {
@@ -99,11 +99,11 @@ func (s *teamService) checkUserNotMember(ctx context.Context, tx *sqlx.Tx, teamI
 		}
 		return nil
 	}
-	existing, err := s.memberRepo.GetMember(ctx, tx, teamID, user.ID)
+	_, err = s.memberRepo.GetMember(ctx, tx, teamID, user.ID)
 	if err != nil && !errors.Is(err, model.ErrMemberNotFound) {
 		return err
 	}
-	if existing != nil {
+	if err == nil {
 		return model.ErrAlreadyMember
 	}
 	return nil
@@ -114,7 +114,7 @@ func (s *teamService) checkNoActiveInvitation(ctx context.Context, tx *sqlx.Tx, 
 	if err != nil && !errors.Is(err, model.ErrInvitationNotFound) {
 		return err
 	}
-	if pending != nil && pending.ExpiresAt.After(time.Now().UTC()) {
+	if err == nil && pending.ExpiresAt.After(time.Now().UTC()) {
 		return model.ErrAlreadyInvited
 	}
 	return nil
@@ -126,12 +126,12 @@ func (s *teamService) prepareNotificationData(ctx context.Context, tx *sqlx.Tx, 
 	} else {
 		logger.Warn(ctx, "InviteByEmail: get team for notification failed", zap.Error(err))
 	}
-	if u, err := s.userRepo.GetByID(ctx, tx, inviterUserID.String()); err == nil && u != nil {
+	if u, err := s.userRepo.GetByID(ctx, tx, inviterUserID.String()); err == nil {
 		*inviterName = u.Name
 		if *inviterName == "" {
 			*inviterName = u.Email
 		}
-	} else if err != nil {
+	} else {
 		logger.Warn(ctx, "InviteByEmail: get inviter for notification failed", zap.Error(err))
 	}
 }

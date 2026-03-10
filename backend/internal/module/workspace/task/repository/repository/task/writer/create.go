@@ -13,13 +13,13 @@ import (
 )
 
 // Create создаёт запись в tasks. teamID и createdBy — в сигнатуре. Мутация только в транзакции (tx != nil).
-func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input *model.TaskInput, createdBy uuid.UUID) (*model.Task, error) {
+func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, input model.TaskInput, createdBy uuid.UUID) (model.Task, error) {
 	if tx == nil {
-		return nil, model.ErrTxRequired
+		return model.Task{}, model.ErrTxRequired
 	}
 	in, err := converter.ToRepoTaskCreateInput(teamID, input)
 	if err != nil {
-		return nil, err
+		return model.Task{}, err
 	}
 
 	id := uuid.New().String()
@@ -40,12 +40,12 @@ func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, 
 		Values(id, in.Title, in.Description, in.Status, assigneeID, in.TeamID, createdBy.String(), sq.Expr("NOW()"), sq.Expr("NOW()"), completedAt).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build create query: %w", err)
+		return model.Task{}, fmt.Errorf("build create query: %w", err)
 	}
 
 	_, err = tx.ExecContext(ctx, query, args...)
 	if err != nil {
-		return nil, toDomainError(err)
+		return model.Task{}, toDomainError(err)
 	}
 
 	return r.selectByID(ctx, tx, id)

@@ -11,7 +11,7 @@ import (
 
 func (s *AdapterSuite) TestTasksWithInvalidAssignee_Success() {
 	teamID := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
-	tasks := []*model.Task{
+	tasks := []model.Task{
 		{
 			ID:     uuid.MustParse("660e8400-e29b-41d4-a716-446655440002"),
 			Title:  "Task with bad assignee",
@@ -33,7 +33,7 @@ func (s *AdapterSuite) TestTasksWithInvalidAssignee_Success() {
 
 func (s *AdapterSuite) TestTasksWithInvalidAssignee_Empty() {
 	s.reportReader.On("TasksWithInvalidAssignee", mock.Anything, mock.Anything).
-		Return([]*model.Task{}, nil).Once()
+		Return([]model.Task{}, nil).Once()
 
 	got, err := s.repo.TasksWithInvalidAssignee(s.ctx, nil)
 
@@ -45,7 +45,7 @@ func (s *AdapterSuite) TestTasksWithInvalidAssignee_Empty() {
 func (s *AdapterSuite) TestTasksWithInvalidAssignee_WithTx_ReaderError() {
 	tx := &sqlx.Tx{}
 	s.reportReader.On("TasksWithInvalidAssignee", mock.Anything, tx).
-		Return(([]*model.Task)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.repo.TasksWithInvalidAssignee(s.ctx, tx)
 

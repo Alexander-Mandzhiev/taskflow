@@ -14,24 +14,24 @@ import (
 // При tx != nil — чтение из БД в транзакции (валидация внутри мутаций).
 // При tx == nil — кеш, при промахе или ошибке Redis — fallback на БД.
 // PasswordHash в кеше не хранится: для аутентификации используйте GetByEmail.
-func (r *Adapter) GetByID(ctx context.Context, tx *sqlx.Tx, id string) (*model.User, error) {
+func (r *Adapter) GetByID(ctx context.Context, tx *sqlx.Tx, id string) (model.User, error) {
 	if tx != nil {
 		return r.reader.GetByID(ctx, tx, id)
 	}
 
 	// 1. Пытаемся получить из кеша
-	user, err := r.cache.Get(ctx, id)
+	user, found, err := r.cache.Get(ctx, id)
 	if err != nil {
 		logger.Warn(ctx, "Cache get failed, falling back to DB", zap.Error(err))
 	}
-	if user != nil {
+	if found {
 		return user, nil
 	}
 
 	// 2. Fallback на БД
 	user, err = r.reader.GetByID(ctx, nil, id)
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
 
 	// 3. Кешируем результат

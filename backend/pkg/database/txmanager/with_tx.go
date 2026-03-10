@@ -5,9 +5,6 @@ import (
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
-	"go.uber.org/zap"
-
-	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
 // WithTx выполняет fn в транзакции. При успехе — commit, при ошибке — rollback.
@@ -31,9 +28,7 @@ func (m *Manager) WithTx(ctx context.Context, fn func(context.Context, *sqlx.Tx)
 
 	hooks := result.registry.GetHooks()
 	if len(hooks) > 0 {
-		logger.Debug(ctx, "Executing post-commit hooks", zap.Int("total_hooks_count", len(hooks)))
 		m.executeHooks(ctx, hooks)
-		logger.Debug(ctx, "Post-commit hooks completed", zap.Int("total_hooks_count", len(hooks)))
 	}
 
 	return nil

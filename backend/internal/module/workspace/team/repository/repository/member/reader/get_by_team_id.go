@@ -14,7 +14,7 @@ import (
 )
 
 // GetByTeamID возвращает всех участников команды по team_id.
-func (r *repository) GetByTeamID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) ([]*model.TeamMember, error) {
+func (r *repository) GetByTeamID(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID) ([]model.TeamMember, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "user_id", "team_id", "role", "created_at").
 		From("team_members").
@@ -35,13 +35,13 @@ func (r *repository) GetByTeamID(ctx context.Context, tx *sqlx.Tx, teamID uuid.U
 		return nil, toDomainError(err)
 	}
 
-	out := make([]*model.TeamMember, 0, len(rows))
+	out := make([]model.TeamMember, 0, len(rows))
 	for i := range rows {
 		member, err := converter.ToDomainTeamMember(rows[i])
 		if err != nil {
 			return nil, fmt.Errorf("convert row %d: %w", i, err)
 		}
-		out = append(out, &member)
+		out = append(out, member)
 	}
 	return out, nil
 }

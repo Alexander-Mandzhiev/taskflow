@@ -13,7 +13,7 @@ func (s *AdapterSuite) TestAddMember_Success() {
 	teamID := uuid.New()
 	userID := uuid.New()
 	role := model.RoleMember
-	member := &model.TeamMember{TeamID: teamID, UserID: userID, Role: role}
+	member := model.TeamMember{TeamID: teamID, UserID: userID, Role: role}
 
 	s.memberWriter.On("AddMember", mock.Anything, (*sqlx.Tx)(nil), teamID, userID, role).
 		Return(member, nil).Once()
@@ -30,7 +30,7 @@ func (s *AdapterSuite) TestAddMember_WithTx() {
 	teamID := uuid.New()
 	userID := uuid.New()
 	role := model.RoleAdmin
-	member := &model.TeamMember{TeamID: teamID, UserID: userID, Role: role}
+	member := model.TeamMember{TeamID: teamID, UserID: userID, Role: role}
 
 	s.memberWriter.On("AddMember", mock.Anything, tx, teamID, userID, role).
 		Return(member, nil).Once()
@@ -48,11 +48,11 @@ func (s *AdapterSuite) TestAddMember_WriterError() {
 	role := model.RoleMember
 
 	s.memberWriter.On("AddMember", mock.Anything, mock.Anything, teamID, userID, role).
-		Return((*model.TeamMember)(nil), assert.AnError).Once()
+		Return(model.TeamMember{}, assert.AnError).Once()
 
 	got, err := s.repo.AddMember(s.ctx, nil, teamID, userID, role)
 
 	assert.Error(s.T(), err)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.TeamMember{}, got)
 	s.memberWriter.AssertExpectations(s.T())
 }

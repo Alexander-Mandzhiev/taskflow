@@ -17,7 +17,7 @@ import (
 
 func (s *APISuite) TestReportInvalidAssignees_Success() {
 	userID := uuid.MustParse(testUserID)
-	tasks := []*model.Task{
+	tasks := []model.Task{
 		{
 			ID:        uuid.New(),
 			Title:     "Task with bad assignee",
@@ -65,7 +65,7 @@ func (s *APISuite) TestReportInvalidAssignees_NoAuth() {
 
 func (s *APISuite) TestReportInvalidAssignees_EmptyList() {
 	s.reportService.On("TasksWithInvalidAssignee", mock.Anything, uuid.MustParse(testUserID)).
-		Return([]*model.Task{}, nil).Once()
+		Return([]model.Task{}, nil).Once()
 
 	r := chi.NewRouter()
 	r.Get("/reports/invalid-assignees", s.api.ReportInvalidAssignees)
@@ -86,7 +86,7 @@ func (s *APISuite) TestReportInvalidAssignees_EmptyList() {
 
 func (s *APISuite) TestReportInvalidAssignees_InternalError() {
 	s.reportService.On("TasksWithInvalidAssignee", mock.Anything, uuid.MustParse(testUserID)).
-		Return(nil, assert.AnError).Once()
+		Return([]model.Task(nil), assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Get("/reports/invalid-assignees", s.api.ReportInvalidAssignees)

@@ -15,5 +15,5 @@ func (s *ServiceSuite) TestAcceptInvitation_NotImplemented() {
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrNotImplemented)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.TeamMember{}, got)
 }

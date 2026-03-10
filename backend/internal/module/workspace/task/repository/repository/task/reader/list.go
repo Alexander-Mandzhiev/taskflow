@@ -14,10 +14,7 @@ import (
 
 // List возвращает список задач по фильтру (критерии + limit/offset внутри filter). total — количество без LIMIT.
 // Валидация filter (limit > 0 и т.д.) — в сервисе/API; репозиторий использует переданные значения.
-func (r *repository) List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskListFilter) ([]*model.Task, int, error) {
-	if filter == nil {
-		return nil, 0, nil
-	}
+func (r *repository) List(ctx context.Context, tx *sqlx.Tx, filter model.TaskListFilter) ([]model.Task, int, error) {
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Question)
 	where := sq.Expr("deleted_at IS NULL")
 	if filter.TeamID != nil {
@@ -78,13 +75,13 @@ func (r *repository) List(ctx context.Context, tx *sqlx.Tx, filter *model.TaskLi
 		return nil, 0, toDomainError(err)
 	}
 
-	out := make([]*model.Task, 0, len(rows))
+	out := make([]model.Task, 0, len(rows))
 	for i := range rows {
 		task, err := converter.ToDomainTask(rows[i])
 		if err != nil {
 			return nil, 0, fmt.Errorf("convert row %d: %w", i, err)
 		}
-		out = append(out, &task)
+		out = append(out, task)
 	}
 	return out, total, nil
 }

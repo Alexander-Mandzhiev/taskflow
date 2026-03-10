@@ -27,24 +27,22 @@ func (_m *MemberWriterRepository) EXPECT() *MemberWriterRepository_Expecter {
 }
 
 // AddMember provides a mock function with given fields: ctx, tx, teamID, userID, role
-func (_m *MemberWriterRepository) AddMember(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, userID uuid.UUID, role string) (*model.TeamMember, error) {
+func (_m *MemberWriterRepository) AddMember(ctx context.Context, tx *sqlx.Tx, teamID uuid.UUID, userID uuid.UUID, role string) (model.TeamMember, error) {
 	ret := _m.Called(ctx, tx, teamID, userID, role)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AddMember")
 	}
 
-	var r0 *model.TeamMember
+	var r0 model.TeamMember
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) (*model.TeamMember, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) (model.TeamMember, error)); ok {
 		return rf(ctx, tx, teamID, userID, role)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) *model.TeamMember); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) model.TeamMember); ok {
 		r0 = rf(ctx, tx, teamID, userID, role)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.TeamMember)
-		}
+		r0 = ret.Get(0).(model.TeamMember)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) error); ok {
@@ -78,12 +76,12 @@ func (_c *MemberWriterRepository_AddMember_Call) Run(run func(ctx context.Contex
 	return _c
 }
 
-func (_c *MemberWriterRepository_AddMember_Call) Return(_a0 *model.TeamMember, _a1 error) *MemberWriterRepository_AddMember_Call {
+func (_c *MemberWriterRepository_AddMember_Call) Return(_a0 model.TeamMember, _a1 error) *MemberWriterRepository_AddMember_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MemberWriterRepository_AddMember_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) (*model.TeamMember, error)) *MemberWriterRepository_AddMember_Call {
+func (_c *MemberWriterRepository_AddMember_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, uuid.UUID, uuid.UUID, string) (model.TeamMember, error)) *MemberWriterRepository_AddMember_Call {
 	_c.Call.Return(run)
 	return _c
 }

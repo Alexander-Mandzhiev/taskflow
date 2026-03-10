@@ -13,7 +13,7 @@ import (
 )
 
 // ListByTaskID возвращает историю изменений задачи по task_id, упорядоченную по changed_at.
-func (r *repository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]*model.TaskHistory, error) {
+func (r *repository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.UUID) ([]model.TaskHistory, error) {
 	const query = `
 		SELECT id, task_id, changed_by, field_name, old_value, new_value, changed_at
 		FROM task_history WHERE task_id = ? ORDER BY changed_at ASC
@@ -29,13 +29,13 @@ func (r *repository) ListByTaskID(ctx context.Context, tx *sqlx.Tx, taskID uuid.
 		}
 	}
 
-	out := make([]*model.TaskHistory, 0, len(rows))
+	out := make([]model.TaskHistory, 0, len(rows))
 	for i := range rows {
 		h, err := converter.ToDomainTaskHistory(rows[i])
 		if err != nil {
 			return nil, fmt.Errorf("convert row %d: %w", i, err)
 		}
-		out = append(out, &h)
+		out = append(out, h)
 	}
 	return out, nil
 }

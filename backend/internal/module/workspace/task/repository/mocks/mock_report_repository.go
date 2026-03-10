@@ -27,23 +27,23 @@ func (_m *ReportRepository) EXPECT() *ReportRepository_Expecter {
 }
 
 // TasksWithInvalidAssignee provides a mock function with given fields: ctx, tx
-func (_m *ReportRepository) TasksWithInvalidAssignee(ctx context.Context, tx *sqlx.Tx) ([]*model.Task, error) {
+func (_m *ReportRepository) TasksWithInvalidAssignee(ctx context.Context, tx *sqlx.Tx) ([]model.Task, error) {
 	ret := _m.Called(ctx, tx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TasksWithInvalidAssignee")
 	}
 
-	var r0 []*model.Task
+	var r0 []model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx) ([]*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx) ([]model.Task, error)); ok {
 		return rf(ctx, tx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx) []*model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx) []model.Task); ok {
 		r0 = rf(ctx, tx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.Task)
+			r0 = ret.Get(0).([]model.Task)
 		}
 	}
 
@@ -75,34 +75,34 @@ func (_c *ReportRepository_TasksWithInvalidAssignee_Call) Run(run func(ctx conte
 	return _c
 }
 
-func (_c *ReportRepository_TasksWithInvalidAssignee_Call) Return(_a0 []*model.Task, _a1 error) *ReportRepository_TasksWithInvalidAssignee_Call {
+func (_c *ReportRepository_TasksWithInvalidAssignee_Call) Return(_a0 []model.Task, _a1 error) *ReportRepository_TasksWithInvalidAssignee_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ReportRepository_TasksWithInvalidAssignee_Call) RunAndReturn(run func(context.Context, *sqlx.Tx) ([]*model.Task, error)) *ReportRepository_TasksWithInvalidAssignee_Call {
+func (_c *ReportRepository_TasksWithInvalidAssignee_Call) RunAndReturn(run func(context.Context, *sqlx.Tx) ([]model.Task, error)) *ReportRepository_TasksWithInvalidAssignee_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // TeamTaskStats provides a mock function with given fields: ctx, tx, since
-func (_m *ReportRepository) TeamTaskStats(ctx context.Context, tx *sqlx.Tx, since time.Time) ([]*model.TeamTaskStats, error) {
+func (_m *ReportRepository) TeamTaskStats(ctx context.Context, tx *sqlx.Tx, since time.Time) ([]model.TeamTaskStats, error) {
 	ret := _m.Called(ctx, tx, since)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TeamTaskStats")
 	}
 
-	var r0 []*model.TeamTaskStats
+	var r0 []model.TeamTaskStats
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, time.Time) ([]*model.TeamTaskStats, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, time.Time) ([]model.TeamTaskStats, error)); ok {
 		return rf(ctx, tx, since)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, time.Time) []*model.TeamTaskStats); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, time.Time) []model.TeamTaskStats); ok {
 		r0 = rf(ctx, tx, since)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TeamTaskStats)
+			r0 = ret.Get(0).([]model.TeamTaskStats)
 		}
 	}
 
@@ -135,34 +135,34 @@ func (_c *ReportRepository_TeamTaskStats_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *ReportRepository_TeamTaskStats_Call) Return(_a0 []*model.TeamTaskStats, _a1 error) *ReportRepository_TeamTaskStats_Call {
+func (_c *ReportRepository_TeamTaskStats_Call) Return(_a0 []model.TeamTaskStats, _a1 error) *ReportRepository_TeamTaskStats_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ReportRepository_TeamTaskStats_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, time.Time) ([]*model.TeamTaskStats, error)) *ReportRepository_TeamTaskStats_Call {
+func (_c *ReportRepository_TeamTaskStats_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, time.Time) ([]model.TeamTaskStats, error)) *ReportRepository_TeamTaskStats_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // TopCreatorsByTeam provides a mock function with given fields: ctx, tx, since, limit
-func (_m *ReportRepository) TopCreatorsByTeam(ctx context.Context, tx *sqlx.Tx, since time.Time, limit int) ([]*model.TeamTopCreator, error) {
+func (_m *ReportRepository) TopCreatorsByTeam(ctx context.Context, tx *sqlx.Tx, since time.Time, limit int) ([]model.TeamTopCreator, error) {
 	ret := _m.Called(ctx, tx, since, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TopCreatorsByTeam")
 	}
 
-	var r0 []*model.TeamTopCreator
+	var r0 []model.TeamTopCreator
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, time.Time, int) ([]*model.TeamTopCreator, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, time.Time, int) ([]model.TeamTopCreator, error)); ok {
 		return rf(ctx, tx, since, limit)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, time.Time, int) []*model.TeamTopCreator); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, time.Time, int) []model.TeamTopCreator); ok {
 		r0 = rf(ctx, tx, since, limit)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TeamTopCreator)
+			r0 = ret.Get(0).([]model.TeamTopCreator)
 		}
 	}
 
@@ -196,12 +196,12 @@ func (_c *ReportRepository_TopCreatorsByTeam_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *ReportRepository_TopCreatorsByTeam_Call) Return(_a0 []*model.TeamTopCreator, _a1 error) *ReportRepository_TopCreatorsByTeam_Call {
+func (_c *ReportRepository_TopCreatorsByTeam_Call) Return(_a0 []model.TeamTopCreator, _a1 error) *ReportRepository_TopCreatorsByTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ReportRepository_TopCreatorsByTeam_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, time.Time, int) ([]*model.TeamTopCreator, error)) *ReportRepository_TopCreatorsByTeam_Call {
+func (_c *ReportRepository_TopCreatorsByTeam_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, time.Time, int) ([]model.TeamTopCreator, error)) *ReportRepository_TopCreatorsByTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }

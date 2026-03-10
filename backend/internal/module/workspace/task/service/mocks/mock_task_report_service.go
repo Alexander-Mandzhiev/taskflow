@@ -27,23 +27,23 @@ func (_m *TaskReportService) EXPECT() *TaskReportService_Expecter {
 }
 
 // TasksWithInvalidAssignee provides a mock function with given fields: ctx, userID
-func (_m *TaskReportService) TasksWithInvalidAssignee(ctx context.Context, userID uuid.UUID) ([]*model.Task, error) {
+func (_m *TaskReportService) TasksWithInvalidAssignee(ctx context.Context, userID uuid.UUID) ([]model.Task, error) {
 	ret := _m.Called(ctx, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TasksWithInvalidAssignee")
 	}
 
-	var r0 []*model.Task
+	var r0 []model.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]*model.Task, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) ([]model.Task, error)); ok {
 		return rf(ctx, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []*model.Task); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) []model.Task); ok {
 		r0 = rf(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.Task)
+			r0 = ret.Get(0).([]model.Task)
 		}
 	}
 
@@ -75,34 +75,34 @@ func (_c *TaskReportService_TasksWithInvalidAssignee_Call) Run(run func(ctx cont
 	return _c
 }
 
-func (_c *TaskReportService_TasksWithInvalidAssignee_Call) Return(_a0 []*model.Task, _a1 error) *TaskReportService_TasksWithInvalidAssignee_Call {
+func (_c *TaskReportService_TasksWithInvalidAssignee_Call) Return(_a0 []model.Task, _a1 error) *TaskReportService_TasksWithInvalidAssignee_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskReportService_TasksWithInvalidAssignee_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]*model.Task, error)) *TaskReportService_TasksWithInvalidAssignee_Call {
+func (_c *TaskReportService_TasksWithInvalidAssignee_Call) RunAndReturn(run func(context.Context, uuid.UUID) ([]model.Task, error)) *TaskReportService_TasksWithInvalidAssignee_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // TeamTaskStats provides a mock function with given fields: ctx, userID, since
-func (_m *TaskReportService) TeamTaskStats(ctx context.Context, userID uuid.UUID, since time.Time) ([]*model.TeamTaskStats, error) {
+func (_m *TaskReportService) TeamTaskStats(ctx context.Context, userID uuid.UUID, since time.Time) ([]model.TeamTaskStats, error) {
 	ret := _m.Called(ctx, userID, since)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TeamTaskStats")
 	}
 
-	var r0 []*model.TeamTaskStats
+	var r0 []model.TeamTaskStats
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time) ([]*model.TeamTaskStats, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time) ([]model.TeamTaskStats, error)); ok {
 		return rf(ctx, userID, since)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time) []*model.TeamTaskStats); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time) []model.TeamTaskStats); ok {
 		r0 = rf(ctx, userID, since)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TeamTaskStats)
+			r0 = ret.Get(0).([]model.TeamTaskStats)
 		}
 	}
 
@@ -135,34 +135,34 @@ func (_c *TaskReportService_TeamTaskStats_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *TaskReportService_TeamTaskStats_Call) Return(_a0 []*model.TeamTaskStats, _a1 error) *TaskReportService_TeamTaskStats_Call {
+func (_c *TaskReportService_TeamTaskStats_Call) Return(_a0 []model.TeamTaskStats, _a1 error) *TaskReportService_TeamTaskStats_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskReportService_TeamTaskStats_Call) RunAndReturn(run func(context.Context, uuid.UUID, time.Time) ([]*model.TeamTaskStats, error)) *TaskReportService_TeamTaskStats_Call {
+func (_c *TaskReportService_TeamTaskStats_Call) RunAndReturn(run func(context.Context, uuid.UUID, time.Time) ([]model.TeamTaskStats, error)) *TaskReportService_TeamTaskStats_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // TopCreatorsByTeam provides a mock function with given fields: ctx, userID, since, limit
-func (_m *TaskReportService) TopCreatorsByTeam(ctx context.Context, userID uuid.UUID, since time.Time, limit int) ([]*model.TeamTopCreator, error) {
+func (_m *TaskReportService) TopCreatorsByTeam(ctx context.Context, userID uuid.UUID, since time.Time, limit int) ([]model.TeamTopCreator, error) {
 	ret := _m.Called(ctx, userID, since, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TopCreatorsByTeam")
 	}
 
-	var r0 []*model.TeamTopCreator
+	var r0 []model.TeamTopCreator
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time, int) ([]*model.TeamTopCreator, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time, int) ([]model.TeamTopCreator, error)); ok {
 		return rf(ctx, userID, since, limit)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time, int) []*model.TeamTopCreator); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, time.Time, int) []model.TeamTopCreator); ok {
 		r0 = rf(ctx, userID, since, limit)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.TeamTopCreator)
+			r0 = ret.Get(0).([]model.TeamTopCreator)
 		}
 	}
 
@@ -196,12 +196,12 @@ func (_c *TaskReportService_TopCreatorsByTeam_Call) Run(run func(ctx context.Con
 	return _c
 }
 
-func (_c *TaskReportService_TopCreatorsByTeam_Call) Return(_a0 []*model.TeamTopCreator, _a1 error) *TaskReportService_TopCreatorsByTeam_Call {
+func (_c *TaskReportService_TopCreatorsByTeam_Call) Return(_a0 []model.TeamTopCreator, _a1 error) *TaskReportService_TopCreatorsByTeam_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TaskReportService_TopCreatorsByTeam_Call) RunAndReturn(run func(context.Context, uuid.UUID, time.Time, int) ([]*model.TeamTopCreator, error)) *TaskReportService_TopCreatorsByTeam_Call {
+func (_c *TaskReportService_TopCreatorsByTeam_Call) RunAndReturn(run func(context.Context, uuid.UUID, time.Time, int) ([]model.TeamTopCreator, error)) *TaskReportService_TopCreatorsByTeam_Call {
 	_c.Call.Return(run)
 	return _c
 }

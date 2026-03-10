@@ -11,12 +11,12 @@ import (
 
 func (s *ServiceSuite) TestLogin_Success() {
 	hash, _ := s.hasher.Hash("password123")
-	user := &usermodel.User{ID: uuid.New(), Email: "user@example.com", PasswordHash: hash}
+	user := usermodel.User{ID: uuid.New(), Email: "user@example.com", PasswordHash: hash}
 
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "user@example.com").
 		Return(user, nil).Once()
-	s.sessionRepo.On("Set", mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.MatchedBy(func(sess *accountmodel.Session) bool {
-		return sess != nil && sess.UserID == user.ID
+	s.sessionRepo.On("Set", mock.Anything, mock.AnythingOfType("uuid.UUID"), mock.MatchedBy(func(sess accountmodel.Session) bool {
+		return sess.UserID == user.ID
 	}), mock.AnythingOfType("time.Duration")).
 		Return(nil).Once()
 
@@ -32,7 +32,7 @@ func (s *ServiceSuite) TestLogin_Success() {
 
 func (s *ServiceSuite) TestLogin_UserNotFound() {
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "nonexistent@example.com").
-		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
+		Return(usermodel.User{}, usermodel.ErrUserNotFound).Once()
 
 	input := accountmodel.LoginInput{Email: "nonexistent@example.com", Password: "password123"}
 	_, _, err := s.svc.Login(s.ctx, input)
@@ -44,7 +44,7 @@ func (s *ServiceSuite) TestLogin_UserNotFound() {
 
 func (s *ServiceSuite) TestLogin_InvalidPassword() {
 	hash, _ := s.hasher.Hash("correct")
-	user := &usermodel.User{ID: uuid.New(), Email: "user@example.com", PasswordHash: hash}
+	user := usermodel.User{ID: uuid.New(), Email: "user@example.com", PasswordHash: hash}
 
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "user@example.com").
 		Return(user, nil).Once()
@@ -59,7 +59,7 @@ func (s *ServiceSuite) TestLogin_InvalidPassword() {
 
 func (s *ServiceSuite) TestLogin_SetSessionError() {
 	hash, _ := s.hasher.Hash("password123")
-	user := &usermodel.User{ID: uuid.New(), Email: "user@example.com", PasswordHash: hash}
+	user := usermodel.User{ID: uuid.New(), Email: "user@example.com", PasswordHash: hash}
 
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "user@example.com").
 		Return(user, nil).Once()

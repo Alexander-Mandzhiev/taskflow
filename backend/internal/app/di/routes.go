@@ -98,7 +98,7 @@ func registerAccountRoutes(router *chi.Mux, ctx context.Context, api *account_v1
 		})
 		r.Group(func(r chi.Router) {
 			r.Use(mw.jwt.Handle)
-			r.Use(mw.userRateLimit)
+			// TODO: для нагрузочного тестирования user rate limit отключён; перед продом вернуть: r.Use(mw.userRateLimit)
 			registerAccountPrivateGroup(r, ctx, api, teamAPI, taskAPI)
 		})
 	})

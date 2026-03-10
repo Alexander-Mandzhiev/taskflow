@@ -13,7 +13,7 @@ import (
 
 func (s *AdapterSuite) TestTeamTaskStats_Success() {
 	since := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	stats := []*model.TeamTaskStats{
+	stats := []model.TeamTaskStats{
 		{
 			TeamID:         uuid.MustParse("550e8400-e29b-41d4-a716-446655440001"),
 			TeamName:       "Team A",
@@ -39,7 +39,7 @@ func (s *AdapterSuite) TestTeamTaskStats_Empty() {
 	since := time.Now()
 
 	s.reportReader.On("TeamTaskStats", mock.Anything, mock.Anything, since).
-		Return([]*model.TeamTaskStats{}, nil).Once()
+		Return([]model.TeamTaskStats{}, nil).Once()
 
 	got, err := s.repo.TeamTaskStats(s.ctx, nil, since)
 
@@ -53,7 +53,7 @@ func (s *AdapterSuite) TestTeamTaskStats_WithTx_ReaderError() {
 	since := time.Now()
 
 	s.reportReader.On("TeamTaskStats", mock.Anything, tx, since).
-		Return(([]*model.TeamTaskStats)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.repo.TeamTaskStats(s.ctx, tx, since)
 

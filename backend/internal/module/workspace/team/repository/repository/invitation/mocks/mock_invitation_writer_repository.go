@@ -25,7 +25,7 @@ func (_m *InvitationWriterRepository) EXPECT() *InvitationWriterRepository_Expec
 }
 
 // Create provides a mock function with given fields: ctx, tx, inv
-func (_m *InvitationWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, inv *model.TeamInvitation) error {
+func (_m *InvitationWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, inv model.TeamInvitation) error {
 	ret := _m.Called(ctx, tx, inv)
 
 	if len(ret) == 0 {
@@ -33,7 +33,7 @@ func (_m *InvitationWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, i
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TeamInvitation) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TeamInvitation) error); ok {
 		r0 = rf(ctx, tx, inv)
 	} else {
 		r0 = ret.Error(0)
@@ -50,14 +50,14 @@ type InvitationWriterRepository_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - tx *sqlx.Tx
-//   - inv *model.TeamInvitation
+//   - inv model.TeamInvitation
 func (_e *InvitationWriterRepository_Expecter) Create(ctx interface{}, tx interface{}, inv interface{}) *InvitationWriterRepository_Create_Call {
 	return &InvitationWriterRepository_Create_Call{Call: _e.mock.On("Create", ctx, tx, inv)}
 }
 
-func (_c *InvitationWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, inv *model.TeamInvitation)) *InvitationWriterRepository_Create_Call {
+func (_c *InvitationWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, inv model.TeamInvitation)) *InvitationWriterRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(*model.TeamInvitation))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(model.TeamInvitation))
 	})
 	return _c
 }
@@ -67,7 +67,7 @@ func (_c *InvitationWriterRepository_Create_Call) Return(_a0 error) *InvitationW
 	return _c
 }
 
-func (_c *InvitationWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, *model.TeamInvitation) error) *InvitationWriterRepository_Create_Call {
+func (_c *InvitationWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, model.TeamInvitation) error) *InvitationWriterRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

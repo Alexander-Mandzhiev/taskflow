@@ -16,7 +16,7 @@ import (
 
 // selectByID читает полную строку пользователя по ID внутри текущей транзакции.
 // Используется в Create и Update для возврата сохранённой сущности (MySQL не поддерживает RETURNING).
-func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (*model.User, error) {
+func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (model.User, error) {
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Question).
 		Select("id", "email", "name", "password_hash", "created_at", "updated_at", "deleted_at").
 		From("users").
@@ -25,20 +25,20 @@ func (r *repository) selectByID(ctx context.Context, tx *sqlx.Tx, id string) (*m
 		Limit(1).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build select query: %w", err)
+		return model.User{}, fmt.Errorf("build select query: %w", err)
 	}
 
 	var row resources.UserRow
 	if err := tx.GetContext(ctx, &row, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, model.ErrUserNotFound
+			return model.User{}, model.ErrUserNotFound
 		}
-		return nil, toDomainError(err)
+		return model.User{}, toDomainError(err)
 	}
 
 	user, err := converter.ToDomainUser(row)
 	if err != nil {
-		return nil, err
+		return model.User{}, err
 	}
-	return &user, nil
+	return user, nil
 }

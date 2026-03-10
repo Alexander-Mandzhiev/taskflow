@@ -13,7 +13,7 @@ import (
 func (s *ServiceSuite) TestGetMember_Success() {
 	teamID := uuid.New()
 	userID := uuid.New()
-	want := &model.TeamMember{
+	want := model.TeamMember{
 		ID:        uuid.New(),
 		UserID:    userID,
 		TeamID:    teamID,
@@ -34,12 +34,12 @@ func (s *ServiceSuite) TestGetMember_NotFound() {
 	teamID := uuid.New()
 	userID := uuid.New()
 
-	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return((*model.TeamMember)(nil), model.ErrMemberNotFound).Once()
+	s.memberRepo.On("GetMember", mock.Anything, mock.Anything, teamID, userID).Return(model.TeamMember{}, model.ErrMemberNotFound).Once()
 
 	got, err := s.svc.GetMember(s.ctx, teamID, userID)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrMemberNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.TeamMember{}, got)
 	s.memberRepo.AssertExpectations(s.T())
 }

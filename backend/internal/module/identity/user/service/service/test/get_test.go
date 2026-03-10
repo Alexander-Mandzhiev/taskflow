@@ -10,7 +10,7 @@ import (
 
 func (s *ServiceSuite) TestGetByID_Success() {
 	id := uuid.New().String()
-	want := &model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
+	want := model.User{ID: uuid.MustParse(id), Email: "u@ex.com", Name: "User"}
 
 	s.repo.On("GetByID", mock.Anything, mock.Anything, id).
 		Return(want, nil).Once()
@@ -26,19 +26,19 @@ func (s *ServiceSuite) TestGetByID_Error() {
 	id := uuid.New().String()
 
 	s.repo.On("GetByID", mock.Anything, mock.Anything, id).
-		Return((*model.User)(nil), model.ErrUserNotFound).Once()
+		Return(model.User{}, model.ErrUserNotFound).Once()
 
 	got, err := s.svc.GetByID(s.ctx, id)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrUserNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.User{}, got)
 	s.repo.AssertExpectations(s.T())
 }
 
 func (s *ServiceSuite) TestGetByEmail_Success() {
 	email := "u@ex.com"
-	want := &model.User{ID: uuid.New(), Email: email, Name: "User"}
+	want := model.User{ID: uuid.New(), Email: email, Name: "User"}
 
 	s.repo.On("GetByEmail", mock.Anything, mock.Anything, email).
 		Return(want, nil).Once()
@@ -54,12 +54,12 @@ func (s *ServiceSuite) TestGetByEmail_Error() {
 	email := "missing@ex.com"
 
 	s.repo.On("GetByEmail", mock.Anything, mock.Anything, email).
-		Return((*model.User)(nil), model.ErrUserNotFound).Once()
+		Return(model.User{}, model.ErrUserNotFound).Once()
 
 	got, err := s.svc.GetByEmail(s.ctx, email)
 
 	assert.Error(s.T(), err)
 	assert.ErrorIs(s.T(), err, model.ErrUserNotFound)
-	assert.Nil(s.T(), got)
+	assert.Equal(s.T(), model.User{}, got)
 	s.repo.AssertExpectations(s.T())
 }

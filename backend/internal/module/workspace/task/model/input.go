@@ -2,18 +2,6 @@ package model
 
 import "github.com/google/uuid"
 
-// ValidateTaskInput проверяет допустимость полей input. Если задан статус — он должен быть todo, in_progress или done.
-// Вызывается в сервисе при Create и Update. Возвращает ErrInvalidStatus при недопустимом статусе.
-func ValidateTaskInput(input *TaskInput) error {
-	if input == nil {
-		return nil
-	}
-	if input.Status != "" && !IsValidTaskStatus(input.Status) {
-		return ErrInvalidStatus
-	}
-	return nil
-}
-
 // TaskInput — единая модель для создания и обновления задачи (тело запроса).
 // Create: teamID передаётся в сигнатуре. Update: taskID передаётся в сигнатуре.
 // AssigneeID — опционально (nil = не назначен / снять исполнителя). Status по умолчанию todo — в сервисе при необходимости.

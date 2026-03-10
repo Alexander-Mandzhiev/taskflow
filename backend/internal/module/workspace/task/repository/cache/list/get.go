@@ -12,10 +12,7 @@ import (
 )
 
 // Get возвращает закешированную страницу. При промахе или ошибке парсинга — (nil, nil).
-func (r *Repository) Get(ctx context.Context, teamID uuid.UUID, filter *model.TaskListFilter) (*resources.TaskListPageCache, error) {
-	if filter == nil {
-		return nil, nil
-	}
+func (r *Repository) Get(ctx context.Context, teamID uuid.UUID, filter model.TaskListFilter) (*resources.TaskListPageCache, error) {
 	key := Key(teamID, filter)
 	data, err := r.redis.Get(ctx, key)
 	if err != nil {

@@ -14,7 +14,7 @@ import (
 func (s *AdapterSuite) TestTopCreatorsByTeam_Success() {
 	since := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
 	limit := 5
-	creators := []*model.TeamTopCreator{
+	creators := []model.TeamTopCreator{
 		{
 			TeamID:       uuid.MustParse("550e8400-e29b-41d4-a716-446655440001"),
 			UserID:       uuid.MustParse("660e8400-e29b-41d4-a716-446655440002"),
@@ -40,7 +40,7 @@ func (s *AdapterSuite) TestTopCreatorsByTeam_Empty() {
 	limit := 3
 
 	s.reportReader.On("TopCreatorsByTeam", mock.Anything, mock.Anything, since, limit).
-		Return([]*model.TeamTopCreator{}, nil).Once()
+		Return([]model.TeamTopCreator{}, nil).Once()
 
 	got, err := s.repo.TopCreatorsByTeam(s.ctx, nil, since, limit)
 
@@ -54,7 +54,7 @@ func (s *AdapterSuite) TestTopCreatorsByTeam_ReaderError() {
 	limit := 10
 
 	s.reportReader.On("TopCreatorsByTeam", mock.Anything, mock.Anything, since, limit).
-		Return(([]*model.TeamTopCreator)(nil), assert.AnError).Once()
+		Return(nil, assert.AnError).Once()
 
 	got, err := s.repo.TopCreatorsByTeam(s.ctx, nil, since, limit)
 

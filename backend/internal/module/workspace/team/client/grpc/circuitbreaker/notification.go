@@ -75,7 +75,7 @@ func DefaultNotificationCBSettings() gobreaker.Settings {
 
 // NotifyInvitation выполняет вызов inner.NotifyInvitation через circuit breaker.
 // Если breaker в состоянии Open, вызов не выполняется и возвращается ошибка.
-func (w *NotificationWithCircuitBreaker) NotifyInvitation(ctx context.Context, inv *model.TeamInvitation, teamName, inviterName string) error {
+func (w *NotificationWithCircuitBreaker) NotifyInvitation(ctx context.Context, inv model.TeamInvitation, teamName, inviterName string) error {
 	_, err := w.cb.Execute(func() (struct{}, error) {
 		return struct{}{}, w.inner.NotifyInvitation(ctx, inv, teamName, inviterName)
 	})

@@ -27,27 +27,25 @@ func (_m *TeamWriterRepository) EXPECT() *TeamWriterRepository_Expecter {
 }
 
 // Create provides a mock function with given fields: ctx, tx, input, createdBy
-func (_m *TeamWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, input *model.TeamInput, createdBy uuid.UUID) (*model.Team, error) {
+func (_m *TeamWriterRepository) Create(ctx context.Context, tx *sqlx.Tx, input model.TeamInput, createdBy uuid.UUID) (model.Team, error) {
 	ret := _m.Called(ctx, tx, input, createdBy)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 *model.Team
+	var r0 model.Team
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TeamInput, uuid.UUID) (*model.Team, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TeamInput, uuid.UUID) (model.Team, error)); ok {
 		return rf(ctx, tx, input, createdBy)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, *model.TeamInput, uuid.UUID) *model.Team); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *sqlx.Tx, model.TeamInput, uuid.UUID) model.Team); ok {
 		r0 = rf(ctx, tx, input, createdBy)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.Team)
-		}
+		r0 = ret.Get(0).(model.Team)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, *model.TeamInput, uuid.UUID) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *sqlx.Tx, model.TeamInput, uuid.UUID) error); ok {
 		r1 = rf(ctx, tx, input, createdBy)
 	} else {
 		r1 = ret.Error(1)
@@ -64,25 +62,25 @@ type TeamWriterRepository_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - tx *sqlx.Tx
-//   - input *model.TeamInput
+//   - input model.TeamInput
 //   - createdBy uuid.UUID
 func (_e *TeamWriterRepository_Expecter) Create(ctx interface{}, tx interface{}, input interface{}, createdBy interface{}) *TeamWriterRepository_Create_Call {
 	return &TeamWriterRepository_Create_Call{Call: _e.mock.On("Create", ctx, tx, input, createdBy)}
 }
 
-func (_c *TeamWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, input *model.TeamInput, createdBy uuid.UUID)) *TeamWriterRepository_Create_Call {
+func (_c *TeamWriterRepository_Create_Call) Run(run func(ctx context.Context, tx *sqlx.Tx, input model.TeamInput, createdBy uuid.UUID)) *TeamWriterRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(*model.TeamInput), args[3].(uuid.UUID))
+		run(args[0].(context.Context), args[1].(*sqlx.Tx), args[2].(model.TeamInput), args[3].(uuid.UUID))
 	})
 	return _c
 }
 
-func (_c *TeamWriterRepository_Create_Call) Return(_a0 *model.Team, _a1 error) *TeamWriterRepository_Create_Call {
+func (_c *TeamWriterRepository_Create_Call) Return(_a0 model.Team, _a1 error) *TeamWriterRepository_Create_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *TeamWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, *model.TeamInput, uuid.UUID) (*model.Team, error)) *TeamWriterRepository_Create_Call {
+func (_c *TeamWriterRepository_Create_Call) RunAndReturn(run func(context.Context, *sqlx.Tx, model.TeamInput, uuid.UUID) (model.Team, error)) *TeamWriterRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

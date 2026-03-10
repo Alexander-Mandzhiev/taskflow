@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
@@ -10,11 +11,11 @@ import (
 
 func (s *ServiceSuite) TestRegister_Success() {
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "newuser@example.com").
-		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
-	s.userRepo.On("Create", mock.Anything, mock.Anything, mock.MatchedBy(func(in *usermodel.UserInput) bool {
-		return in != nil && in.Email == "newuser@example.com" && in.Name == "New User"
+		Return(usermodel.User{}, usermodel.ErrUserNotFound).Once()
+	s.userRepo.On("Create", mock.Anything, mock.Anything, mock.MatchedBy(func(in usermodel.UserInput) bool {
+		return in.Email == "newuser@example.com" && in.Name == "New User"
 	}), mock.AnythingOfType("string")).
-		Return(&usermodel.User{}, nil).Once()
+		Return(usermodel.User{}, nil).Once()
 
 	err := s.svc.Register(s.ctx, accountmodel.RegisterInput{Email: "newuser@example.com", Password: "password123", Name: "New User"})
 
@@ -23,7 +24,7 @@ func (s *ServiceSuite) TestRegister_Success() {
 }
 
 func (s *ServiceSuite) TestRegister_EmailDuplicate() {
-	existing := &usermodel.User{Email: "existing@example.com"}
+	existing := usermodel.User{ID: uuid.New(), Email: "existing@example.com"}
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "existing@example.com").
 		Return(existing, nil).Once()
 
@@ -36,9 +37,9 @@ func (s *ServiceSuite) TestRegister_EmailDuplicate() {
 
 func (s *ServiceSuite) TestRegister_CreateReturnsDuplicate() {
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "race@example.com").
-		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
+		Return(usermodel.User{}, usermodel.ErrUserNotFound).Once()
 	s.userRepo.On("Create", mock.Anything, mock.Anything, mock.Anything, mock.AnythingOfType("string")).
-		Return((*usermodel.User)(nil), usermodel.ErrEmailDuplicate).Once()
+		Return(usermodel.User{}, usermodel.ErrEmailDuplicate).Once()
 
 	err := s.svc.Register(s.ctx, accountmodel.RegisterInput{Email: "race@example.com", Password: "password123", Name: "User"})
 
@@ -49,9 +50,9 @@ func (s *ServiceSuite) TestRegister_CreateReturnsDuplicate() {
 
 func (s *ServiceSuite) TestRegister_CreateError() {
 	s.userRepo.On("GetByEmail", mock.Anything, mock.Anything, "user@example.com").
-		Return((*usermodel.User)(nil), usermodel.ErrUserNotFound).Once()
+		Return(usermodel.User{}, usermodel.ErrUserNotFound).Once()
 	s.userRepo.On("Create", mock.Anything, mock.Anything, mock.Anything, mock.AnythingOfType("string")).
-		Return((*usermodel.User)(nil), assert.AnError).Once()
+		Return(usermodel.User{}, assert.AnError).Once()
 
 	err := s.svc.Register(s.ctx, accountmodel.RegisterInput{Email: "user@example.com", Password: "password123", Name: "User"})
 

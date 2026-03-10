@@ -14,7 +14,7 @@ import (
 
 // Create создаёт запись в teams. createdBy — user_id создателя.
 // UUID генерируется в Go; created_at/updated_at проставляются MySQL.
-func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, input *model.TeamInput, createdBy uuid.UUID) (*model.Team, error) {
+func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, input model.TeamInput, createdBy uuid.UUID) (model.Team, error) {
 	in := converter.ToRepoTeamInput(input)
 	id := uuid.New().String()
 
@@ -24,12 +24,12 @@ func (r *repository) Create(ctx context.Context, tx *sqlx.Tx, input *model.TeamI
 		Values(id, in.Name, createdBy.String()).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("build create query: %w", err)
+		return model.Team{}, fmt.Errorf("build create query: %w", err)
 	}
 
 	_, err = tx.ExecContext(ctx, query, args...)
 	if err != nil {
-		return nil, toDomainError(err)
+		return model.Team{}, toDomainError(err)
 	}
 
 	return r.selectByID(ctx, tx, id)

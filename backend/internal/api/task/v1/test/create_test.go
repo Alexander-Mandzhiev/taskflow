@@ -25,7 +25,7 @@ func (s *APISuite) TestCreate_Success() {
 		"status":      model.TaskStatusTodo,
 	})
 	userID := uuid.MustParse(testUserID)
-	created := &model.Task{
+	created := model.Task{
 		ID:          uuid.New(),
 		Title:       "New Task",
 		Description: "Description",
@@ -36,8 +36,8 @@ func (s *APISuite) TestCreate_Success() {
 		UpdatedAt:   time.Now(),
 	}
 
-	s.taskService.On("Create", mock.Anything, userID, uuid.MustParse(teamID), mock.MatchedBy(func(in *model.TaskInput) bool {
-		return in != nil && in.Title == "New Task" && in.Description == "Description" && in.Status == model.TaskStatusTodo
+	s.taskService.On("Create", mock.Anything, userID, uuid.MustParse(teamID), mock.MatchedBy(func(in model.TaskInput) bool {
+		return in.Title == "New Task" && in.Description == "Description" && in.Status == model.TaskStatusTodo
 	})).Return(created, nil).Once()
 
 	r := chi.NewRouter()
@@ -123,7 +123,7 @@ func (s *APISuite) TestCreate_InternalError() {
 	teamID := uuid.New().String()
 	body, _ := json.Marshal(map[string]string{"team_id": teamID, "title": "Task"})
 	s.taskService.On("Create", mock.Anything, uuid.MustParse(testUserID), uuid.MustParse(teamID), mock.Anything).
-		Return(nil, assert.AnError).Once()
+		Return(model.Task{}, assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Post("/tasks", s.api.Create)

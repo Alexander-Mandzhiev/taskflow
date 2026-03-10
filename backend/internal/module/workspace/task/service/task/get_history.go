@@ -13,8 +13,8 @@ import (
 	"github.com/Alexander-Mandzhiev/taskflow/backend/pkg/logger"
 )
 
-func (s *taskService) GetHistory(ctx context.Context, taskID, userID uuid.UUID) ([]*model.TaskHistory, error) {
-	var history []*model.TaskHistory
+func (s *taskService) GetHistory(ctx context.Context, taskID, userID uuid.UUID) ([]model.TaskHistory, error) {
+	var history []model.TaskHistory
 	if err := s.txManager.WithTx(ctx, func(ctx context.Context, tx *sqlx.Tx) error {
 		task, errTx := s.taskRepo.GetByID(ctx, tx, taskID)
 		if errTx != nil {

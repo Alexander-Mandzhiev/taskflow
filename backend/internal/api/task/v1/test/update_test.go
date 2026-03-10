@@ -24,7 +24,7 @@ func (s *APISuite) TestUpdate_Success() {
 		"description": "Updated desc",
 		"status":      model.TaskStatusInProgress,
 	})
-	updated := &model.Task{
+	updated := model.Task{
 		ID:          taskID,
 		Title:       "Updated Title",
 		Description: "Updated desc",
@@ -35,8 +35,8 @@ func (s *APISuite) TestUpdate_Success() {
 		UpdatedAt:   time.Now(),
 	}
 
-	s.taskService.On("Update", mock.Anything, userID, taskID, mock.MatchedBy(func(in *model.TaskInput) bool {
-		return in != nil && in.Title == "Updated Title" && in.Status == model.TaskStatusInProgress
+	s.taskService.On("Update", mock.Anything, userID, taskID, mock.MatchedBy(func(in model.TaskInput) bool {
+		return in.Title == "Updated Title" && in.Status == model.TaskStatusInProgress
 	})).Return(updated, nil).Once()
 
 	r := chi.NewRouter()
@@ -104,7 +104,7 @@ func (s *APISuite) TestUpdate_NotFound() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
 	body, _ := json.Marshal(map[string]string{"title": "T", "description": "", "status": model.TaskStatusTodo})
-	s.taskService.On("Update", mock.Anything, userID, taskID, mock.Anything).Return(nil, model.ErrTaskNotFound).Once()
+	s.taskService.On("Update", mock.Anything, userID, taskID, mock.Anything).Return(model.Task{}, model.ErrTaskNotFound).Once()
 
 	r := chi.NewRouter()
 	r.Put("/tasks/{id}", s.api.Update)
@@ -123,7 +123,7 @@ func (s *APISuite) TestUpdate_InternalError() {
 	taskID := uuid.MustParse(testTaskID)
 	userID := uuid.MustParse(testUserID)
 	body, _ := json.Marshal(map[string]string{"title": "T", "description": "", "status": model.TaskStatusTodo})
-	s.taskService.On("Update", mock.Anything, userID, taskID, mock.Anything).Return(nil, assert.AnError).Once()
+	s.taskService.On("Update", mock.Anything, userID, taskID, mock.Anything).Return(model.Task{}, assert.AnError).Once()
 
 	r := chi.NewRouter()
 	r.Put("/tasks/{id}", s.api.Update)

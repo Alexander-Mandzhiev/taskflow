@@ -12,7 +12,7 @@ import (
 )
 
 func (s *AdapterSuite) TestCreateInvitation_Success() {
-	inv := &model.TeamInvitation{
+	inv := model.TeamInvitation{
 		TeamID:    uuid.New(),
 		Email:     "user@example.com",
 		Token:     "token123",
@@ -31,7 +31,7 @@ func (s *AdapterSuite) TestCreateInvitation_Success() {
 
 func (s *AdapterSuite) TestCreateInvitation_WithTx() {
 	tx := &sqlx.Tx{}
-	inv := &model.TeamInvitation{
+	inv := model.TeamInvitation{
 		TeamID: uuid.New(),
 		Email:  "a@b.com",
 		Token:  "t",
@@ -48,7 +48,7 @@ func (s *AdapterSuite) TestCreateInvitation_WithTx() {
 }
 
 func (s *AdapterSuite) TestCreateInvitation_WriterError() {
-	inv := &model.TeamInvitation{TeamID: uuid.New(), Email: "x@y.com", Status: model.InvitationStatusPending}
+	inv := model.TeamInvitation{TeamID: uuid.New(), Email: "x@y.com", Status: model.InvitationStatusPending}
 
 	s.invitationWriter.On("Create", mock.Anything, mock.Anything, inv).
 		Return(assert.AnError).Once()

@@ -34,7 +34,7 @@ func defaultConfig() rawConfig {
 		Timeout:           30 * time.Second,
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,
-		WriteTimeout:      15 * time.Second,
+		WriteTimeout:      60 * time.Second,
 		IdleTimeout:       60 * time.Second,
 		MaxHeaderBytes:    1 << 20, // 1 MiB
 		ShutdownTimeout:   10 * time.Second,

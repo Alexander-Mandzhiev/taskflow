@@ -13,7 +13,7 @@ import (
 )
 
 // TopCreatorsByTeam возвращает топ-N пользователей по количеству созданных задач в каждой команде за период (MySQL 8+ ROW_NUMBER).
-func (r *repository) TopCreatorsByTeam(ctx context.Context, tx *sqlx.Tx, since time.Time, limit int) ([]*model.TeamTopCreator, error) {
+func (r *repository) TopCreatorsByTeam(ctx context.Context, tx *sqlx.Tx, since time.Time, limit int) ([]model.TeamTopCreator, error) {
 	if limit <= 0 {
 		limit = 3
 	}
@@ -42,13 +42,13 @@ func (r *repository) TopCreatorsByTeam(ctx context.Context, tx *sqlx.Tx, since t
 		}
 	}
 
-	out := make([]*model.TeamTopCreator, 0, len(rows))
+	out := make([]model.TeamTopCreator, 0, len(rows))
 	for i := range rows {
 		item, err := converter.ToTeamTopCreator(rows[i])
 		if err != nil {
 			return nil, fmt.Errorf("convert row %d: %w", i, err)
 		}
-		out = append(out, &item)
+		out = append(out, item)
 	}
 	return out, nil
 }
